@@ -43,6 +43,7 @@ namespace CurrencyTrackerServer
             services.AddMvc();
             services.AddWebSocketManager();
 
+            services.AddTransient<BittrexContext>();
             services.AddSingleton<NotificationsMessageHandler>();
             services.AddSingleton<IBittrexService, BittrexService>();
             services.AddSingleton<BittrexWorker>();
