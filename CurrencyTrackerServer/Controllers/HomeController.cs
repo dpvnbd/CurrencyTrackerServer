@@ -19,20 +19,19 @@ namespace CurrencyTrackerServer.Controllers
         private readonly BittrexWorker _worker;
         private readonly IBittrexService _service;
         private readonly NotificationsMessageHandler _notifications;
-        private BittrexSettingsViewModel _settings;
 
         public HomeController(BittrexWorker worker, IBittrexService service, NotificationsMessageHandler notifications)
         {
-            _settings = LoadSettings();
-            service.AutoResetHours = _settings.ResetHours;
+            var settings = LoadSettings();
+            service.AutoResetHours = settings.ResetHours;
             //service.AutoResetHours = optionsAccessor.Value.ResetHours;
             _worker = worker;
             _service = service;
             _notifications = notifications;
-            worker.Period = _settings.Period;
+            worker.Period = settings.Period;
             worker.ChangeOverTime = true;
             worker.ChangeInterval = TimeSpan.FromMinutes(2);
-            worker.Percentage = _settings.Percentage;
+            worker.Percentage = settings.Percentage;
         }
 
 
@@ -90,7 +89,7 @@ namespace CurrencyTrackerServer.Controllers
             {
                 return BadRequest(ModelState.Values);
             }
-            _settings = settings;
+            SaveSettings(settings);
             _worker.Period = settings.Period;
             _worker.Percentage = settings.Percentage;
             _service.AutoResetHours = settings.ResetHours;
@@ -100,7 +99,6 @@ namespace CurrencyTrackerServer.Controllers
         [HttpGet]
         public ViewResult Settings()
         {
-           
             var settings = LoadSettings();
             return View(settings);
         }
@@ -108,7 +106,7 @@ namespace CurrencyTrackerServer.Controllers
         private static BittrexSettingsViewModel LoadSettings()
         {
             string settingsJson;
-            BittrexSettingsViewModel settings;
+            BittrexSettingsViewModel settings = null;
 
             if (System.IO.File.Exists("settings.bittrex.json"))
             {
@@ -120,13 +118,14 @@ namespace CurrencyTrackerServer.Controllers
                 {
                     settingsJson = null;
                 }
-                settings = JsonConvert.DeserializeObject<BittrexSettingsViewModel>(settingsJson) ??
-                           new BittrexSettingsViewModel();
+                settings = JsonConvert.DeserializeObject<BittrexSettingsViewModel>(settingsJson);
             }
-            else
+
+            if (settings == null)
             {
                 settings = new BittrexSettingsViewModel();
-            } 
+                SaveSettings(settings);
+            }
 
             return settings;
         }

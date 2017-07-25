@@ -115,6 +115,8 @@ namespace CurrencyTrackerServer.Services.Concrete
                     {
                         entity.Threshsold = c.Threshsold;
                         entity.ChangeTime = c.ChangeTime;
+                        entity.CurrentBid = c.CurrentBid;
+                        entity.PreviousDayBid = c.PreviousDayBid;
                     }
                     repo.Save();
 
