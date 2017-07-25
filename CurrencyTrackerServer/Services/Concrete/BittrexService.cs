@@ -14,7 +14,6 @@ namespace CurrencyTrackerServer.Services.Concrete
 {
     public class BittrexService : IBittrexService
     {
-        private IEnumerable<BittrexChange> _currencyChanges;
 
 
         public IEnumerable<BittrexChange> LoadChanges()
@@ -74,11 +73,13 @@ namespace CurrencyTrackerServer.Services.Concrete
         public IEnumerable<BittrexChange> LoadChangesGreaterThan(int percentage,
             bool changeOverTime, TimeSpan interval)
         {
+            
             var list = LoadChanges();
             var changed = new List<BittrexChange>(list.Where(c => c.ChangePercentage >= percentage));
             var now = DateTime.Now;
             using (var repo = new BittrexHistoryRepository(new BittrexContext()))
             {
+                repo.ResetHistoryIfOlderThan(AutoResetHours);
                 foreach (var c in changed.ToList())
                 {
                     var entity = repo.Find(c.Currency);
@@ -136,5 +137,7 @@ namespace CurrencyTrackerServer.Services.Concrete
 
             return changed;
         }
+
+        public double AutoResetHours { get; set; } = 24;
     }
 }

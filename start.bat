@@ -1,0 +1,2 @@
+cd CurrencyTrackerServer
+dotnet run

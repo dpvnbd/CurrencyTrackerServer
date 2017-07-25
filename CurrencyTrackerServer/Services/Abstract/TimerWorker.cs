@@ -8,9 +8,7 @@ namespace CurrencyTrackerServer.Services.Abstract
     public abstract class TimerWorker<TMessage>
     {
         private int _period;
-
-        public event EventHandler<TMessage> Message;
-        public event EventHandler<string> InfoMessage;
+        
 
         private Timer _timer;
         private bool _enabled;
@@ -18,7 +16,8 @@ namespace CurrencyTrackerServer.Services.Abstract
         public TimerWorker(int period)
         {
             _period = period;
-            _timer = new Timer(TimerTick, null, Timeout.Infinite, Timeout.Infinite);
+            _enabled = true;
+            _timer = new Timer(TimerTick, null, period, Timeout.Infinite);
         }
 
         public bool Enabled
@@ -29,7 +28,7 @@ namespace CurrencyTrackerServer.Services.Abstract
                 _enabled = value;
                 if (!_enabled)
                 {
-                    _timer.Change(-1, -1);
+                    _timer.Change(Timeout.Infinite, Timeout.Infinite);
                 }
                 else
                 {
@@ -54,23 +53,5 @@ namespace CurrencyTrackerServer.Services.Abstract
         }
 
         protected abstract void DoWork();
-
-        protected virtual void SendMessage(TMessage model)
-        {
-            // Make a temporary copy of the event to avoid possibility of
-            // a race condition if the last subscriber unsubscribes
-            // immediately after the null check and before the event is raised.
-            var handler = Message;
-            handler?.Invoke(this, model);
-        }
-
-        protected virtual void SendMessage(string message)
-        {
-            // Make a temporary copy of the event to avoid possibility of
-            // a race condition if the last subscriber unsubscribes
-            // immediately after the null check and before the event is raised.
-            var handler = InfoMessage;
-            handler?.Invoke(this, message);
-        }
     }
 }

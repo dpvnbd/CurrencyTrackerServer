@@ -6,6 +6,7 @@ using CurrencyTrackerServer.Data;
 using CurrencyTrackerServer.Infrastructure;
 using CurrencyTrackerServer.Infrastructure.Abstract;
 using CurrencyTrackerServer.Infrastructure.Concrete;
+using CurrencyTrackerServer.Infrastructure.Entities;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
@@ -14,6 +15,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using CurrencyTrackerServer.Services.Abstract;
 using CurrencyTrackerServer.Services.Concrete;
+using Newtonsoft.Json;
 
 namespace CurrencyTrackerServer
 {
@@ -35,15 +37,19 @@ namespace CurrencyTrackerServer
         public void ConfigureServices(IServiceCollection services)
         {
             // Add framework services.
+            services.Configure<BittrexSettingsViewModel>(Configuration);
+
             services.AddMvc();
             services.AddWebSocketManager();
+
+            services.AddSingleton<NotificationsMessageHandler>();
             services.AddSingleton<IBittrexService, BittrexService>();
             services.AddSingleton<BittrexWorker>();
-
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IServiceProvider serviceProvider, IHostingEnvironment env, ILoggerFactory loggerFactory)
+        public void Configure(IApplicationBuilder app, IServiceProvider serviceProvider, IHostingEnvironment env,
+            ILoggerFactory loggerFactory)
         {
             loggerFactory.AddConsole(Configuration.GetSection("Logging"));
             loggerFactory.AddDebug();
@@ -68,9 +74,6 @@ namespace CurrencyTrackerServer
                     template: "{controller=Home}/{action=Index}/{id?}");
             });
             app.MapWebSocketManager("/notifications", serviceProvider.GetService<NotificationsMessageHandler>());
-
         }
-
-
     }
 }

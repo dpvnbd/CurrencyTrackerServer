@@ -7,7 +7,9 @@ namespace CurrencyTrackerServer.Services.Abstract
 {
     public interface IBittrexService
     {
-       IEnumerable<BittrexChange> LoadChanges();
+        double AutoResetHours { get; set; }
+
+        IEnumerable<BittrexChange> LoadChanges();
         IEnumerable<BittrexChange> LoadChangesGreaterThan(int percentage);
 
         IEnumerable<BittrexChange> LoadChangesGreaterThan(int percentage, bool changeOverTime,

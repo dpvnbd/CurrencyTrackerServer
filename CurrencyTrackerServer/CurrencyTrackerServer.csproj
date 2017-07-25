@@ -6,6 +6,8 @@
 
   <PropertyGroup>
     <PackageTargetFallback>$(PackageTargetFallback);portable-net45+win8+wp8+wpa81;</PackageTargetFallback>
+    <RuntimeIdentifiers>win10-x64;osx.10.11-x64;win7-x64</RuntimeIdentifiers>
+
   </PropertyGroup>
 
   <ItemGroup>
@@ -19,8 +21,11 @@
     <PackageReference Include="Microsoft.AspNetCore.WebSockets" Version="1.0.2" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="1.1.2" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="1.1.2" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="1.1.2" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer.Design" Version="1.1.2" />
     <PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="1.1.2" />
     <PackageReference Include="Microsoft.VisualStudio.Web.BrowserLink" Version="1.1.2" />
+    <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="1.1.1" />
   </ItemGroup>
   <ItemGroup>
     <DotNetCliToolReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Tools" Version="1.0.1" />

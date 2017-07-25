@@ -48,10 +48,18 @@ namespace CurrencyTrackerServer.Infrastructure.Abstract
 
         public async Task SendMessageToAllAsync(string message)
         {
-            foreach (var pair in WebSocketConnectionManager.GetAll())
+            try
             {
-                if (pair.Value.State == WebSocketState.Open)
-                    await SendMessageAsync(pair.Value, message);
+                foreach (var pair in WebSocketConnectionManager.GetAll())
+                {
+                    if (pair.Value.State == WebSocketState.Open)
+                        await SendMessageAsync(pair.Value, message);
+                }
+            }
+            catch (Exception e)
+            {
+
+                Console.WriteLine(e.Message);
             }
         }
 

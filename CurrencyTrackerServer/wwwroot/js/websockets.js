@@ -1,69 +1,97 @@
 ﻿var uri = "ws://" + window.location.host + "/notifications";
 var table = document.getElementById("currenciesTable");
+var firstTime = true;
+var connected = false;
+var socket;
 
 function connect() {
-    var socket = new WebSocket(uri);
+    socket = new WebSocket(uri);
     socket.onopen = function(event) {
-        console.log("opened connection to " + uri);
+        connected = true;
+        appendItems(table, { info: true, text: "Соединено с сервером" });
+        $("#connectionButton").text("Отключиться").attr("class", "btn btn-success");
+
+
     };
     socket.onclose = function(event) {
-        console.log("closed connection from " + uri);
+        connected = false;
+        appendItems(table, { info: true, text: "Разорвано соединение с сервером" });
+        $("#connectionButton").text("Подключиться").attr("class", "btn btn-danger");
     };
     socket.onmessage = function(event) {
         appendItems(table, event.data);
     };
     socket.onerror = function(event) {
         console.log("error: " + event.data);
+        appendItems(table, { info: true, text: "Ошибка: " + event.data });
+
     };
 }
 
 connect();
 
-function Reset(parameters) {
-    $.post("Home/Reset");
-};
+function connectClick() {
+    if (connected) {
+        socket.close();
+    } else {
+        connect();
+    }
+}
 
-
-function appendItems(table, currencies) {
-
-    var arr = JSON.parse(currencies.replace(/&quot;/g, '"'));
-
+function appendItems(table, data) {
+    var arr;
+    if (typeof data == "string") {
+        arr = JSON.parse(data);
+    } else {
+        arr = data;
+    }
     if (arr.info != undefined) {
-        var today = new Date();
-        var h = today.getHours();
-        var m = today.getMinutes();
-        var s = today.getSeconds();
-        arr.text += " Клиент:" + h + ":" + m + ":" + s;
+
+        var time = timeFromDate(new Date());
         $("#currenciesTable").find('tbody')
             .append($('<tr>')
                 .append($('<td>')
-                    .attr('colspan', '3')
+                    .attr('colspan', '2')
                     .text(arr.text)
+                )
+                .append($('<td>')
+                    .text(time)
                 )
             );
 
     } else {
+        var speech = "";
+        $("tr").removeClass();
+
         for (var i = 0; i < arr.length; i++) {
+            speech += arr[i].Currency + ", ";
             var currency = arr[i];
             //var message = currency.Currency + " " + currency.ChangePercentage.toFixed(0) + "%";
             var date = new Date(currency.LastNotifiedChange);
-            var h = date.getHours();
-            var m = date.getMinutes();
-            var s = date.getSeconds(); 
-
-            h = h < 10 ? '0' : '' + h;
-            m = m < 10 ? '0' : '' + m;
-            s = s < 10 ? '0' : '' + s;
+            var time = timeFromDate(date);
 
             $("#currenciesTable").find('tbody')
                 .append($('<tr>')
+                    .attr("class", firstTime ? "" : "success")
                     .append($('<td>')
-                        .text(currency.Currency))
+                        .html("<a href='https://bittrex.com/Market/Index?MarketName=BTC-" + currency.Currency + "'>" +
+                            currency.Currency +
+                            "</a>"))
                     .append(($('<td>')
                         .text(currency.ChangePercentage.toFixed(0) + " %")))
                     .append(($('<td>')
-                        .text(h + ':' + m + ':' + s)))
+                        .text(time)))
                 );
         }
+
+        if (!firstTime) {
+            if (document.getElementById('speechCheckbox').checked) {
+                responsiveVoice.speak(speech);
+            }
+        } else {
+            firstTime = false;
+        }
     }
+    var n = $(document).height();
+    $('html, body').animate({ scrollTop: n }, 50);
 }

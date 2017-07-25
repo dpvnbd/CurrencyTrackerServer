@@ -3,17 +3,16 @@
     ViewData["Title"] = "Home Page";
 }
 
-
-<button class="btn btn-default" onclick="Reset()">Сброс</button>
-
 <table id="currenciesTable" class="table table-hover">
     <tbody></tbody>
 </table>
 
+<script src='https://code.responsivevoice.org/responsivevoice.js'></script>
 <script language="javascript" type="text/javascript" src="js/websockets.js"></script>
 
 <script language="javascript" type="text/javascript">
-    $(function() {
-        appendItems(table, '@Model');
+    $(function () {
+        
+        appendItems(table, '@Model'.replace(/&quot;/g, '"'));
     });
 </script>

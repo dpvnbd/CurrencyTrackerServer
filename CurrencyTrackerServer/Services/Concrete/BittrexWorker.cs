@@ -2,18 +2,24 @@
 using System.Collections.Generic;
 using System.Linq;
 using CurrencyTrackerServer.Infrastructure.Abstract;
+using CurrencyTrackerServer.Infrastructure.Concrete;
 using CurrencyTrackerServer.Infrastructure.Entities;
 using CurrencyTrackerServer.Services.Abstract;
+using Microsoft.Extensions.Options;
 
 namespace CurrencyTrackerServer.Services.Concrete
 {
-    public class BittrexWorker:TimerWorker<IEnumerable<BittrexChange>>
+    public class BittrexWorker : TimerWorker<IEnumerable<BittrexChange>>
     {
         private readonly IBittrexService _service;
+        private readonly NotificationsMessageHandler _notificationSender;
         private static object apiLock = new object();
-        public BittrexWorker(IBittrexService service, int period = 3000) : base(period)
+
+        public BittrexWorker(IBittrexService service, NotificationsMessageHandler notificationSender, int period = 5000)
+            : base(period)
         {
             _service = service;
+            _notificationSender = notificationSender;
         }
 
         public int Percentage { get; set; } = 10;
@@ -33,7 +39,7 @@ namespace CurrencyTrackerServer.Services.Concrete
                 }
                 catch (Exception e)
                 {
-                    SendMessage(e.Message);
+                    _notificationSender.SendInfoMessage(e.Message);
                     return;
                 }
 
@@ -42,8 +48,8 @@ namespace CurrencyTrackerServer.Services.Concrete
 
                 if (bittrexChanges != null && bittrexChanges.Any())
                 {
-                    SendMessage(bittrexChanges);
-                    SendMessage($"Запрос: {start:T} - {end:T}");
+                    _notificationSender.SendNotificationMessage(bittrexChanges);
+                    //_notificationSender.SendInfoMessage($"Запрос: {start:T} - {end:T}");
                 }
             }
         }
