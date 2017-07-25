@@ -15,6 +15,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using CurrencyTrackerServer.Services.Abstract;
 using CurrencyTrackerServer.Services.Concrete;
+using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
 
 namespace CurrencyTrackerServer
@@ -74,6 +75,12 @@ namespace CurrencyTrackerServer
                     template: "{controller=Home}/{action=Index}/{id?}");
             });
             app.MapWebSocketManager("/notifications", serviceProvider.GetService<NotificationsMessageHandler>());
+
+            using (var serviceScope = app.ApplicationServices.GetService<IServiceScopeFactory>().CreateScope())
+            {
+                var context = serviceScope.ServiceProvider.GetRequiredService<BittrexContext>();
+                context.Database.Migrate();
+            }
         }
     }
 }
