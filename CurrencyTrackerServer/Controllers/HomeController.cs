@@ -11,7 +11,7 @@ using CurrencyTrackerServer.Services.Concrete;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
-
+using CurrencyTrackerServer.Infrastructure.Abstract;
 namespace CurrencyTrackerServer.Controllers
 {
     public class HomeController : Controller
@@ -19,7 +19,7 @@ namespace CurrencyTrackerServer.Controllers
         private readonly BittrexWorker _worker;
         private readonly IBittrexService _service;
         private readonly NotificationsMessageHandler _notifications;
-
+        public IDataSource<string> dt;
         public HomeController(BittrexWorker worker, IBittrexService service, NotificationsMessageHandler notifications)
         {
             var settings = LoadSettings();

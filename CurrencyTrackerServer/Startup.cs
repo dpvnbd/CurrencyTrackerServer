@@ -45,7 +45,7 @@ namespace CurrencyTrackerServer
 
             services.AddTransient<BittrexContext>();
             services.AddSingleton<NotificationsMessageHandler>();
-            services.AddSingleton<IBittrexService, BittrexService>();
+            services.AddSingleton<IBittrexService, Services.Concrete.BittrexService>();
             services.AddSingleton<BittrexWorker>();
         }
 

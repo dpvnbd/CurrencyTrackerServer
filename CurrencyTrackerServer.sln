@@ -5,7 +5,14 @@ VisualStudioVersion = 15.0.26430.16
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CurrencyTrackerServer", "CurrencyTrackerServer\CurrencyTrackerServer.csproj", "{A9F7D998-9379-47D7-937F-536150F94B9F}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CurrecyTrackerServer.Tests", "CurrecyTrackerServer.Tests\CurrecyTrackerServer.Tests.csproj", "{6CA44328-EA74-43E5-9369-DFD4BA7104EE}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CurrencyTrackerServer.Infrastructure", "CurrencyTrackerServer.Infrastructure\CurrencyTrackerServer.Infrastructure.csproj", "{30C490B5-0E99-459E-BEF8-C2053E9F0EEA}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CurrencyTrackerServer.BittrexService", "CurrencyTrackerServer.BittrexService\CurrencyTrackerServer.BittrexService.csproj", "{261D4BE4-F697-469E-A81C-45CA3614F81E}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CurrencyTrackerServer.Tests", "CurrencyTrackerServer.Tests\CurrencyTrackerServer.Tests.csproj", "{71E566B0-5BFC-403B-B449-7C993A4A1B08}"
+	ProjectSection(ProjectDependencies) = postProject
+		{30C490B5-0E99-459E-BEF8-C2053E9F0EEA} = {30C490B5-0E99-459E-BEF8-C2053E9F0EEA}
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -17,10 +24,18 @@ Global
 		{A9F7D998-9379-47D7-937F-536150F94B9F}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{A9F7D998-9379-47D7-937F-536150F94B9F}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{A9F7D998-9379-47D7-937F-536150F94B9F}.Release|Any CPU.Build.0 = Release|Any CPU
-		{6CA44328-EA74-43E5-9369-DFD4BA7104EE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{6CA44328-EA74-43E5-9369-DFD4BA7104EE}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{6CA44328-EA74-43E5-9369-DFD4BA7104EE}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{6CA44328-EA74-43E5-9369-DFD4BA7104EE}.Release|Any CPU.Build.0 = Release|Any CPU
+		{30C490B5-0E99-459E-BEF8-C2053E9F0EEA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{30C490B5-0E99-459E-BEF8-C2053E9F0EEA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{30C490B5-0E99-459E-BEF8-C2053E9F0EEA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{30C490B5-0E99-459E-BEF8-C2053E9F0EEA}.Release|Any CPU.Build.0 = Release|Any CPU
+		{261D4BE4-F697-469E-A81C-45CA3614F81E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{261D4BE4-F697-469E-A81C-45CA3614F81E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{261D4BE4-F697-469E-A81C-45CA3614F81E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{261D4BE4-F697-469E-A81C-45CA3614F81E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{71E566B0-5BFC-403B-B449-7C993A4A1B08}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{71E566B0-5BFC-403B-B449-7C993A4A1B08}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{71E566B0-5BFC-403B-B449-7C993A4A1B08}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{71E566B0-5BFC-403B-B449-7C993A4A1B08}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
