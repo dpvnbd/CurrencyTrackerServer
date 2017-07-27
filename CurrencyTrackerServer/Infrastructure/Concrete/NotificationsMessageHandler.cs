@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net.WebSockets;
 using System.Threading.Tasks;
+using CurrencyTrackerServer.BittrexService.Entities;
 using CurrencyTrackerServer.Infrastructure.Abstract;
 using CurrencyTrackerServer.Infrastructure.Entities;
 using Newtonsoft.Json;
@@ -11,28 +12,25 @@ namespace CurrencyTrackerServer.Infrastructure.Concrete
 {
     public class NotificationsMessageHandler : WebSocketHandler
     {
-        public NotificationsMessageHandler(WebSocketConnectionManager webSocketConnectionManager) : base(webSocketConnectionManager)
+        public NotificationsMessageHandler(WebSocketConnectionManager webSocketConnectionManager) : base(
+            webSocketConnectionManager)
         {
         }
 
-        public  override Task ReceiveAsync(WebSocket socket, WebSocketReceiveResult result, byte[] buffer)
+        public override Task ReceiveAsync(WebSocket socket, WebSocketReceiveResult result, byte[] buffer)
         {
             throw new NotImplementedException();
         }
 
-        public async void SendInfoMessage(string s)
+        public override async Task SendNotificationMessage(IEnumerable<Change> changes)
         {
-            var message = new
-            {
-                info = true,
-                text = s
-            };
-            await SendMessageToAllAsync(JsonConvert.SerializeObject(message));
+            if(changes.Any())
+                await SendMessageToAllAsync(JsonConvert.SerializeObject(changes));
         }
 
-        public async void SendNotificationMessage(IEnumerable<BittrexChange> bittrexChanges)
+        public override async Task SendNotificationMessage(Change changes)
         {
-            await SendMessageToAllAsync(JsonConvert.SerializeObject(bittrexChanges));
+            await SendNotificationMessage(new List<Change>() {changes});
         }
     }
 }

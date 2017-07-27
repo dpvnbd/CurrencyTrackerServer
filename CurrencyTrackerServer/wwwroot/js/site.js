@@ -1,6 +1,8 @@
-﻿function Reset(parameters) {
-    $.post("Home/Reset");
-    $('#currenciesTable > tbody > tr').remove();
+﻿function Reset() {
+    $.post("Home/Reset").done(function() {
+        location.reload(true);
+    });
+
 
 };
 
