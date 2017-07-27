@@ -7,8 +7,9 @@ namespace CurrencyTrackerServer.Infrastructure.Abstract
 {
     public interface IChangeMonitor<TChanges>
     {
-        Task<TChanges> GetChanges(int percentage, TimeSpan multipleChangesSpan, bool multipleChanges = false);
-        Task<TChanges> GetHistory(int percentage, TimeSpan multipleChangesSpan, bool multipleChanges = false);
-        Task ResetChanges();
+        Task<TChanges> GetChanges(double percentage, TimeSpan multipleChangesSpan, bool multipleChanges = false);
+        TChanges GetHistory();
+        Task ResetAll();
+        Task ResetStates(TimeSpan olderThan);
     }
 }

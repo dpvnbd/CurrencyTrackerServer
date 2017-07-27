@@ -13,12 +13,7 @@ namespace CurrencyTrackerServer.BittrexService.Entities
         public string Currency { get; set; }
         public DateTime Time { get; set; }
         public double Percentage { get; set; }
-        public HistoryEntryType Type { get; set; }
+        public ChangeType Type { get; set; }
         public string Message { get; set; }
-    }
-
-    public enum HistoryEntryType
-    {
-        Currency, Error, Info
     }
 }

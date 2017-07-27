@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace CurrencyTrackerServer.BittrexService.Concrete
 {
-    internal class BittrexContext : DbContext
+    public class BittrexContext : DbContext
     {
         public DbSet<CurrencyStateEntity> States { get; set; }
         public DbSet<ChangeHistoryEntryEntity> History { get; set; }

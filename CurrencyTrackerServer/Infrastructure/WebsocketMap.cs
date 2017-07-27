@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
+using CurrencyTrackerServer.BittrexService.Entities;
 using CurrencyTrackerServer.Infrastructure.Abstract;
 using CurrencyTrackerServer.Infrastructure.Concrete;
 using Microsoft.AspNetCore.Builder;
@@ -20,17 +21,20 @@ namespace CurrencyTrackerServer.Infrastructure
             return app.Map(path, (_app) => _app.UseMiddleware<WebSocketManagerMiddleware>(handler));
         }
 
+        
         public static IServiceCollection AddWebSocketManager(this IServiceCollection services)
         {
             services.AddTransient<WebSocketConnectionManager>();
 
-            foreach (var type in Assembly.GetEntryAssembly().ExportedTypes)
-            {
-                if (type.GetTypeInfo().BaseType == typeof(WebSocketHandler))
-                {
-                    services.AddSingleton(type);
-                }
-            }
+            //foreach (var type in Assembly.GetEntryAssembly().ExportedTypes)
+            //{
+            //    if (type.GetTypeInfo().BaseType == typeof(WebSocketHandler))
+            //    {
+
+            //        services.AddSingleton(type);
+
+            //    }
+            //}
 
             return services;
         }

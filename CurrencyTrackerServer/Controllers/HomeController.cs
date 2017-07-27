@@ -3,63 +3,54 @@ using System.Collections.Generic;
 using System.Linq;
 using System.IO;
 using System.Threading.Tasks;
-using CurrencyTrackerServer.Data;
+using CurrencyTrackerServer.BittrexService.Concrete;
+using CurrencyTrackerServer.BittrexService.Entities;
 using CurrencyTrackerServer.Infrastructure.Concrete;
 using CurrencyTrackerServer.Infrastructure.Entities;
-using CurrencyTrackerServer.Services.Abstract;
-using CurrencyTrackerServer.Services.Concrete;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
 using CurrencyTrackerServer.Infrastructure.Abstract;
+
 namespace CurrencyTrackerServer.Controllers
 {
     public class HomeController : Controller
     {
-        private readonly BittrexWorker _worker;
-        private readonly IBittrexService _service;
-        private readonly NotificationsMessageHandler _notifications;
+        private readonly BittrexTimerWorker _worker;
+
+        private readonly IChangeMonitor<List<Change>> _service;
+
+        private readonly INotifier<Change> _notifications;
         public IDataSource<string> dt;
-        public HomeController(BittrexWorker worker, IBittrexService service, NotificationsMessageHandler notifications)
+
+        public HomeController(BittrexTimerWorker worker, IChangeMonitor<List<Change>> service,
+            INotifier<Change> notifications)
         {
-            var settings = LoadSettings();
-            service.AutoResetHours = settings.ResetHours;
-            //service.AutoResetHours = optionsAccessor.Value.ResetHours;
             _worker = worker;
             _service = service;
             _notifications = notifications;
+
+            var settings = LoadSettings().Result;
+            worker.ResetTimeSpan = TimeSpan.FromHours(settings.ResetHours);
             worker.Period = settings.Period;
-            worker.ChangeOverTime = true;
-            worker.ChangeInterval = TimeSpan.FromMinutes(2);
+            worker.MultipleChanges = false;
+            worker.MultipleChangesSpan = TimeSpan.FromMinutes(2);
             worker.Percentage = settings.Percentage;
+            worker.Enabled = true;
         }
 
 
         public IActionResult Index()
         {
-            List<BittrexChange> allChanges;
 
-            using (var repo = new BittrexHistoryRepository(new BittrexContext()))
-            {
-                allChanges =
-                    repo.GetHistory()
-                        .Where(c => c.LastNotifiedChange != null)
-                        .OrderBy(c => c.LastNotifiedChange)
-                        .ToList();
-            }
-            object json = JsonConvert.SerializeObject(allChanges);
-            return View(json);
+            var history = _service.GetHistory();
+            return View(history);
         }
 
         [HttpPost]
-        public IActionResult Reset()
+        public async Task<IActionResult> Reset()
         {
-            using (var repo = new BittrexHistoryRepository(new BittrexContext()))
-            {
-                repo.ResetHistory();
-                repo.Save();
-                _notifications.SendInfoMessage("Сброс информации за сутки");
-            }
+            await _service.ResetAll();
             return Ok();
         }
 
@@ -90,20 +81,17 @@ namespace CurrencyTrackerServer.Controllers
                 return BadRequest(ModelState.Values);
             }
             SaveSettings(settings);
-            _worker.Period = settings.Period;
-            _worker.Percentage = settings.Percentage;
-            _service.AutoResetHours = settings.ResetHours;
             return RedirectToAction("Index");
         }
 
         [HttpGet]
-        public ViewResult Settings()
+        public async Task<ViewResult> Settings()
         {
-            var settings = LoadSettings();
+            var settings = await LoadSettings();
             return View(settings);
         }
 
-        private static BittrexSettingsViewModel LoadSettings()
+        private async Task<BittrexSettingsViewModel> LoadSettings()
         {
             string settingsJson;
             BittrexSettingsViewModel settings = null;
@@ -117,6 +105,12 @@ namespace CurrencyTrackerServer.Controllers
                 catch (Exception)
                 {
                     settingsJson = null;
+                    await _notifications.SendNotificationMessage(new Change
+                    {
+                        Type = ChangeType.Error,
+                        Message = "Ошибка загрузки настроек",
+                        Time = DateTime.Now
+                    });
                 }
                 settings = JsonConvert.DeserializeObject<BittrexSettingsViewModel>(settingsJson);
             }
@@ -130,9 +124,25 @@ namespace CurrencyTrackerServer.Controllers
             return settings;
         }
 
-        private static void SaveSettings(BittrexSettingsViewModel settings)
+        private async void SaveSettings(BittrexSettingsViewModel settings)
         {
-            System.IO.File.WriteAllText("settings.bittrex.json", JsonConvert.SerializeObject(settings));
+            _worker.Period = settings.Period;
+            _worker.Percentage = settings.Percentage;
+            _worker.ResetTimeSpan = TimeSpan.FromHours(settings.ResetHours);
+
+            try
+            {
+                System.IO.File.WriteAllText("settings.bittrex.json", JsonConvert.SerializeObject(settings));
+            }
+            catch (Exception e)
+            {
+                await _notifications.SendNotificationMessage(new Change
+                {
+                    Type = ChangeType.Error,
+                    Message = "Ошибка сохранения настроек",
+                    Time = DateTime.Now
+                });
+            }
         }
     }
 }

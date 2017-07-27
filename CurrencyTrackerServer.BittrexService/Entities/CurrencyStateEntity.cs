@@ -10,6 +10,12 @@ namespace CurrencyTrackerServer.BittrexService.Entities
         [Key]
         public string Currency { get; set; }
         public DateTime LastChangeTime { get; set; }
-        public double PercentageThreshold { get; set; }
+        public DateTime Created { get; set; }
+        public double Threshold { get; set; }
+
+        public static double CalculateThreshold(double incrementPercentage, double percentChange)
+        {
+            return ((int) (percentChange / incrementPercentage)) * incrementPercentage;
+        }
     }
 }

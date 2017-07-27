@@ -8,5 +8,6 @@ namespace CurrencyTrackerServer.Infrastructure.Abstract
     public interface INotifier<in TChanges>
     {
         Task SendNotificationMessage(TChanges changes);
+        Task SendNotificationMessage(IEnumerable<TChanges> changes);
     }
 }

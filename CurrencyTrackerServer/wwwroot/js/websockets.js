@@ -8,14 +8,14 @@ function connect() {
     socket = new WebSocket(uri);
     socket.onopen = function(event) {
         connected = true;
-        appendItems(table, { info: true, text: "Соединено с сервером" });
+        appendItems(table, { Type: 2, Message: "Соединено с сервером" });
         $("#connectionButton").text("Отключиться").attr("class", "btn btn-success");
 
 
     };
     socket.onclose = function(event) {
         connected = false;
-        appendItems(table, { info: true, text: "Разорвано соединение с сервером" });
+        appendItems(table, { Type: 2, Message: "Разорвано соединение с сервером" });
         $("#connectionButton").text("Подключиться").attr("class", "btn btn-danger");
     };
     socket.onmessage = function(event) {
@@ -23,7 +23,7 @@ function connect() {
     };
     socket.onerror = function(event) {
         console.log("error: " + event.data);
-        appendItems(table, { info: true, text: "Ошибка: " + event.data });
+        appendItems(table, { Type: 1, Message: "Ошибка: " + event.data });
 
     };
 }
@@ -45,53 +45,66 @@ function appendItems(table, data) {
     } else {
         arr = data;
     }
-    if (arr.info != undefined) {
 
-        var time = timeFromDate(new Date());
-        $("#currenciesTable").find('tbody')
-            .append($('<tr>')
-                .append($('<td>')
-                    .attr('colspan', '2')
-                    .text(arr.text)
-                )
-                .append($('<td>')
-                    .text(time)
-                )
-            );
+    arr = [].concat(arr);
 
-    } else {
-        var speech = "";
-        $("tr").removeClass();
+    $("tr").removeClass();
+    var speech = "";
+    var isSpeaking = false;
+    for (var i = 0; i < arr.length; i++) {
+        var time;
+        if (arr[i].Time != undefined) {
+            var date = new Date(arr[i].Time);
+            time = timeFromDate(date);
+        } else {
+            time = timeFromDate(new Date);
+        }
 
-        for (var i = 0; i < arr.length; i++) {
+
+        if (arr[i].Type !== 0) {
+
+            $("#currenciesTable").find('tbody')
+                .append($('<tr>')
+                    .append($('<td>')
+                        .attr('colspan', '2')
+                        .text(arr[i].Message)
+                    )
+                    .append($('<td>')
+                        .text(time)
+                    )
+                );
+
+        } else {
+            isSpeaking = true;
             speech += arr[i].Currency + ", ";
             var currency = arr[i];
             //var message = currency.Currency + " " + currency.ChangePercentage.toFixed(0) + "%";
-            var date = new Date(currency.LastNotifiedChange);
-            var time = timeFromDate(date);
 
             $("#currenciesTable").find('tbody')
                 .append($('<tr>')
                     .attr("class", firstTime ? "" : "success")
                     .append($('<td>')
-                        .html("<a href='https://bittrex.com/Market/Index?MarketName=BTC-" + currency.Currency + "'>" +
+                        .html("<a href='https://bittrex.com/Market/Index?MarketName=BTC-" +
+                            currency.Currency +
+                            "'>" +
                             currency.Currency +
                             "</a>"))
                     .append(($('<td>')
-                        .text(currency.ChangePercentage.toFixed(0) + " %")))
+                        .text(currency.Percentage.toFixed(0) + " %")))
                     .append(($('<td>')
                         .text(time)))
                 );
         }
-
-        if (!firstTime) {
-            if (document.getElementById('speechCheckbox').checked) {
-                responsiveVoice.speak(speech);
-            }
-        } else {
-            firstTime = false;
-        }
     }
+
+    if (isSpeaking && !firstTime) {
+        if (document.getElementById('speechCheckbox').checked) {
+            responsiveVoice.speak(speech);
+        }
+    } else if (isSpeaking) {
+        firstTime = false;
+    }
+
     var n = $(document).height();
     $('html, body').animate({ scrollTop: n }, 50);
 }

@@ -5,11 +5,12 @@ using System.Net.WebSockets;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using CurrencyTrackerServer.BittrexService.Entities;
 using CurrencyTrackerServer.Infrastructure.Concrete;
 
 namespace CurrencyTrackerServer.Infrastructure.Abstract
 {
-    public abstract class WebSocketHandler
+    public abstract class WebSocketHandler:INotifier<Change>
     {
         protected WebSocketConnectionManager WebSocketConnectionManager { get; set; }
 
@@ -64,5 +65,8 @@ namespace CurrencyTrackerServer.Infrastructure.Abstract
         }
 
         public abstract Task ReceiveAsync(WebSocket socket, WebSocketReceiveResult result, byte[] buffer);
+
+        public abstract Task SendNotificationMessage(Change changes);
+        public abstract Task SendNotificationMessage(IEnumerable<Change> changes);
     }
 }

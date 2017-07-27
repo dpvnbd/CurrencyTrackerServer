@@ -9,9 +9,9 @@ using CurrencyTrackerServer.Infrastructure.Abstract;
 using Newtonsoft.Json;
 namespace CurrencyTrackerServer.BittrexService.Concrete
 {
-    internal class BittrexApiDataSource:IDataSource<IEnumerable<BittrexApiData>>
+    public class BittrexApiDataSource:IDataSource<List<BittrexApiData>>
     {
-        public async Task <IEnumerable<BittrexApiData>> GetData()
+        public async Task <List<BittrexApiData>> GetData()
         {
             var list = new List<BittrexApiData>();
             try

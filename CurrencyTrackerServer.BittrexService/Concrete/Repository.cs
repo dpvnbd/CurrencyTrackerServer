@@ -92,7 +92,10 @@ namespace CurrencyTrackerServer.BittrexService.Concrete
 
         public async Task DeleteAll()
         {
-            _entities.RemoveRange(_entities);
+            foreach (var entity in _entities.AsEnumerable())
+            {
+                _entities.Remove(entity);
+            }
             await Context.SaveChangesAsync();
         }
 
