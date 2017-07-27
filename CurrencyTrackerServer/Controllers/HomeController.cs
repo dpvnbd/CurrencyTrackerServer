@@ -33,7 +33,7 @@ namespace CurrencyTrackerServer.Controllers
             var settings = LoadSettings().Result;
             worker.ResetTimeSpan = TimeSpan.FromHours(settings.ResetHours);
             worker.Period = settings.Period;
-            worker.MultipleChanges = false;
+            worker.MultipleChanges = true;
             worker.MultipleChangesSpan = TimeSpan.FromMinutes(2);
             worker.Percentage = settings.Percentage;
             worker.Enabled = true;
