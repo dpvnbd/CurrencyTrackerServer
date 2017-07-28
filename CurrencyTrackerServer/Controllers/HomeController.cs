@@ -36,6 +36,8 @@ namespace CurrencyTrackerServer.Controllers
             worker.MultipleChanges = true;
             worker.MultipleChangesSpan = TimeSpan.FromMinutes(2);
             worker.Percentage = settings.Percentage;
+            worker.MultipleChanges = settings.MultipleChanges;
+            worker.MultipleChangesSpan = TimeSpan.FromMinutes(settings.MultipleChangesSpanMinutes);
             worker.Enabled = true;
         }
 
@@ -130,6 +132,8 @@ namespace CurrencyTrackerServer.Controllers
             _worker.Percentage = settings.Percentage;
             _worker.ResetTimeSpan = TimeSpan.FromHours(settings.ResetHours);
 
+            _worker.MultipleChanges = settings.MultipleChanges;
+            _worker.MultipleChangesSpan = TimeSpan.FromMinutes(settings.MultipleChangesSpanMinutes);
             try
             {
                 System.IO.File.WriteAllText("settings.bittrex.json", JsonConvert.SerializeObject(settings));

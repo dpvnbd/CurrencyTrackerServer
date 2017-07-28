@@ -1,25 +1,39 @@
-﻿@using Microsoft.AspNetCore.Mvc.Rendering
-@model CurrencyTrackerServer.Infrastructure.Entities.BittrexSettingsViewModel
+﻿@model CurrencyTrackerServer.Infrastructure.Entities.BittrexSettingsViewModel
 <br/>
 @using (@Html.BeginForm("Settings", "Home", null, FormMethod.Post, false, new {@class = "form-horizontal"}))
 {
     <div class="form-group">
-        @Html.LabelFor(m => m.Period, new{@class= "control-label col-sm-4" })
+        @Html.LabelFor(m => m.Period, new {@class = "control-label col-sm-4"})
         <div class="col-sm-8">
-            @Html.TextBoxFor(m => m.Period, new { @class = "form-control" })
+            @Html.TextBoxFor(m => m.Period, new {@class = "form-control"})
         </div>
     </div>
     <div class="form-group">
-        @Html.LabelFor(m => m.Percentage, new { @class = "control-label col-sm-4" })
+        @Html.LabelFor(m => m.Percentage, new {@class = "control-label col-sm-4"})
         <div class="col-sm-8">
-            @Html.TextBoxFor(m => m.Percentage, new { @class = "form-control" })
+            @Html.TextBoxFor(m => m.Percentage, new {@class = "form-control"})
         </div>
     </div>
 
     <div class="form-group">
-        @Html.LabelFor(m => m.ResetHours, new { @class = "control-label col-sm-4" })
+        @Html.LabelFor(m => m.ResetHours, new {@class = "control-label col-sm-4"})
         <div class="col-sm-8">
-            @Html.TextBoxFor(m => m.ResetHours, new { @class = "form-control" })
+            @Html.TextBoxFor(m => m.ResetHours, new {@class = "form-control"})
+        </div>
+    </div>
+
+    <div class="form-group">
+        <div class="col-sm-offset-4 col-sm-8">
+            <div class="checkbox">
+                <label> @Html.CheckBoxFor(m => m.MultipleChanges) @Html.DisplayNameFor(m => m.MultipleChanges)</label>
+            </div>
+        </div>
+    </div>
+
+    <div class="form-group">
+        @Html.LabelFor(m => m.MultipleChangesSpanMinutes, new {@class = "control-label col-sm-4"})
+        <div class="col-sm-8">
+            @Html.TextBoxFor(m => m.MultipleChangesSpanMinutes, new {@class = "form-control"})
         </div>
     </div>
     <div class="form-group">

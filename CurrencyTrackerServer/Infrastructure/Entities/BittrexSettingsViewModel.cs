@@ -17,5 +17,11 @@ namespace CurrencyTrackerServer.Infrastructure.Entities
 
         [DisplayName("Сброс, часов")]
         public double ResetHours { get; set; } = 24;
+
+        [DisplayName("Учитывать два и больше изменения за время")]
+        public bool MultipleChanges { get; set; } = true;
+
+        [DisplayName("Время, минут")]
+        public int MultipleChangesSpanMinutes { get; set; } = 2;
     }
 }
