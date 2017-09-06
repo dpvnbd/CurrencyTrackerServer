@@ -5,7 +5,6 @@ using System.Net.WebSockets;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using CurrencyTrackerServer.BittrexService.Entities;
 using CurrencyTrackerServer.Infrastructure.Concrete;
 
 namespace CurrencyTrackerServer.Infrastructure.Abstract

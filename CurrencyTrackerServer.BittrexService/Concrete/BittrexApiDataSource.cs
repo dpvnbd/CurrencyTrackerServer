@@ -2,18 +2,18 @@
 using System.Collections.Generic;
 using System.Globalization;
 using System.Net.Http;
-using System.Text;
 using System.Threading.Tasks;
-using CurrencyTrackerServer.BittrexService.Entities;
+using CurrencyTrackerServer.ChangeTrackerService.Entities;
 using CurrencyTrackerServer.Infrastructure.Abstract;
 using Newtonsoft.Json;
-namespace CurrencyTrackerServer.BittrexService.Concrete
+
+namespace CurrencyTrackerServer.ChangeTrackerService.Concrete
 {
-    public class BittrexApiDataSource:IDataSource<List<BittrexApiData>>
+    public class BittrexApiDataSource:IDataSource<IEnumerable<CurrencyChangeApiData>>
     {
-        public async Task <List<BittrexApiData>> GetData()
+        public async Task <IEnumerable<CurrencyChangeApiData>> GetData()
         {
-            var list = new List<BittrexApiData>();
+            var list = new List<CurrencyChangeApiData>();
             try
             {
                 string json;
@@ -42,7 +42,7 @@ namespace CurrencyTrackerServer.BittrexService.Concrete
                     var previous = double.Parse(prevDay, CultureInfo.InvariantCulture);
                     if (Math.Abs(previous) < 0.00000001)
                         continue;
-                    var currencyChange = new BittrexApiData()
+                    var currencyChange = new CurrencyChangeApiData()
                     {
                         Currency = markets[1],
                         PreviousDayBid = previous,

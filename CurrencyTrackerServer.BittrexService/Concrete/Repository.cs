@@ -1,12 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using CurrencyTrackerServer.Infrastructure.Abstract;
 using Microsoft.EntityFrameworkCore;
 
-namespace CurrencyTrackerServer.BittrexService.Concrete
+namespace CurrencyTrackerServer.ChangeTrackerService.Concrete
 {
     public class Repository<T> : IRepository<T> where T : class
     {
@@ -28,10 +27,6 @@ namespace CurrencyTrackerServer.BittrexService.Concrete
         public Repository(DbContext context)
         {
             this.Context = context;
-        }
-
-        public Repository() : this(new BittrexContext())
-        {
         }
 
 

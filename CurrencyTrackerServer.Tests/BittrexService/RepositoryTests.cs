@@ -5,9 +5,8 @@ using System.Text;
 using CurrencyTrackerServer.Tests.BittrexService.Entities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using CurrencyTrackerServer.BittrexService.Entities;
 using System.Threading.Tasks;
-using CurrencyTrackerServer.BittrexService.Concrete;
+using CurrencyTrackerServer.ChangeTrackerService.Concrete;
 
 namespace CurrencyTrackerServer.Tests.BittrexService
 {
@@ -30,7 +29,7 @@ namespace CurrencyTrackerServer.Tests.BittrexService
                     Percentage = 10.12
                 };
                 var service = new Repository<TestEntity>(context);
-                service.Add(constituent);
+                await service.Add(constituent);
             }
 
             // Use a separate instance of the context to verify correct data was saved to database

@@ -3,8 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using CurrencyTrackerServer.Areas.ChangeTracker.Infrastructure;
-using CurrencyTrackerServer.BittrexService.Concrete;
-using CurrencyTrackerServer.BittrexService.Entities;
+using CurrencyTrackerServer.ChangeTrackerService.Concrete;
+using CurrencyTrackerServer.ChangeTrackerService.Concrete.Data;
+using CurrencyTrackerServer.ChangeTrackerService.Entities;
 using CurrencyTrackerServer.Infrastructure;
 using CurrencyTrackerServer.Infrastructure.Abstract;
 using CurrencyTrackerServer.Infrastructure.Concrete;
@@ -42,26 +43,26 @@ namespace CurrencyTrackerServer
             services.AddMvc();
 
             services.AddTransient<DbContext, BittrexContext>();
-            services.AddTransient<IDataSource<List<BittrexApiData>>, BittrexApiDataSource>();
+            services.AddTransient<IDataSource<IEnumerable<CurrencyChangeApiData>>, BittrexApiDataSource>();
 
             var provider = services.BuildServiceProvider();
             var connectionManager = provider.GetRequiredService<WebSocketConnectionManager>();
             var handler = new BittrexNotificationsMessageHandler(connectionManager);
 
-            services.AddSingleton<INotifier<Change>>(handler);
+            //services.AddSingleton<INotifier<Change>>(handler);
             services.AddSingleton<BittrexNotificationsMessageHandler>(handler);
-            
-            services
-                .AddTransient<IChangeMonitor<List<Change>>, BittrexChangeMonitor<Repository<CurrencyStateEntity>,
-                    Repository<ChangeHistoryEntryEntity>>>();
-            services.AddSingleton<BittrexTimerWorker>();
+
+            //services
+            //    .AddTransient<IChangeMonitor<IEnumerable<Change>>, ChangeMonitor<Repository<CurrencyStateEntity>,
+            //        Repository<ChangeHistoryEntryEntity>>>();
+
+            services.AddSingleton<BittrexTimerWorker>(s => new BittrexTimerWorker(handler));
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IServiceProvider serviceProvider, IHostingEnvironment env,
             ILoggerFactory loggerFactory)
         {
-            
             loggerFactory.AddConsole(Configuration.GetSection("Logging"));
             loggerFactory.AddDebug();
 
@@ -78,7 +79,8 @@ namespace CurrencyTrackerServer
             app.UseStaticFiles();
             app.UseWebSockets();
 
-            app.MapWebSocketManager("/bittrexNotifications", serviceProvider.GetRequiredService<BittrexNotificationsMessageHandler>());
+            app.MapWebSocketManager("/bittrexNotifications",
+                serviceProvider.GetRequiredService<BittrexNotificationsMessageHandler>());
 
             app.UseMvc(routes =>
             {
@@ -95,8 +97,6 @@ namespace CurrencyTrackerServer
                     template: "{area=ChangeTracker}/{controller=Home}/{action=Index}/{id?}");
             });
 
-            
-            
 
             using (var serviceScope = app.ApplicationServices.GetService<IServiceScopeFactory>().CreateScope())
             {

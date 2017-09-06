@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
-using CurrencyTrackerServer.BittrexService.Concrete;
+using CurrencyTrackerServer.ChangeTrackerService.Concrete;
 using CurrencyTrackerServer.Infrastructure.Abstract;
 using Microsoft.EntityFrameworkCore;
 

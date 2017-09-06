@@ -1,32 +1,30 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
-using CurrencyTrackerServer.BittrexService.Entities;
+using CurrencyTrackerServer.ChangeTrackerService.Entities;
 using CurrencyTrackerServer.Infrastructure.Abstract;
-using Microsoft.EntityFrameworkCore;
 
-namespace CurrencyTrackerServer.BittrexService.Concrete
+namespace CurrencyTrackerServer.ChangeTrackerService.Concrete
 {
-    public class BittrexChangeMonitor<TStateRepo, THistoryRepo> : IChangeMonitor<List<Change>>
+    public class ChangeMonitor<TStateRepo, THistoryRepo> : IChangeMonitor<IEnumerable<Change>>
         where TStateRepo : IRepository<CurrencyStateEntity>, new()
         where THistoryRepo : IRepository<ChangeHistoryEntryEntity>, new()
 
     {
-        private IDataSource<List<BittrexApiData>> _dataSource;
+        private IDataSource<IEnumerable<CurrencyChangeApiData>> _dataSource;
 
-        public BittrexChangeMonitor(IDataSource<List<BittrexApiData>> dataSource)
+        public ChangeMonitor(IDataSource<IEnumerable<CurrencyChangeApiData>> dataSource)
         {
             _dataSource = dataSource;
         }
 
 
-        public async Task<List<Change>> GetChanges(double percentage, TimeSpan multipleChangesSpan,
+        public async Task<IEnumerable<Change>> GetChanges(double percentage, TimeSpan multipleChangesSpan,
             bool multipleChanges = false)
         {
             var currencies = await _dataSource.GetData();
-            if (currencies.Count == 0)
+            if (currencies != null && !currencies.Any())
             {
                 return new List<Change>(0);
             }
@@ -129,7 +127,7 @@ namespace CurrencyTrackerServer.BittrexService.Concrete
             }
         }
 
-        public List<Change> GetHistory()
+        public IEnumerable<Change> GetHistory()
         {
             var history = new List<Change>();
             using (var repo = new THistoryRepo())

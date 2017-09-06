@@ -1,8 +1,7 @@
-﻿
-using CurrencyTrackerServer.BittrexService.Entities;
+﻿using CurrencyTrackerServer.ChangeTrackerService.Entities;
 using Microsoft.EntityFrameworkCore;
 
-namespace CurrencyTrackerServer.BittrexService.Concrete
+namespace CurrencyTrackerServer.ChangeTrackerService.Concrete.Data
 {
     public class BittrexContext : DbContext
     {

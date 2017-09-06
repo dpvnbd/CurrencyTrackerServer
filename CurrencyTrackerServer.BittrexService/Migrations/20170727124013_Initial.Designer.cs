@@ -3,10 +3,10 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Migrations;
-using CurrencyTrackerServer.BittrexService.Concrete;
-using CurrencyTrackerServer.BittrexService.Entities;
+using CurrencyTrackerServer.ChangeTrackerService.Concrete;
+using CurrencyTrackerServer.ChangeTrackerService.Concrete.Data;
 
-namespace CurrencyTrackerServer.BittrexService.Migrations
+namespace CurrencyTrackerServer.ChangeTrackerService.Migrations
 {
     [DbContext(typeof(BittrexContext))]
     [Migration("20170727124013_Initial")]

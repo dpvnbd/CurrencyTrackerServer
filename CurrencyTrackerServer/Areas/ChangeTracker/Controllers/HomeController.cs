@@ -1,9 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using CurrencyTrackerServer.Areas.ChangeTracker.Infrastructure;
 using CurrencyTrackerServer.Areas.ChangeTracker.Models;
-using CurrencyTrackerServer.BittrexService.Concrete;
-using CurrencyTrackerServer.BittrexService.Entities;
+using CurrencyTrackerServer.ChangeTrackerService.Concrete;
+using CurrencyTrackerServer.ChangeTrackerService.Entities;
 using CurrencyTrackerServer.Infrastructure.Abstract;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
@@ -12,18 +13,15 @@ namespace CurrencyTrackerServer.Areas.ChangeTracker.Controllers
 {
     public class HomeController : Controller
     {
-        private readonly BittrexTimerWorker _worker;
+        private readonly ChangeTimerWorker _worker;
 
-        private readonly IChangeMonitor<List<Change>> _service;
 
         private readonly INotifier<Change> _notifications;
         public IDataSource<string> dt;
 
-        public HomeController(BittrexTimerWorker worker, IChangeMonitor<List<Change>> service,
-            INotifier<Change> notifications)
+        public HomeController(BittrexTimerWorker worker, BittrexNotificationsMessageHandler notifications)
         {
             _worker = worker;
-            _service = service;
             _notifications = notifications;
 
             var settings = LoadSettings().Result;
@@ -41,14 +39,14 @@ namespace CurrencyTrackerServer.Areas.ChangeTracker.Controllers
         public IActionResult Index()
         {
 
-            var history = _service.GetHistory();
+            var history = _worker.Monitor.GetHistory();
             return View(history);
         }
 
         [HttpPost]
         public async Task<IActionResult> Reset()
         {
-            await _service.ResetAll();
+            await _worker.Monitor.ResetAll();
             return Ok();
         }
         
@@ -121,7 +119,7 @@ namespace CurrencyTrackerServer.Areas.ChangeTracker.Controllers
             {
                 System.IO.File.WriteAllText("settings.bittrex.json", JsonConvert.SerializeObject(settings));
             }
-            catch (Exception e)
+            catch (Exception)
             {
                 await _notifications.SendNotificationMessage(new Change
                 {

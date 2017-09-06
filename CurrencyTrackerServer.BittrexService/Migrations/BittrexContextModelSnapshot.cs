@@ -1,12 +1,9 @@
 ﻿using System;
+using CurrencyTrackerServer.ChangeTrackerService.Concrete.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
-using Microsoft.EntityFrameworkCore.Metadata;
-using Microsoft.EntityFrameworkCore.Migrations;
-using CurrencyTrackerServer.BittrexService.Concrete;
-using CurrencyTrackerServer.BittrexService.Entities;
 
-namespace CurrencyTrackerServer.BittrexService.Migrations
+namespace CurrencyTrackerServer.ChangeTrackerService.Migrations
 {
     [DbContext(typeof(BittrexContext))]
     partial class BittrexContextModelSnapshot : ModelSnapshot

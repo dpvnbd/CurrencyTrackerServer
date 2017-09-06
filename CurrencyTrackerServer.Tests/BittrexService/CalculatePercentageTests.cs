@@ -5,9 +5,8 @@ using System.Text;
 using CurrencyTrackerServer.Tests.BittrexService.Entities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using CurrencyTrackerServer.BittrexService.Entities;
 using System.Threading.Tasks;
-using CurrencyTrackerServer.BittrexService.Concrete;
+using CurrencyTrackerServer.ChangeTrackerService.Entities;
 
 namespace CurrencyTrackerServer.Tests.BittrexService
 {
@@ -17,30 +16,30 @@ namespace CurrencyTrackerServer.Tests.BittrexService
         [TestMethod]
         public void TestChangeCalculation()
         {
-            var hundred = new BittrexApiData
+            var hundred = new CurrencyChangeApiData
             {
                 CurrentBid = 12,
                 PreviousDayBid = 6
             };
-            var infinity = new BittrexApiData
+            var infinity = new CurrencyChangeApiData
             {
                 CurrentBid = 12,
                 PreviousDayBid = 0
             };
 
-            var zero = new BittrexApiData
+            var zero = new CurrencyChangeApiData
             {
                 CurrentBid = 12,
                 PreviousDayBid = 12
             };
 
-            var negative = new BittrexApiData
+            var negative = new CurrencyChangeApiData
             {
                 CurrentBid = 12,
                 PreviousDayBid = 15
             };
 
-            var minusHundred = new BittrexApiData
+            var minusHundred = new CurrencyChangeApiData
             {
                 CurrentBid = 0,
                 PreviousDayBid = 15

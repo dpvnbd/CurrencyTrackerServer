@@ -1,8 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore.Migrations;
 
-namespace CurrencyTrackerServer.BittrexService.Migrations
+namespace CurrencyTrackerServer.ChangeTrackerService.Migrations
 {
     public partial class Initial : Migration
     {

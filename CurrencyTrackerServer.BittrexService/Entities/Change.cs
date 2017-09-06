@@ -1,8 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
 
-namespace CurrencyTrackerServer.BittrexService.Entities
+namespace CurrencyTrackerServer.ChangeTrackerService.Entities
 {
     public class Change
     {

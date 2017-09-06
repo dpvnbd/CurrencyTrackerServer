@@ -1,0 +1,46 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
+using CurrencyTrackerServer.ChangeTrackerService.Entities;
+using CurrencyTrackerServer.Infrastructure.Abstract;
+
+namespace CurrencyTrackerServer.ChangeTrackerService.Concrete
+{
+    public class ChangeTimerWorker : AbstractTimerWorker
+    {
+        public IChangeMonitor<IEnumerable<Change>> Monitor { get; }
+        private readonly INotifier<Change> _notifier;
+
+        public int Percentage { get; set; }
+        
+        public TimeSpan ResetTimeSpan { get; set; }
+
+        public bool MultipleChanges { get; set; }
+
+        public TimeSpan MultipleChangesSpan { get; set; }
+
+        public ChangeTimerWorker(IChangeMonitor<IEnumerable<Change>> monitor, INotifier<Change> notifier,
+            int period = 10000) : base(period)
+        {
+            Monitor = monitor;
+            _notifier = notifier;
+        }
+
+
+        protected override async Task DoWork()
+        {
+            try
+            {
+                await Monitor.ResetStates(ResetTimeSpan);
+                var changes = await Monitor.GetChanges(Percentage, MultipleChangesSpan, MultipleChanges);
+                if(changes.Any())
+                    await _notifier.SendNotificationMessage(changes);
+            }
+            catch (Exception)
+            {
+                Console.WriteLine();
+            }
+        }
+    }
+}

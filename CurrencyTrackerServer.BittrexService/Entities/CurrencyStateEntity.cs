@@ -1,9 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using System.Text;
 
-namespace CurrencyTrackerServer.BittrexService.Entities
+namespace CurrencyTrackerServer.ChangeTrackerService.Entities
 {
     public class CurrencyStateEntity
     {

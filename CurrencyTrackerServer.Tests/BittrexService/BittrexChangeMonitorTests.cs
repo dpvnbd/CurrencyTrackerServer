@@ -5,9 +5,9 @@ using System.Text;
 using CurrencyTrackerServer.Tests.BittrexService.Entities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using CurrencyTrackerServer.BittrexService.Entities;
 using System.Threading.Tasks;
-using CurrencyTrackerServer.BittrexService.Concrete;
+using CurrencyTrackerServer.ChangeTrackerService.Concrete;
+using CurrencyTrackerServer.ChangeTrackerService.Entities;
 using CurrencyTrackerServer.Infrastructure.Abstract;
 using Moq;
 
@@ -16,14 +16,14 @@ namespace CurrencyTrackerServer.Tests.BittrexService
     [TestClass]
     public class BittrexChangeMonitorTests
     {
-        private BittrexChangeMonitor<TestRepository<CurrencyStateEntity>, TestRepository<ChangeHistoryEntryEntity>>
+        private ChangeMonitor<TestRepository<CurrencyStateEntity>, TestRepository<ChangeHistoryEntryEntity>>
             _monitor;
 
         [TestInitialize]
         public async Task Setup()
         {
-            var datasourceMock = new Mock<IDataSource<List<BittrexApiData>>>();
-            _monitor = new BittrexChangeMonitor<TestRepository<CurrencyStateEntity>,
+            var datasourceMock = new Mock<IDataSource<List<CurrencyChangeApiData>>>();
+            _monitor = new ChangeMonitor<TestRepository<CurrencyStateEntity>,
                 TestRepository<ChangeHistoryEntryEntity>>(datasourceMock.Object);
             using (var stateRepo = new TestRepository<CurrencyStateEntity>())
             {
@@ -72,17 +72,17 @@ namespace CurrencyTrackerServer.Tests.BittrexService
         public async Task TestSimpleChange()
         {
             //Arrange
-            var dataSourceMock = new Mock<IDataSource<List<BittrexApiData>>>();
-            var apiChange = new BittrexApiData {Currency = "BTC", CurrentBid = 100, PreviousDayBid = 50};
-            var apiData = new List<BittrexApiData>
+            var dataSourceMock = new Mock<IDataSource<List<CurrencyChangeApiData>>>();
+            var apiChange = new CurrencyChangeApiData {Currency = "BTC", CurrentBid = 100, PreviousDayBid = 50};
+            var apiData = new List<CurrencyChangeApiData>
             {
                 apiChange,
-                new BittrexApiData {Currency = "NoChange", CurrentBid = 10, PreviousDayBid = 9}
+                new CurrencyChangeApiData {Currency = "NoChange", CurrentBid = 10, PreviousDayBid = 9}
             };
             dataSourceMock.Setup(m => m.GetData()).ReturnsAsync(apiData);
 
             _monitor =
-                new BittrexChangeMonitor<TestRepository<CurrencyStateEntity>, TestRepository<ChangeHistoryEntryEntity>>(
+                new ChangeMonitor<TestRepository<CurrencyStateEntity>, TestRepository<ChangeHistoryEntryEntity>>(
                     dataSourceMock.Object);
             //Act
             var changes = await _monitor.GetChanges(45, TimeSpan.MinValue, false);
@@ -133,12 +133,12 @@ namespace CurrencyTrackerServer.Tests.BittrexService
         public async Task TestMultipleChanges()
         {
             //Arrange
-            var dataSourceMock = new Mock<IDataSource<List<BittrexApiData>>>();
-            var apiChange = new BittrexApiData {Currency = "BTC", CurrentBid = 100, PreviousDayBid = 50};
-            var apiData = new List<BittrexApiData>
+            var dataSourceMock = new Mock<IDataSource<List<CurrencyChangeApiData>>>();
+            var apiChange = new CurrencyChangeApiData {Currency = "BTC", CurrentBid = 100, PreviousDayBid = 50};
+            var apiData = new List<CurrencyChangeApiData>
             {
                 apiChange,
-                new BittrexApiData {Currency = "OneChange", CurrentBid = 100, PreviousDayBid = 9}
+                new CurrencyChangeApiData {Currency = "OneChange", CurrentBid = 100, PreviousDayBid = 9}
             };
             dataSourceMock.Setup(m => m.GetData()).ReturnsAsync(apiData);
 
@@ -168,7 +168,7 @@ namespace CurrencyTrackerServer.Tests.BittrexService
             }
 
             _monitor =
-                new BittrexChangeMonitor<TestRepository<CurrencyStateEntity>, TestRepository<ChangeHistoryEntryEntity>>(
+                new ChangeMonitor<TestRepository<CurrencyStateEntity>, TestRepository<ChangeHistoryEntryEntity>>(
                     dataSourceMock.Object);
 
             var changes = await _monitor.GetChanges(45, TimeSpan.FromMinutes(30), true);

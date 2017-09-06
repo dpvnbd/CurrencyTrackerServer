@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace CurrencyTrackerServer.Infrastructure.Abstract
 {
-    public abstract class AbstractTimerWorker<TChanges>
+    public abstract class AbstractTimerWorker
     {
 
 
