@@ -1,14 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using CurrencyTrackerServer.Tests.BittrexService.Entities;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+﻿using System.Linq;
 using System.Threading.Tasks;
 using CurrencyTrackerServer.ChangeTrackerService.Concrete;
+using CurrencyTrackerServer.Tests.ChangeTrackerService.Entities;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-namespace CurrencyTrackerServer.Tests.BittrexService
+namespace CurrencyTrackerServer.Tests.ChangeTrackerService
 {
     [TestClass]
     public class RepositoryTests

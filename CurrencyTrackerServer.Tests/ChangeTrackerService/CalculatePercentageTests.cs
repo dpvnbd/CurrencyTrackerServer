@@ -1,14 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using CurrencyTrackerServer.Tests.BittrexService.Entities;
-using Microsoft.EntityFrameworkCore;
+﻿using CurrencyTrackerServer.ChangeTrackerService.Entities;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using System.Threading.Tasks;
-using CurrencyTrackerServer.ChangeTrackerService.Entities;
 
-namespace CurrencyTrackerServer.Tests.BittrexService
+namespace CurrencyTrackerServer.Tests.ChangeTrackerService
 {
     [TestClass]
     public class CalculatePercentageTests

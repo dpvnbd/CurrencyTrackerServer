@@ -1,11 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using CurrencyTrackerServer.ChangeTrackerService.Concrete;
-using CurrencyTrackerServer.Infrastructure.Abstract;
+﻿using CurrencyTrackerServer.ChangeTrackerService.Concrete;
 using Microsoft.EntityFrameworkCore;
 
-namespace CurrencyTrackerServer.Tests.BittrexService.Entities
+namespace CurrencyTrackerServer.Tests.ChangeTrackerService.Entities
 {
     class TestRepository<T>:Repository<T> where T:class
     {

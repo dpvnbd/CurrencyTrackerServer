@@ -1,11 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using CurrencyTrackerServer.ChangeTrackerService.Entities;
+﻿using CurrencyTrackerServer.ChangeTrackerService.Entities;
 using Microsoft.EntityFrameworkCore;
 
-
-namespace CurrencyTrackerServer.Tests.BittrexService.Entities
+namespace CurrencyTrackerServer.Tests.ChangeTrackerService.Entities
 {
     internal class BittrexTestContext : DbContext
     {
