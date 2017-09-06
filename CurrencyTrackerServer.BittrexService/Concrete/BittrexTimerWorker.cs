@@ -38,7 +38,7 @@ namespace CurrencyTrackerServer.BittrexService.Concrete
                 if(changes.Any())
                     await _notifier.SendNotificationMessage(changes);
             }
-            catch (Exception e)
+            catch (Exception)
             {
                 Console.WriteLine();
             }

@@ -1,18 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.IO;
 using System.Threading.Tasks;
+using CurrencyTrackerServer.Areas.ChangeTracker.Models;
 using CurrencyTrackerServer.BittrexService.Concrete;
 using CurrencyTrackerServer.BittrexService.Entities;
-using CurrencyTrackerServer.Infrastructure.Concrete;
-using CurrencyTrackerServer.Infrastructure.Entities;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Options;
-using Newtonsoft.Json;
 using CurrencyTrackerServer.Infrastructure.Abstract;
+using Microsoft.AspNetCore.Mvc;
+using Newtonsoft.Json;
 
-namespace CurrencyTrackerServer.Controllers
+namespace CurrencyTrackerServer.Areas.ChangeTracker.Controllers
 {
     public class HomeController : Controller
     {
@@ -55,20 +51,7 @@ namespace CurrencyTrackerServer.Controllers
             await _service.ResetAll();
             return Ok();
         }
-
-        public IActionResult About()
-        {
-            ViewData["Message"] = "Your application description page.";
-
-            return View();
-        }
-
-        public IActionResult Contact()
-        {
-            ViewData["Message"] = "Your contact page.";
-
-            return View();
-        }
+        
 
         public IActionResult Error()
         {
@@ -76,7 +59,7 @@ namespace CurrencyTrackerServer.Controllers
         }
 
         [HttpPost]
-        public IActionResult Settings(BittrexSettingsViewModel settings)
+        public IActionResult Settings(SettingsViewModel settings)
         {
             if (!ModelState.IsValid)
             {
@@ -93,10 +76,10 @@ namespace CurrencyTrackerServer.Controllers
             return View(settings);
         }
 
-        private async Task<BittrexSettingsViewModel> LoadSettings()
+        private async Task<SettingsViewModel> LoadSettings()
         {
             string settingsJson;
-            BittrexSettingsViewModel settings = null;
+            SettingsViewModel settings = null;
 
             if (System.IO.File.Exists("settings.bittrex.json"))
             {
@@ -114,19 +97,19 @@ namespace CurrencyTrackerServer.Controllers
                         Time = DateTime.Now
                     });
                 }
-                settings = JsonConvert.DeserializeObject<BittrexSettingsViewModel>(settingsJson);
+                settings = JsonConvert.DeserializeObject<SettingsViewModel>(settingsJson);
             }
 
             if (settings == null)
             {
-                settings = new BittrexSettingsViewModel();
+                settings = new SettingsViewModel();
                 SaveSettings(settings);
             }
 
             return settings;
         }
 
-        private async void SaveSettings(BittrexSettingsViewModel settings)
+        private async void SaveSettings(SettingsViewModel settings)
         {
             _worker.Period = settings.Period;
             _worker.Percentage = settings.Percentage;

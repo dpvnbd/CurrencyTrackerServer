@@ -41,5 +41,15 @@
     <ProjectReference Include="..\CurrencyTrackerServer.BittrexService\CurrencyTrackerServer.BittrexService.csproj" />
     <ProjectReference Include="..\CurrencyTrackerServer.Infrastructure\CurrencyTrackerServer.Infrastructure.csproj" />
   </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Areas\ChangeTracker\Data\" />
+    <Folder Include="Areas\PriceTracker\Controllers\" />
+    <Folder Include="Areas\PriceTracker\Data\" />
+    <Folder Include="Areas\PriceTracker\Models\" />
+    <Folder Include="Areas\PriceTracker\Views\" />
+    <Folder Include="Controllers\" />
+    <Folder Include="Infrastructure\Entities\" />
+    <Folder Include="Views\Home\" />
+  </ItemGroup>
 
 </Project>

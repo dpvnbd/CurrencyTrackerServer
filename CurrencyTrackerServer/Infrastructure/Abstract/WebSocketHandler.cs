@@ -10,7 +10,7 @@ using CurrencyTrackerServer.Infrastructure.Concrete;
 
 namespace CurrencyTrackerServer.Infrastructure.Abstract
 {
-    public abstract class WebSocketHandler:INotifier<Change>
+    public abstract class WebSocketHandler
     {
         protected WebSocketConnectionManager WebSocketConnectionManager { get; set; }
 
@@ -66,7 +66,6 @@ namespace CurrencyTrackerServer.Infrastructure.Abstract
 
         public abstract Task ReceiveAsync(WebSocket socket, WebSocketReceiveResult result, byte[] buffer);
 
-        public abstract Task SendNotificationMessage(Change changes);
-        public abstract Task SendNotificationMessage(IEnumerable<Change> changes);
+   
     }
 }

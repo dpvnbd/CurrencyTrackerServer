@@ -1,4 +1,4 @@
-﻿var uri = "ws://" + window.location.host + "/notifications";
+﻿var uri = "ws://" + window.location.host + "/bittrexNotifications";
 var table = document.getElementById("currenciesTable");
 var firstTime = true;
 var connected = false;
@@ -40,7 +40,7 @@ function connectClick() {
 
 function appendItems(table, data) {
     var arr;
-    if (typeof data == "string") {
+    if (typeof data === "string") {
         arr = JSON.parse(data);
     } else {
         arr = data;
@@ -53,7 +53,7 @@ function appendItems(table, data) {
     var isSpeaking = false;
     for (var i = 0; i < arr.length; i++) {
         var time;
-        if (arr[i].Time != undefined) {
+        if (arr[i].Time !== undefined) {
             var date = new Date(arr[i].Time);
             time = timeFromDate(date);
         } else {

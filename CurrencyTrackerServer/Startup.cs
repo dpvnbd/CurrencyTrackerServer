@@ -2,12 +2,12 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using CurrencyTrackerServer.Areas.ChangeTracker.Infrastructure;
 using CurrencyTrackerServer.BittrexService.Concrete;
 using CurrencyTrackerServer.BittrexService.Entities;
 using CurrencyTrackerServer.Infrastructure;
 using CurrencyTrackerServer.Infrastructure.Abstract;
 using CurrencyTrackerServer.Infrastructure.Concrete;
-using CurrencyTrackerServer.Infrastructure.Entities;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
@@ -41,18 +41,15 @@ namespace CurrencyTrackerServer
             services.AddWebSocketManager();
             services.AddMvc();
 
-            
-
-
             services.AddTransient<DbContext, BittrexContext>();
             services.AddTransient<IDataSource<List<BittrexApiData>>, BittrexApiDataSource>();
 
             var provider = services.BuildServiceProvider();
             var connectionManager = provider.GetRequiredService<WebSocketConnectionManager>();
-            var handler = new NotificationsMessageHandler(connectionManager);
+            var handler = new BittrexNotificationsMessageHandler(connectionManager);
 
             services.AddSingleton<INotifier<Change>>(handler);
-            services.AddSingleton<WebSocketHandler>(handler);
+            services.AddSingleton<BittrexNotificationsMessageHandler>(handler);
             
             services
                 .AddTransient<IChangeMonitor<List<Change>>, BittrexChangeMonitor<Repository<CurrencyStateEntity>,
@@ -81,16 +78,25 @@ namespace CurrencyTrackerServer
             app.UseStaticFiles();
             app.UseWebSockets();
 
+            app.MapWebSocketManager("/bittrexNotifications", serviceProvider.GetRequiredService<BittrexNotificationsMessageHandler>());
+
+            app.UseMvc(routes =>
+            {
+                routes.MapRoute(
+                    name: "areas",
+                    template: "{area:exists}/{controller=Home}/{action=Index}/{id?}"
+                );
+            });
+
             app.UseMvc(routes =>
             {
                 routes.MapRoute(
                     name: "default",
-                    template: "{controller=Home}/{action=Index}/{id?}");
+                    template: "{area=ChangeTracker}/{controller=Home}/{action=Index}/{id?}");
             });
 
             
             
-            app.MapWebSocketManager("/notifications", serviceProvider.GetRequiredService<WebSocketHandler>());
 
             using (var serviceScope = app.ApplicationServices.GetService<IServiceScopeFactory>().CreateScope())
             {

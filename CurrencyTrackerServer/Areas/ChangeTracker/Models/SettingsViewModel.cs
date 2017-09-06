@@ -1,13 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
+﻿using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
-using System.Linq;
-using System.Threading.Tasks;
 
-namespace CurrencyTrackerServer.Infrastructure.Entities
+namespace CurrencyTrackerServer.Areas.ChangeTracker.Models
 {
-    public class BittrexSettingsViewModel
+    public class SettingsViewModel
     {
         [DisplayName("Период обновления, сек"), Range(3, int.MaxValue, ErrorMessage = "Минимум 3 секунды")]
         public int Period { get; set; } = 5;
