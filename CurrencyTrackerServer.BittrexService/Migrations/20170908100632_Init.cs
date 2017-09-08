@@ -1,9 +1,10 @@
 ﻿using System;
+using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore.Migrations;
 
 namespace CurrencyTrackerServer.ChangeTrackerService.Migrations
 {
-    public partial class Initial : Migration
+    public partial class Init : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
@@ -11,9 +12,9 @@ namespace CurrencyTrackerServer.ChangeTrackerService.Migrations
                 name: "History",
                 columns: table => new
                 {
-                    Id = table.Column<int>(nullable: false)
-                        .Annotation("Sqlite:Autoincrement", true),
-                    Currency = table.Column<string>(nullable: true),
+                    Currency = table.Column<string>(nullable: false),
+                    ChangeSource = table.Column<int>(nullable: false),
+                    Id = table.Column<int>(nullable: false),
                     Message = table.Column<string>(nullable: true),
                     Percentage = table.Column<double>(nullable: false),
                     Time = table.Column<DateTime>(nullable: false),
@@ -21,7 +22,7 @@ namespace CurrencyTrackerServer.ChangeTrackerService.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_History", x => x.Id);
+                    table.PrimaryKey("PK_History", x => new { x.Currency, x.ChangeSource });
                 });
 
             migrationBuilder.CreateTable(
@@ -29,13 +30,14 @@ namespace CurrencyTrackerServer.ChangeTrackerService.Migrations
                 columns: table => new
                 {
                     Currency = table.Column<string>(nullable: false),
+                    ChangeSource = table.Column<int>(nullable: false),
                     Created = table.Column<DateTime>(nullable: false),
                     LastChangeTime = table.Column<DateTime>(nullable: false),
                     Threshold = table.Column<double>(nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_States", x => x.Currency);
+                    table.PrimaryKey("PK_States", x => new { x.Currency, x.ChangeSource });
                 });
         }
 

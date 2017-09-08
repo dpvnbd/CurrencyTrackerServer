@@ -13,47 +13,74 @@ namespace CurrencyTrackerServer.Areas.ChangeTracker.Controllers
 {
     public class HomeController : Controller
     {
-        private readonly ChangeTimerWorker _worker;
+        private readonly ChangeTimerWorker _bWorker;
+        private readonly ChangeTimerWorker _pWorker;
 
 
         private readonly INotifier<Change> _notifications;
         public IDataSource<string> dt;
 
-        public HomeController(BittrexTimerWorker worker, BittrexNotificationsMessageHandler notifications)
+        public HomeController(BittrexTimerWorker bWorker, PoloniexTimerWorker pWorker,
+            ChangeNotificationsMessageHandler notifications)
         {
-            _worker = worker;
+            _bWorker = bWorker;
+            _pWorker = pWorker;
             _notifications = notifications;
 
             var settings = LoadSettings().Result;
-            worker.ResetTimeSpan = TimeSpan.FromHours(settings.ResetHours);
-            worker.Period = settings.Period;
-            worker.MultipleChanges = true;
-            worker.MultipleChangesSpan = TimeSpan.FromMinutes(2);
-            worker.Percentage = settings.Percentage;
-            worker.MultipleChanges = settings.MultipleChanges;
-            worker.MultipleChangesSpan = TimeSpan.FromMinutes(settings.MultipleChangesSpanMinutes);
-            worker.Enabled = true;
+
+            bWorker.ResetTimeSpan = TimeSpan.FromHours(settings.ResetHours);
+            bWorker.Period = settings.Period * 1000;
+            bWorker.Percentage = settings.Percentage;
+            bWorker.MultipleChanges = settings.MultipleChanges;
+            bWorker.MultipleChangesSpan = TimeSpan.FromMinutes(settings.MultipleChangesSpanMinutes);
+            //bWorker.Start();
+
+            pWorker.ResetTimeSpan = TimeSpan.FromHours(settings.ResetHours);
+            pWorker.Period = settings.Period * 1000;
+            pWorker.Percentage = settings.Percentage;
+            pWorker.MultipleChanges = settings.MultipleChanges;
+            pWorker.MultipleChangesSpan = TimeSpan.FromMinutes(settings.MultipleChangesSpanMinutes);
+            //pWorker.Start();
         }
 
 
         public IActionResult Index()
         {
-
-            var history = _worker.Monitor.GetHistory();
+            var history = _bWorker.Monitor.GetHistory();
+            ViewBag.WorkingStatus = new {BittrexWorking = _bWorker.Started, PoloniexWorking = _pWorker.Started};
             return View(history);
         }
 
         [HttpPost]
         public async Task<IActionResult> Reset()
         {
-            await _worker.Monitor.ResetAll();
+            await _bWorker.Monitor.ResetAll();
             return Ok();
         }
-        
 
-        public IActionResult Error()
+        [HttpPost]
+        public IActionResult Start(ChangeSource source)
         {
-            return View();
+            if (source == ChangeSource.Bittrex)
+                _bWorker.Start();
+
+            if (source == ChangeSource.Poloniex)
+                _pWorker.Start();
+
+            return Ok(new {BittrexWorking = _bWorker.Started, PoloniexWorking = _pWorker.Started});
+        }
+
+        [HttpPost]
+        public IActionResult Stop(ChangeSource source)
+        {
+            if (source == ChangeSource.Bittrex)
+                _bWorker.Stop();
+
+            if (source == ChangeSource.Poloniex)
+                _pWorker.Stop();
+
+            return Ok(new {BittrexWorking = _bWorker.Started, PoloniexWorking = _pWorker.Started});
         }
 
         [HttpPost]
@@ -109,12 +136,19 @@ namespace CurrencyTrackerServer.Areas.ChangeTracker.Controllers
 
         private async void SaveSettings(SettingsViewModel settings)
         {
-            _worker.Period = settings.Period;
-            _worker.Percentage = settings.Percentage;
-            _worker.ResetTimeSpan = TimeSpan.FromHours(settings.ResetHours);
+            _bWorker.Period = settings.Period;
+            _bWorker.Percentage = settings.Percentage;
+            _bWorker.ResetTimeSpan = TimeSpan.FromHours(settings.ResetHours);
 
-            _worker.MultipleChanges = settings.MultipleChanges;
-            _worker.MultipleChangesSpan = TimeSpan.FromMinutes(settings.MultipleChangesSpanMinutes);
+            _bWorker.MultipleChanges = settings.MultipleChanges;
+            _bWorker.MultipleChangesSpan = TimeSpan.FromMinutes(settings.MultipleChangesSpanMinutes);
+
+            _pWorker.Period = settings.Period;
+            _pWorker.Percentage = settings.Percentage;
+            _pWorker.ResetTimeSpan = TimeSpan.FromHours(settings.ResetHours);
+
+            _pWorker.MultipleChanges = settings.MultipleChanges;
+            _pWorker.MultipleChangesSpan = TimeSpan.FromMinutes(settings.MultipleChangesSpanMinutes);
             try
             {
                 System.IO.File.WriteAllText("settings.bittrex.json", JsonConvert.SerializeObject(settings));

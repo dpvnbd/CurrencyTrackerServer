@@ -41,7 +41,7 @@ namespace CurrencyTrackerServer.ChangeTrackerService.Concrete
 
             foreach (var currency in currencies)
             {
-                var state = states.FirstOrDefault(s => s.Currency == currency.Currency);
+                var state = states.FirstOrDefault(s => s.Currency == currency.Currency && s.ChangeSource == currency.ChangeSource);
                 var threshold = 0d;
                 var lastChange = DateTime.MinValue;
 
@@ -61,7 +61,8 @@ namespace CurrencyTrackerServer.ChangeTrackerService.Concrete
                     Percentage = currency.PercentChanged,
                     Time = now,
                     Type = ChangeType.Currency,
-                    Threshold = CurrencyStateEntity.CalculateThreshold(percentage, currency.PercentChanged)
+                    Threshold = CurrencyStateEntity.CalculateThreshold(percentage, currency.PercentChanged),
+                    ChangeSource = currency.ChangeSource
                 };
 
                 await SaveState(change);
@@ -85,7 +86,7 @@ namespace CurrencyTrackerServer.ChangeTrackerService.Concrete
 
                 states = new List<CurrencyStateEntity>(repo.GetAll());
 
-                var state = states.SingleOrDefault(s => s.Currency == change.Currency);
+                var state = states.SingleOrDefault(s => s.Currency == change.Currency && s.ChangeSource == change.ChangeSource);
                 if (change.Type != ChangeType.Currency) return;
 
                 if (state == null)
@@ -95,7 +96,8 @@ namespace CurrencyTrackerServer.ChangeTrackerService.Concrete
                         Currency = change.Currency,
                         LastChangeTime = change.Time,
                         Threshold = change.Threshold,
-                        Created = DateTime.Now
+                        Created = DateTime.Now,
+                        ChangeSource = change.ChangeSource
                     });
                 }
                 else
@@ -119,7 +121,8 @@ namespace CurrencyTrackerServer.ChangeTrackerService.Concrete
                         Message = change.Message,
                         Percentage = change.Percentage,
                         Time = change.Time,
-                        Type = change.Type
+                        Type = change.Type, 
+                        ChangeSource = change.ChangeSource
                     };
 
                     await historyRepo.Add(entry);
@@ -143,7 +146,8 @@ namespace CurrencyTrackerServer.ChangeTrackerService.Concrete
                         Message = entity.Message,
                         Percentage = entity.Percentage,
                         Time = entity.Time,
-                        Type = entity.Type
+                        Type = entity.Type,
+                        ChangeSource = entity.ChangeSource
                     });
                 }
             }

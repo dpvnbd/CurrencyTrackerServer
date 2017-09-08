@@ -10,9 +10,9 @@ using Newtonsoft.Json;
 
 namespace CurrencyTrackerServer.Areas.ChangeTracker.Infrastructure
 {
-    public class BittrexNotificationsMessageHandler : WebSocketHandler, INotifier<Change>
+    public class ChangeNotificationsMessageHandler : WebSocketHandler, INotifier<Change>
     {
-        public BittrexNotificationsMessageHandler(WebSocketConnectionManager webSocketConnectionManager) : base(
+        public ChangeNotificationsMessageHandler(WebSocketConnectionManager webSocketConnectionManager) : base(
             webSocketConnectionManager)
         {
         }

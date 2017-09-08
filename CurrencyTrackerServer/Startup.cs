@@ -42,21 +42,22 @@ namespace CurrencyTrackerServer
             services.AddWebSocketManager();
             services.AddMvc();
 
-            services.AddTransient<DbContext, BittrexContext>();
-            services.AddTransient<IDataSource<IEnumerable<CurrencyChangeApiData>>, BittrexApiDataSource>();
+            services.AddTransient<ChangeTrackerContext>();
+            //services.AddTransient<IDataSource<IEnumerable<CurrencyChangeApiData>>, BittrexApiDataSource>();
 
             var provider = services.BuildServiceProvider();
             var connectionManager = provider.GetRequiredService<WebSocketConnectionManager>();
-            var handler = new BittrexNotificationsMessageHandler(connectionManager);
+            var handler = new ChangeNotificationsMessageHandler(connectionManager);
 
             //services.AddSingleton<INotifier<Change>>(handler);
-            services.AddSingleton<BittrexNotificationsMessageHandler>(handler);
+            services.AddSingleton<ChangeNotificationsMessageHandler>(handler);
 
             //services
             //    .AddTransient<IChangeMonitor<IEnumerable<Change>>, ChangeMonitor<Repository<CurrencyStateEntity>,
             //        Repository<ChangeHistoryEntryEntity>>>();
 
-            services.AddSingleton<BittrexTimerWorker>(s => new BittrexTimerWorker(handler));
+            services.AddSingleton(s => new BittrexTimerWorker(handler));
+            services.AddSingleton(s => new PoloniexTimerWorker(handler));
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -79,8 +80,8 @@ namespace CurrencyTrackerServer
             app.UseStaticFiles();
             app.UseWebSockets();
 
-            app.MapWebSocketManager("/bittrexNotifications",
-                serviceProvider.GetRequiredService<BittrexNotificationsMessageHandler>());
+            app.MapWebSocketManager("/changeNotifications",
+                serviceProvider.GetRequiredService<ChangeNotificationsMessageHandler>());
 
             app.UseMvc(routes =>
             {
@@ -100,7 +101,7 @@ namespace CurrencyTrackerServer
 
             using (var serviceScope = app.ApplicationServices.GetService<IServiceScopeFactory>().CreateScope())
             {
-                var context = serviceScope.ServiceProvider.GetRequiredService<DbContext>();
+                var context = serviceScope.ServiceProvider.GetRequiredService<ChangeTrackerContext>();
                 context.Database.Migrate();
             }
         }

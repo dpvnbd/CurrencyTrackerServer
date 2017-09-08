@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using CurrencyTrackerServer.ChangeTrackerService.Entities;
 using CurrencyTrackerServer.Infrastructure.Abstract;
@@ -13,7 +14,7 @@ namespace CurrencyTrackerServer.ChangeTrackerService.Concrete
         private readonly INotifier<Change> _notifier;
 
         public int Percentage { get; set; }
-        
+
         public TimeSpan ResetTimeSpan { get; set; }
 
         public bool MultipleChanges { get; set; }
@@ -34,12 +35,16 @@ namespace CurrencyTrackerServer.ChangeTrackerService.Concrete
             {
                 await Monitor.ResetStates(ResetTimeSpan);
                 var changes = await Monitor.GetChanges(Percentage, MultipleChangesSpan, MultipleChanges);
-                if(changes.Any())
+                if (changes.Any())
                     await _notifier.SendNotificationMessage(changes);
             }
-            catch (Exception)
+            catch (Exception e)
             {
-                Console.WriteLine();
+                var errorMessage = new Change
+                {
+                    Type = ChangeType.Error,
+                    Message = e.Message
+                };
             }
         }
     }

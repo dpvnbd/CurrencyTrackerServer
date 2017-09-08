@@ -30,7 +30,7 @@ namespace CurrencyTrackerServer.ChangeTrackerService.Concrete
             this.Context = context;
         }
 
-        public Repository() : this(new BittrexContext())
+        public Repository() : this(new ChangeTrackerContext())
         {
         }
 

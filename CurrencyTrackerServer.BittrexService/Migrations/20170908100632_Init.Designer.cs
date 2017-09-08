@@ -3,26 +3,27 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Migrations;
-using CurrencyTrackerServer.ChangeTrackerService.Concrete;
 using CurrencyTrackerServer.ChangeTrackerService.Concrete.Data;
+using CurrencyTrackerServer.ChangeTrackerService.Entities;
 
 namespace CurrencyTrackerServer.ChangeTrackerService.Migrations
 {
-    [DbContext(typeof(BittrexContext))]
-    [Migration("20170727124013_Initial")]
-    partial class Initial
+    [DbContext(typeof(ChangeTrackerContext))]
+    [Migration("20170908100632_Init")]
+    partial class Init
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
             modelBuilder
                 .HasAnnotation("ProductVersion", "1.1.2");
 
-            modelBuilder.Entity("CurrencyTrackerServer.BittrexService.Entities.ChangeHistoryEntryEntity", b =>
+            modelBuilder.Entity("CurrencyTrackerServer.ChangeTrackerService.Entities.ChangeHistoryEntryEntity", b =>
                 {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd();
-
                     b.Property<string>("Currency");
+
+                    b.Property<int>("ChangeSource");
+
+                    b.Property<int>("Id");
 
                     b.Property<string>("Message");
 
@@ -32,15 +33,16 @@ namespace CurrencyTrackerServer.ChangeTrackerService.Migrations
 
                     b.Property<int>("Type");
 
-                    b.HasKey("Id");
+                    b.HasKey("Currency", "ChangeSource");
 
                     b.ToTable("History");
                 });
 
-            modelBuilder.Entity("CurrencyTrackerServer.BittrexService.Entities.CurrencyStateEntity", b =>
+            modelBuilder.Entity("CurrencyTrackerServer.ChangeTrackerService.Entities.CurrencyStateEntity", b =>
                 {
-                    b.Property<string>("Currency")
-                        .ValueGeneratedOnAdd();
+                    b.Property<string>("Currency");
+
+                    b.Property<int>("ChangeSource");
 
                     b.Property<DateTime>("Created");
 
@@ -48,7 +50,7 @@ namespace CurrencyTrackerServer.ChangeTrackerService.Migrations
 
                     b.Property<double>("Threshold");
 
-                    b.HasKey("Currency");
+                    b.HasKey("Currency", "ChangeSource");
 
                     b.ToTable("States");
                 });

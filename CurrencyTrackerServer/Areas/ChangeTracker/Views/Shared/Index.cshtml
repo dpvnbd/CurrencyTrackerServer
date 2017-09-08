@@ -10,7 +10,19 @@
         <tr>
             @if (c.Type == ChangeType.Currency)
             {
-                <td><a href="@string.Concat("https://bittrex.com/Market/Index?MarketName=BTC-", @c.Currency)">@c.Currency</a></td>
+                <td>
+                    @if (c.ChangeSource == ChangeSource.Bittrex)
+                    {
+                        <img class="source-icon" src="images/bittrexIcon.png"/>
+                    }
+                    else if (c.ChangeSource == ChangeSource.Poloniex)
+                    {
+                        <img class="source-icon" src="images/poloniexIcon.png"/>
+                    }
+                </td>
+                <td>
+                    <a href="@string.Concat("https://bittrex.com/Market/Index?MarketName=BTC-", @c.Currency)">@c.Currency</a>
+                </td>
                 <td>@c.Percentage.ToString("F1")%</td>
             }
             else

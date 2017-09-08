@@ -47,6 +47,7 @@ namespace CurrencyTrackerServer.ChangeTrackerService.Concrete
                         Currency = markets[1],
                         PreviousDayBid = previous,
                         CurrentBid = current,
+                        ChangeSource = ChangeSource.Bittrex
                     };
                     list.Add(currencyChange);
                 }
