@@ -9,7 +9,7 @@ using CurrencyTrackerServer.Infrastructure.Abstract;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 
-namespace CurrencyTrackerServer.ChangeTrackerService.Concrete
+namespace CurrencyTrackerServer.ChangeTrackerService.Concrete.ProviderSpecific.Poloniex
 {
     public class PoloniexApiDataSource : IDataSource<IEnumerable<CurrencyChangeApiData>>
     {

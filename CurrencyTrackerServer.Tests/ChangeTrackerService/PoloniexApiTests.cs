@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using CurrencyTrackerServer.ChangeTrackerService.Concrete;
+using CurrencyTrackerServer.ChangeTrackerService.Concrete.ProviderSpecific.Poloniex;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace CurrencyTrackerServer.Tests.ChangeTrackerService

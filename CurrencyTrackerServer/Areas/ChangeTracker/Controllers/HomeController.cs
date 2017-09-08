@@ -4,6 +4,9 @@ using System.Threading.Tasks;
 using CurrencyTrackerServer.Areas.ChangeTracker.Infrastructure;
 using CurrencyTrackerServer.Areas.ChangeTracker.Models;
 using CurrencyTrackerServer.ChangeTrackerService.Concrete;
+using CurrencyTrackerServer.ChangeTrackerService.Concrete.ProviderSpecific;
+using CurrencyTrackerServer.ChangeTrackerService.Concrete.ProviderSpecific.Bittrex;
+using CurrencyTrackerServer.ChangeTrackerService.Concrete.ProviderSpecific.Poloniex;
 using CurrencyTrackerServer.ChangeTrackerService.Entities;
 using CurrencyTrackerServer.Infrastructure.Abstract;
 using Microsoft.AspNetCore.Mvc;
@@ -34,14 +37,15 @@ namespace CurrencyTrackerServer.Areas.ChangeTracker.Controllers
             bWorker.Percentage = settings.Percentage;
             bWorker.MultipleChanges = settings.MultipleChanges;
             bWorker.MultipleChangesSpan = TimeSpan.FromMinutes(settings.MultipleChangesSpanMinutes);
-            //bWorker.Start();
+            bWorker.Start();
 
             pWorker.ResetTimeSpan = TimeSpan.FromHours(settings.ResetHours);
             pWorker.Period = settings.Period * 1000;
             pWorker.Percentage = settings.Percentage;
             pWorker.MultipleChanges = settings.MultipleChanges;
             pWorker.MultipleChangesSpan = TimeSpan.FromMinutes(settings.MultipleChangesSpanMinutes);
-            //pWorker.Start();
+            pWorker.Start();
+
         }
 
 

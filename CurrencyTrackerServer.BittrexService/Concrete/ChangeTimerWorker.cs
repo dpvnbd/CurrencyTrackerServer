@@ -43,8 +43,11 @@ namespace CurrencyTrackerServer.ChangeTrackerService.Concrete
                 var errorMessage = new Change
                 {
                     Type = ChangeType.Error,
-                    Message = e.Message
+                    Message = e.Message,
+                    Time = DateTime.Now
                 };
+
+                await _notifier.SendNotificationMessage(errorMessage);
             }
         }
     }

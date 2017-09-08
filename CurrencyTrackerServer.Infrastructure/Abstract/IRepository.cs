@@ -7,7 +7,7 @@ namespace CurrencyTrackerServer.Infrastructure.Abstract
 {
     public interface IRepository<T>:IDisposable where T : class
     {
-        IEnumerable<T> GetAll();
+        System.Linq.IQueryable<T> GetAll();
         Task<T> Add(T entity);
         Task<T> Update(T entity);
         Task Delete(T entity);

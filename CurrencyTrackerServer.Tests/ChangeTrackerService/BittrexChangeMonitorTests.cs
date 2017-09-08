@@ -14,24 +14,22 @@ namespace CurrencyTrackerServer.Tests.ChangeTrackerService
     [TestClass]
     public class BittrexChangeMonitorTests
     {
-        private ChangeMonitor<TestRepository<CurrencyStateEntity>, TestRepository<ChangeHistoryEntryEntity>>
-            _monitor;
+        private ChangeMonitor _monitor;
 
         [TestInitialize]
         public async Task Setup()
         {
-            var datasourceMock = new Mock<IDataSource<IEnumerable<CurrencyChangeApiData>>>();
-            _monitor = new ChangeMonitor<TestRepository<CurrencyStateEntity>,
-                TestRepository<ChangeHistoryEntryEntity>>(datasourceMock.Object);
-            using (var stateRepo = new TestRepository<CurrencyStateEntity>())
-            {
-                await stateRepo.DeleteAll();
-            }
+            //var datasourceMock = new Mock<IDataSource<IEnumerable<CurrencyChangeApiData>>>();
+            //_monitor = new ChangeMonitor(datasourceMock.Object);
+            //using (var stateRepo = new TestRepository<CurrencyStateEntity>())
+            //{
+            //    await stateRepo.DeleteAll();
+            //}
 
-            using (var historyRepo = new TestRepository<ChangeHistoryEntryEntity>())
-            {
-                await historyRepo.DeleteAll();
-            }
+            //using (var historyRepo = new TestRepository<ChangeHistoryEntryEntity>())
+            //{
+            //    await historyRepo.DeleteAll();
+            //}
         }
 
         [TestMethod]

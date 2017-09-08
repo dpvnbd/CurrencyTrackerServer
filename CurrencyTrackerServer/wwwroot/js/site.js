@@ -1,5 +1,5 @@
 ﻿function Reset() {
-    $.post("ChangeTracker/Home/Reset").done(function() {
+    $.post("/ChangeTracker/Home/Reset").done(function() {
         location.reload(true);
     });
 };

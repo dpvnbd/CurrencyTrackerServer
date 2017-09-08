@@ -7,7 +7,7 @@ using CurrencyTrackerServer.ChangeTrackerService.Entities;
 using CurrencyTrackerServer.Infrastructure.Abstract;
 using Newtonsoft.Json;
 
-namespace CurrencyTrackerServer.ChangeTrackerService.Concrete
+namespace CurrencyTrackerServer.ChangeTrackerService.Concrete.ProviderSpecific.Bittrex
 {
     public class BittrexApiDataSource:IDataSource<IEnumerable<CurrencyChangeApiData>>
     {

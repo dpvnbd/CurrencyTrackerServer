@@ -1,10 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore.Migrations;
+using Microsoft.EntityFrameworkCore.Metadata;
 
 namespace CurrencyTrackerServer.ChangeTrackerService.Migrations
 {
-    public partial class Init : Migration
+    public partial class RemoveKeys : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
@@ -12,9 +13,10 @@ namespace CurrencyTrackerServer.ChangeTrackerService.Migrations
                 name: "History",
                 columns: table => new
                 {
-                    Currency = table.Column<string>(nullable: false),
+                    Id = table.Column<int>(nullable: false)
+                        .Annotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn),
                     ChangeSource = table.Column<int>(nullable: false),
-                    Id = table.Column<int>(nullable: false),
+                    Currency = table.Column<string>(nullable: true),
                     Message = table.Column<string>(nullable: true),
                     Percentage = table.Column<double>(nullable: false),
                     Time = table.Column<DateTime>(nullable: false),
@@ -22,7 +24,7 @@ namespace CurrencyTrackerServer.ChangeTrackerService.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_History", x => new { x.Currency, x.ChangeSource });
+                    table.PrimaryKey("PK_History", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(

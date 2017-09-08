@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using CurrencyTrackerServer.ChangeTrackerService.Concrete.Data;
 using CurrencyTrackerServer.Infrastructure.Abstract;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace CurrencyTrackerServer.ChangeTrackerService.Concrete
 {
@@ -30,14 +31,14 @@ namespace CurrencyTrackerServer.ChangeTrackerService.Concrete
             this.Context = context;
         }
 
-        public Repository() : this(new ChangeTrackerContext())
+        public Repository(ChangeTrackerContext context)
         {
+            this.Context = context;
         }
 
-
-        public IEnumerable<T> GetAll()
+        public IQueryable<T> GetAll()
         {
-            return _entities.AsEnumerable();
+            return _entities.AsQueryable<T>();
         }
 
         public async Task<T> Add(T entity)

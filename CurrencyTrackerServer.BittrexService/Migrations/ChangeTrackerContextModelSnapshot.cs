@@ -14,15 +14,17 @@ namespace CurrencyTrackerServer.ChangeTrackerService.Migrations
         protected override void BuildModel(ModelBuilder modelBuilder)
         {
             modelBuilder
-                .HasAnnotation("ProductVersion", "1.1.2");
+                .HasAnnotation("ProductVersion", "1.1.2")
+                .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
             modelBuilder.Entity("CurrencyTrackerServer.ChangeTrackerService.Entities.ChangeHistoryEntryEntity", b =>
                 {
-                    b.Property<string>("Currency");
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd();
 
                     b.Property<int>("ChangeSource");
 
-                    b.Property<int>("Id");
+                    b.Property<string>("Currency");
 
                     b.Property<string>("Message");
 
@@ -32,7 +34,7 @@ namespace CurrencyTrackerServer.ChangeTrackerService.Migrations
 
                     b.Property<int>("Type");
 
-                    b.HasKey("Currency", "ChangeSource");
+                    b.HasKey("Id");
 
                     b.ToTable("History");
                 });

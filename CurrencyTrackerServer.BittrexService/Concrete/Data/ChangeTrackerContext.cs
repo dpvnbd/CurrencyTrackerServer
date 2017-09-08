@@ -10,17 +10,19 @@ namespace CurrencyTrackerServer.ChangeTrackerService.Concrete.Data
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
-            optionsBuilder.UseSqlite("Data Source=change.service.db");
             base.OnConfiguring(optionsBuilder);
+        }
+
+        public ChangeTrackerContext(DbContextOptions options) : base(options)
+        {
+
         }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<CurrencyStateEntity>()
-                .HasKey(c => new { c.Currency, c.ChangeSource });
-
-            modelBuilder.Entity<ChangeHistoryEntryEntity>()
-                .HasKey(c => new { c.Currency, c.ChangeSource });
+                .HasKey(c => new {c.Currency, c.ChangeSource});
+          
         }
     }
 }

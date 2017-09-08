@@ -5,6 +5,9 @@ using System.Threading.Tasks;
 using CurrencyTrackerServer.Areas.ChangeTracker.Infrastructure;
 using CurrencyTrackerServer.ChangeTrackerService.Concrete;
 using CurrencyTrackerServer.ChangeTrackerService.Concrete.Data;
+using CurrencyTrackerServer.ChangeTrackerService.Concrete.ProviderSpecific;
+using CurrencyTrackerServer.ChangeTrackerService.Concrete.ProviderSpecific.Bittrex;
+using CurrencyTrackerServer.ChangeTrackerService.Concrete.ProviderSpecific.Poloniex;
 using CurrencyTrackerServer.ChangeTrackerService.Entities;
 using CurrencyTrackerServer.Infrastructure;
 using CurrencyTrackerServer.Infrastructure.Abstract;
@@ -29,6 +32,7 @@ namespace CurrencyTrackerServer
                 .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
                 .AddJsonFile($"appsettings.{env.EnvironmentName}.json", optional: true)
                 .AddEnvironmentVariables();
+
             Configuration = builder.Build();
         }
 
@@ -42,8 +46,9 @@ namespace CurrencyTrackerServer
             services.AddWebSocketManager();
             services.AddMvc();
 
-            services.AddTransient<ChangeTrackerContext>();
-            //services.AddTransient<IDataSource<IEnumerable<CurrencyChangeApiData>>, BittrexApiDataSource>();
+            services.AddDbContext<ChangeTrackerContext>(options => options
+                .UseSqlServer(Configuration.GetConnectionString("ChangesDb")), ServiceLifetime.Transient);
+
 
             var provider = services.BuildServiceProvider();
             var connectionManager = provider.GetRequiredService<WebSocketConnectionManager>();
@@ -51,13 +56,22 @@ namespace CurrencyTrackerServer
 
             //services.AddSingleton<INotifier<Change>>(handler);
             services.AddSingleton<ChangeNotificationsMessageHandler>(handler);
+            services.AddSingleton<INotifier<Change>>(handler);
 
             //services
             //    .AddTransient<IChangeMonitor<IEnumerable<Change>>, ChangeMonitor<Repository<CurrencyStateEntity>,
             //        Repository<ChangeHistoryEntryEntity>>>();
 
-            services.AddSingleton(s => new BittrexTimerWorker(handler));
-            services.AddSingleton(s => new PoloniexTimerWorker(handler));
+
+            services.AddTransient<IRepository<CurrencyStateEntity>, Repository<CurrencyStateEntity>>();
+            services.AddTransient<IRepository<ChangeHistoryEntryEntity>, Repository<ChangeHistoryEntryEntity>>();
+
+            services.AddTransient<PoloniexChangeMonitor>();
+            services.AddTransient<BittrexChangeMonitor>();
+
+
+            services.AddSingleton<BittrexTimerWorker>();
+            services.AddSingleton<PoloniexTimerWorker>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
