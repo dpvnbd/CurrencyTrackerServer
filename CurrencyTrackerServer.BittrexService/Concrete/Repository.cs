@@ -1,11 +1,8 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using CurrencyTrackerServer.ChangeTrackerService.Concrete.Data;
 using CurrencyTrackerServer.Infrastructure.Abstract;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.DependencyInjection;
 
 namespace CurrencyTrackerServer.ChangeTrackerService.Concrete
 {
@@ -24,14 +21,7 @@ namespace CurrencyTrackerServer.ChangeTrackerService.Concrete
             }
         }
 
-      
-
         public Repository(DbContext context)
-        {
-            this.Context = context;
-        }
-
-        public Repository(ChangeTrackerContext context)
         {
             this.Context = context;
         }
@@ -97,6 +87,11 @@ namespace CurrencyTrackerServer.ChangeTrackerService.Concrete
             {
                 _entities.Remove(entity);
             }
+            await Context.SaveChangesAsync();
+        }
+
+        public async Task SaveChanges()
+        {
             await Context.SaveChangesAsync();
         }
 
