@@ -6,44 +6,49 @@ using System.Threading.Tasks;
 
 namespace CurrencyTrackerServer.Infrastructure.Abstract
 {
-    public abstract class AbstractTimerWorker<TChanges>
+    public abstract class AbstractTimerWorker
     {
-
-
         private readonly Timer _timer;
-        private bool _enabled;
+
+        public bool Started { get; private set; }
+        public int Period { get; set; }
+        private object _lockObject = new object();
+
 
         protected AbstractTimerWorker(int period = 10000)
         {
-            
             Period = period;
-            _timer = new Timer(TimerTick, null, Timeout.Infinite, Timeout.Infinite);
+            _timer = new Timer(TimerTick, _timer, Timeout.Infinite, Timeout.Infinite);
         }
 
-        public bool Enabled
+        public void Start()
         {
-            get { return _enabled; }
-            set
+            if (!Started)
             {
-                _enabled = value;
-                if (!_enabled)
+                lock (_lockObject)
                 {
-                    _timer.Change(Timeout.Infinite, Timeout.Infinite);
-                }
-                else
-                {
-                    _timer.Change(Period, Timeout.Infinite);
+                    if (!Started) //double check after lock to be thread safe
+                    {
+                        Started = true;
+                        _timer.Change(Period, Timeout.Infinite);
+                    }
                 }
             }
         }
 
-
-        public int Period { get; set; }
+        public void Stop()
+        {
+            lock (_lockObject)
+            {
+                Started = false;
+            }
+        }
 
         private async void TimerTick(object state)
         {
             await DoWork();
-            if (Enabled)
+
+            if (Started)
             {
                 _timer.Change(Period, Timeout.Infinite);
             }

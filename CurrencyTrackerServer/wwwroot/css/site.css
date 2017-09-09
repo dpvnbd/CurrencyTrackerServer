@@ -35,3 +35,10 @@ textarea {
         display: none;
     }
 }
+
+/*Fit icon of source site*/
+.source-icon {
+    max-width: 16px;
+    height: auto;
+    width: 100%;
+}

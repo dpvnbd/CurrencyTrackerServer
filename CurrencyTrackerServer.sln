@@ -1,15 +1,15 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
-VisualStudioVersion = 15.0.26430.16
+VisualStudioVersion = 15.0.26730.12
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CurrencyTrackerServer", "CurrencyTrackerServer\CurrencyTrackerServer.csproj", "{A9F7D998-9379-47D7-937F-536150F94B9F}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CurrencyTrackerServer.Infrastructure", "CurrencyTrackerServer.Infrastructure\CurrencyTrackerServer.Infrastructure.csproj", "{30C490B5-0E99-459E-BEF8-C2053E9F0EEA}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CurrencyTrackerServer.BittrexService", "CurrencyTrackerServer.BittrexService\CurrencyTrackerServer.BittrexService.csproj", "{261D4BE4-F697-469E-A81C-45CA3614F81E}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CurrencyTrackerServer.ChangeTrackerService", "CurrencyTrackerServer.BittrexService\CurrencyTrackerServer.ChangeTrackerService.csproj", "{261D4BE4-F697-469E-A81C-45CA3614F81E}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CurrencyTrackerServer.Tests", "CurrencyTrackerServer.Tests\CurrencyTrackerServer.Tests.csproj", "{71E566B0-5BFC-403B-B449-7C993A4A1B08}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CurrencyTrackerServer.Tests", "CurrencyTrackerServer.Tests\CurrencyTrackerServer.Tests.csproj", "{71E566B0-5BFC-403B-B449-7C993A4A1B08}"
 	ProjectSection(ProjectDependencies) = postProject
 		{30C490B5-0E99-459E-BEF8-C2053E9F0EEA} = {30C490B5-0E99-459E-BEF8-C2053E9F0EEA}
 	EndProjectSection
@@ -39,5 +39,8 @@ Global
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {AA246DC5-35A9-4800-B21F-59107255F988}
 	EndGlobalSection
 EndGlobal

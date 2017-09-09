@@ -1,8 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
 
-namespace CurrencyTrackerServer.BittrexService.Entities
+namespace CurrencyTrackerServer.ChangeTrackerService.Entities
 {
     public class Change
     {
@@ -11,12 +9,9 @@ namespace CurrencyTrackerServer.BittrexService.Entities
         public double Percentage { get; set; }
         public double Threshold { get; set; }
         public ChangeType Type { get; set; }
+        public ChangeSource ChangeSource { get; set; }
         public string Message { get; set; }
-    }
 
-    public enum ChangeType
-    {
-        Currency, Error, Info
     }
 }
  

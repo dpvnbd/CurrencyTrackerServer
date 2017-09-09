@@ -1,4 +1,4 @@
-﻿var uri = "ws://" + window.location.host + "/notifications";
+﻿var uri = "ws://" + window.location.host + "/changeNotifications";
 var table = document.getElementById("currenciesTable");
 var firstTime = true;
 var connected = false;
@@ -40,7 +40,7 @@ function connectClick() {
 
 function appendItems(table, data) {
     var arr;
-    if (typeof data == "string") {
+    if (typeof data === "string") {
         arr = JSON.parse(data);
     } else {
         arr = data;
@@ -53,7 +53,7 @@ function appendItems(table, data) {
     var isSpeaking = false;
     for (var i = 0; i < arr.length; i++) {
         var time;
-        if (arr[i].Time != undefined) {
+        if (arr[i].Time !== undefined) {
             var date = new Date(arr[i].Time);
             time = timeFromDate(date);
         } else {
@@ -66,10 +66,11 @@ function appendItems(table, data) {
             $("#currenciesTable").find('tbody')
                 .append($('<tr>')
                     .append($('<td>')
-                        .attr('colspan', '2')
+                        .attr('colspan', '3')
                         .text(arr[i].Message)
                     )
                     .append($('<td>')
+                        .attr('colspan', '1')
                         .text(time)
                     )
                 );
@@ -79,12 +80,24 @@ function appendItems(table, data) {
             speech += arr[i].Currency + ", ";
             var currency = arr[i];
             //var message = currency.Currency + " " + currency.ChangePercentage.toFixed(0) + "%";
+            var iconSrc = "";
+            var link = "";
 
+            if (currency.ChangeSource === 1) {
+                iconSrc = "/images/bittrexIcon.png";
+                link = "https://bittrex.com/Market/Index?MarketName=BTC-";
+            } else if (currency.ChangeSource === 2) {
+                iconSrc = "/images/poloniexIcon.png";
+                link = "https://poloniex.com/exchange#btc_";
+            }
+            
             $("#currenciesTable").find('tbody')
                 .append($('<tr>')
                     .attr("class", firstTime ? "" : "success")
+                    .append(($('<td>')
+                        .html("<img class = 'source-icon' src = '" + iconSrc + "' />")))
                     .append($('<td>')
-                        .html("<a href='https://bittrex.com/Market/Index?MarketName=BTC-" +
+                        .html("<a href='" +link+
                             currency.Currency +
                             "'>" +
                             currency.Currency +
@@ -99,7 +112,7 @@ function appendItems(table, data) {
 
     if (isSpeaking && !firstTime) {
         if (document.getElementById('speechCheckbox').checked) {
-            responsiveVoice.speak(speech);
+            responsiveVoice.speak(speech, "Russian Female");
         }
     } else if (isSpeaking) {
         firstTime = false;

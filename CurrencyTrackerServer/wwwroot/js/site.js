@@ -1,9 +1,7 @@
 ﻿function Reset() {
-    $.post("Home/Reset").done(function() {
+    $.post("/ChangeTracker/Home/Reset").done(function() {
         location.reload(true);
     });
-
-
 };
 
 function timeFromDate(date) {

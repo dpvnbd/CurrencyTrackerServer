@@ -1,0 +1,49 @@
+﻿@using CurrencyTrackerServer.ChangeTrackerService.Entities
+@model IEnumerable<CurrencyTrackerServer.ChangeTrackerService.Entities.Change>
+@{
+    ViewData["Title"] = "Home Page";
+}
+<table id="currenciesTable" class="table table-hover">
+    <tbody>
+    @foreach (var c in @Model)
+    {
+        <tr>
+            @if (c.Type == ChangeType.Currency)
+            {
+                <td>
+                    @if (c.ChangeSource == ChangeSource.Bittrex)
+                    {
+                        <img class="source-icon" src="images/bittrexIcon.png"/>
+                    }
+                    else if (c.ChangeSource == ChangeSource.Poloniex)
+                    {
+                        <img class="source-icon" src="images/poloniexIcon.png"/>
+                    }
+                </td>
+                <td>
+                    @if (c.ChangeSource == ChangeSource.Bittrex)
+                    {
+                        <a href="@string.Concat("https://bittrex.com/Market/Index?MarketName=BTC-", @c.Currency)">@c.Currency</a>
+
+                    }
+                    else if (c.ChangeSource == ChangeSource.Poloniex)
+                    {
+                        <a href="@string.Concat("https://poloniex.com/exchange#btc_", @c.Currency)">@c.Currency</a>
+
+                    }
+                </td>
+                <td>@c.Percentage.ToString("F1")%</td>
+            }
+            else
+            {
+                <td colspan="3">@c.Message</td>
+            }
+            <td>@c.Time.ToString("T")</td>
+        </tr>
+    }
+    </tbody>
+</table>
+
+<script language="javascript" type="text/javascript" src="js/websockets.js"></script>
+
+<script src='https://code.responsivevoice.org/responsivevoice.js'></script>
