@@ -12,5 +12,6 @@ namespace CurrencyTrackerServer.Infrastructure.Abstract
         Task<T> Update(T entity);
         Task Delete(T entity);
         Task DeleteAll();
+        Task SaveChanges();
     }
 }

@@ -19,14 +19,18 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 using Newtonsoft.Json;
 
 namespace CurrencyTrackerServer
 {
     public class Startup
     {
+        private IHostingEnvironment _env;
         public Startup(IHostingEnvironment env)
         {
+            _env = env;
+
             var builder = new ConfigurationBuilder()
                 .SetBasePath(env.ContentRootPath)
                 .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
@@ -49,6 +53,11 @@ namespace CurrencyTrackerServer
             services.AddDbContext<ChangeTrackerContext>(options => options
                 .UseSqlServer(Configuration.GetConnectionString("ChangesDb")), ServiceLifetime.Transient);
 
+            services.AddSingleton<IDbContextFactory<DbContext>, DbFactory>();
+            services.AddSingleton<DbContextFactoryOptions>(s=> 
+            new DbContextFactoryOptions(){ ContentRootPath = _env.ContentRootPath, EnvironmentName = _env.EnvironmentName});
+            services.AddSingleton<RepositoryFactory>();
+
 
             var provider = services.BuildServiceProvider();
             var connectionManager = provider.GetRequiredService<WebSocketConnectionManager>();
@@ -62,9 +71,7 @@ namespace CurrencyTrackerServer
             //    .AddTransient<IChangeMonitor<IEnumerable<Change>>, ChangeMonitor<Repository<CurrencyStateEntity>,
             //        Repository<ChangeHistoryEntryEntity>>>();
 
-
-            services.AddTransient<IRepository<CurrencyStateEntity>, Repository<CurrencyStateEntity>>();
-            services.AddTransient<IRepository<ChangeHistoryEntryEntity>, Repository<ChangeHistoryEntryEntity>>();
+            
 
             services.AddTransient<PoloniexChangeMonitor>();
             services.AddTransient<BittrexChangeMonitor>();
