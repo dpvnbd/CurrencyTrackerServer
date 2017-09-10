@@ -7,9 +7,12 @@ var socket;
 var wsTimeout;
 var pingInterval;
 
+var currentReconnect = 0, maxReconnects = 3;
+
 function connect() {
     socket = new WebSocket(uri);
-    socket.onopen = function(event) {
+    socket.onopen = function (event) {
+        currentReconnect = 0;
         connected = true;
         appendItems(table, { Type: 2, Message: "Соединено с сервером" });
         $("#connectionButton").text("Отключиться").attr("class", "btn btn-success");
@@ -21,11 +24,12 @@ function connect() {
             { Type: 2, Message: ("Разорвано соединение с сервером. " + (reconnect ? "Переподключение..." : "")) });
         $("#connectionButton").text("Подключиться").attr("class", "btn btn-danger");
 
-        if (reconnect) {
+        if (reconnect && currentReconnect < maxReconnects) {
+            currentReconnect++;
             setTimeout(function() {
                     connect();
                 },
-                1000);
+                5000);
         } else {
             clearInterval(pingInterval);
         }
@@ -159,6 +163,7 @@ function appendItems(table, data) {
     $('html, body').animate({ scrollTop: n }, 50);
 };
 
-$(function() {
+$(function () {
+    reconnect = true;
      connect();
 });
