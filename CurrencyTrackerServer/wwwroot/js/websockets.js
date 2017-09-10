@@ -24,8 +24,14 @@ function connect() {
             { Type: 2, Message: ("Разорвано соединение с сервером. " + (reconnect ? "Переподключение..." : "")) });
         $("#connectionButton").text("Подключиться").attr("class", "btn btn-danger");
 
-        if (reconnect && currentReconnect < maxReconnects) {
+        if (reconnect) {
+
             currentReconnect++;
+
+            if (currentReconnect === maxReconnects) {
+                reconnect = false;
+            }
+
             setTimeout(function() {
                     connect();
                 },

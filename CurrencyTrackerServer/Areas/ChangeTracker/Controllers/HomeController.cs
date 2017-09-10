@@ -60,6 +60,13 @@ namespace CurrencyTrackerServer.Areas.ChangeTracker.Controllers
         public async Task<IActionResult> Reset()
         {
             await _bWorker.Monitor.ResetAll();
+
+            await _notifications.SendNotificationMessage(new Change()
+            {
+                Message = "Сброс информации о валютах",
+                Time = DateTime.Now,
+                Type = ChangeType.Info
+            });
             return Ok();
         }
 
