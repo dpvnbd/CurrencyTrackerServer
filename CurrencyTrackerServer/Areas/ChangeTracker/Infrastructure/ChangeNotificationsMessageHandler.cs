@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Net.WebSockets;
+using System.Text;
 using System.Threading.Tasks;
 using CurrencyTrackerServer.ChangeTrackerService.Entities;
 using CurrencyTrackerServer.Infrastructure.Abstract;
@@ -17,9 +18,11 @@ namespace CurrencyTrackerServer.Areas.ChangeTracker.Infrastructure
         {
         }
 
-        public override Task ReceiveAsync(WebSocket socket, WebSocketReceiveResult result, byte[] buffer)
+        public override async Task ReceiveAsync(WebSocket socket, WebSocketReceiveResult result, byte[] buffer)
         {
-            throw new NotImplementedException();
+            var message = new string(Encoding.UTF8.GetChars(buffer)).Trim('\0');
+            if (message.Equals("__ping__"))
+                await SendMessageAsync(socket, "__pong__");
         }
 
         public async Task SendNotificationMessage(IEnumerable<Change> changes)

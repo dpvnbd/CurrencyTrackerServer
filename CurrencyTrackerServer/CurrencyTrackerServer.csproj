@@ -17,6 +17,11 @@
 
   </PropertyGroup>
 
+  <ItemGroup>
+    <None Remove="Properties\PublishProfiles\CustomProfile.pubxml" />
+    <None Remove="Properties\PublishProfiles\Default Settings.pubxml" />
+  </ItemGroup>
+
   
   <ItemGroup>
     <PackageReference Include="Microsoft.ApplicationInsights.AspNetCore" Version="2.1.1" />
@@ -48,6 +53,7 @@
     <Folder Include="Areas\PriceTracker\Views\" />
     <Folder Include="Controllers\" />
     <Folder Include="Infrastructure\Entities\" />
+    <Folder Include="Properties\PublishProfiles\" />
     <Folder Include="Views\Home\" />
   </ItemGroup>
 

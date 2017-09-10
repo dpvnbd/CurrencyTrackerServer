@@ -2,7 +2,10 @@
 var table = document.getElementById("currenciesTable");
 var firstTime = true;
 var connected = false;
+var reconnect = false;
 var socket;
+var wsTimeout;
+var pingInterval;
 
 function connect() {
     socket = new WebSocket(uri);
@@ -10,15 +13,33 @@ function connect() {
         connected = true;
         appendItems(table, { Type: 2, Message: "Соединено с сервером" });
         $("#connectionButton").text("Отключиться").attr("class", "btn btn-success");
-
-
+        pingInterval = setInterval(ping, 30000);
     };
     socket.onclose = function(event) {
         connected = false;
-        appendItems(table, { Type: 2, Message: "Разорвано соединение с сервером" });
+        appendItems(table,
+            { Type: 2, Message: ("Разорвано соединение с сервером. " + (reconnect ? "Переподключение..." : "")) });
         $("#connectionButton").text("Подключиться").attr("class", "btn btn-danger");
+
+        if (reconnect) {
+            setTimeout(function() {
+                    connect();
+                },
+                1000);
+        } else {
+            clearInterval(pingInterval);
+        }
     };
-    socket.onmessage = function(event) {
+    socket.onmessage = function (event) {
+
+        $("#lastMessage").text(timeFromDate(new Date));
+
+        var msg = event.data;
+        if (msg === '__pong__') {
+            pong();
+            return;
+        }
+
         appendItems(table, event.data);
     };
     socket.onerror = function(event) {
@@ -28,12 +49,27 @@ function connect() {
     };
 }
 
-connect();
+function ping() {
+    socket.send('__ping__');
+    wsTimeout = setTimeout(function () {
+        socket.close();
+        //socket.onclose(undefined);
+    }, 5000);
+}
+
+function pong() {
+    clearTimeout(wsTimeout);
+}
+
+
 
 function connectClick() {
     if (connected) {
+        reconnect = false;
         socket.close();
+        
     } else {
+        reconnect = true;
         connect();
     }
 }
@@ -90,14 +126,15 @@ function appendItems(table, data) {
                 iconSrc = "/images/poloniexIcon.png";
                 link = "https://poloniex.com/exchange#btc_";
             }
-            
+
             $("#currenciesTable").find('tbody')
                 .append($('<tr>')
                     .attr("class", firstTime ? "" : "success")
                     .append(($('<td>')
                         .html("<img class = 'source-icon' src = '" + iconSrc + "' />")))
                     .append($('<td>')
-                        .html("<a href='" +link+
+                        .html("<a href='" +
+                            link +
                             currency.Currency +
                             "'>" +
                             currency.Currency +
@@ -120,4 +157,8 @@ function appendItems(table, data) {
 
     var n = $(document).height();
     $('html, body').animate({ scrollTop: n }, 50);
-}
+};
+
+$(function() {
+     connect();
+});
