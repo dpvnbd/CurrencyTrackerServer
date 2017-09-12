@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net.WebSockets;
@@ -6,10 +6,10 @@ using System.Text;
 using System.Threading.Tasks;
 using CurrencyTrackerServer.ChangeTrackerService.Entities;
 using CurrencyTrackerServer.Infrastructure.Abstract;
-using CurrencyTrackerServer.Infrastructure.Concrete;
+using CurrencyTrackerServer.Web.Infrastructure.Abstract;
 using Newtonsoft.Json;
 
-namespace CurrencyTrackerServer.Areas.ChangeTracker.Infrastructure
+namespace CurrencyTrackerServer.Web.Infrastructure.Concrete
 {
     public class ChangeNotificationsMessageHandler : WebSocketHandler, INotifier<Change>
     {
@@ -20,7 +20,7 @@ namespace CurrencyTrackerServer.Areas.ChangeTracker.Infrastructure
 
         public override async Task ReceiveAsync(WebSocket socket, WebSocketReceiveResult result, byte[] buffer)
         {
-            await SendMessageAsync(socket, Encoding.UTF8.GetString(buffer));
+          await SendMessageAsync(socket, Encoding.UTF8.GetString(buffer));
         }
 
         public async Task SendNotificationMessage(IEnumerable<Change> changes)
