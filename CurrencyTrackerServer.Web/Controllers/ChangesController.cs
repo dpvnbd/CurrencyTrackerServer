@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using CurrencyTrackerServer.ChangeTrackerService.Concrete.ProviderSpecific.Bittrex;
 using CurrencyTrackerServer.ChangeTrackerService.Concrete.ProviderSpecific.Poloniex;
 using CurrencyTrackerServer.ChangeTrackerService.Entities;
+using CurrencyTrackerServer.Infrastructure.Abstract;
 using CurrencyTrackerServer.Infrastructure.Entities.Changes;
 using Microsoft.AspNetCore.Mvc;
 
@@ -17,17 +18,20 @@ namespace CurrencyTrackerServer.Web.Controllers
   {
     private readonly BittrexTimerWorker _bWorker;
     private readonly PoloniexTimerWorker _pWorker;
+    private readonly IChangeSettingsProvider _settingsProvider;
 
-    public ChangesController(BittrexTimerWorker bWorker, PoloniexTimerWorker pWorker)
+    public ChangesController(BittrexTimerWorker bWorker, PoloniexTimerWorker pWorker,
+      IChangeSettingsProvider settingsProvider)
     {
       _bWorker = bWorker;
       _pWorker = pWorker;
+      _settingsProvider = settingsProvider;
 
       _bWorker.Percentage = 5;
       _bWorker.Period = 3000;
       _bWorker.ResetTimeSpan = TimeSpan.FromMinutes(15);
 
-      
+
       _pWorker.ResetTimeSpan = TimeSpan.FromMinutes(15);
       _pWorker.Percentage = 5;
       _pWorker.Period = 3000;
@@ -55,7 +59,8 @@ namespace CurrencyTrackerServer.Web.Controllers
       if (source == ChangeSource.Bittrex)
       {
         _bWorker.Start();
-      }else if (source == ChangeSource.Poloniex)
+      }
+      else if (source == ChangeSource.Poloniex)
       {
         _pWorker.Start();
       }
@@ -75,6 +80,19 @@ namespace CurrencyTrackerServer.Web.Controllers
         _pWorker.Stop();
       }
 
+      return Ok();
+    }
+
+    [HttpGet("settings/{source}")]
+    public ChangeSettings Settings(ChangeSource source)
+    {
+      return _settingsProvider.GetSettings(source);
+    }
+
+    [HttpPost("settings/{source}")]
+    public IActionResult SaveSettings(ChangeSource source, ChangeSettings settings)
+    {
+      _settingsProvider.SaveSettings(source, settings);
       return Ok();
     }
   }
