@@ -16,6 +16,8 @@ namespace CurrencyTrackerServer.ChangeTrackerService.Concrete
 
         public int Percentage { get; set; }
 
+        protected ChangeSource ChangeSource = ChangeSource.None;
+
         public TimeSpan ResetTimeSpan { get; set; }
 
         public bool MultipleChanges { get; set; }
@@ -45,7 +47,8 @@ namespace CurrencyTrackerServer.ChangeTrackerService.Concrete
                 {
                     Type = ChangeType.Error,
                     Message = e.Message,
-                    Time = DateTime.Now
+                    Time = DateTime.Now,
+                     ChangeSource = ChangeSource
                 };
 
                 await _notifier.SendNotificationMessage(errorMessage);
