@@ -52,10 +52,20 @@ namespace CurrencyTrackerServer.Web.Infrastructure.Concrete
 
             while (socket.State == WebSocketState.Open)
             {
-                var result = await socket.ReceiveAsync(buffer: new ArraySegment<byte>(buffer),
-                    cancellationToken: CancellationToken.None);
+                try
+                {
+                    var result = await socket.ReceiveAsync(buffer: new ArraySegment<byte>(buffer),
+                        cancellationToken: CancellationToken.None);
 
-                handleMessage(result, buffer);
+                    handleMessage(result, buffer);
+                }
+                catch (WebSocketException e)
+                {
+                    if (e.WebSocketErrorCode == WebSocketError.ConnectionClosedPrematurely)
+                    {
+                        await socket.CloseAsync(WebSocketCloseStatus.InternalServerError, "", CancellationToken.None);
+                    }
+                }
             }
         }
     }

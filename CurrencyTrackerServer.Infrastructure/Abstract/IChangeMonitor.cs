@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 using System.Threading.Tasks;
+using CurrencyTrackerServer.Infrastructure.Entities.Changes;
 
 namespace CurrencyTrackerServer.Infrastructure.Abstract
 {
@@ -11,5 +12,6 @@ namespace CurrencyTrackerServer.Infrastructure.Abstract
         TChanges GetHistory();
         Task ResetAll();
         Task ResetStates(TimeSpan olderThan);
+        Task ResetFrom(ChangeSource source);
     }
 }

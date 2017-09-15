@@ -1,0 +1,43 @@
+<div class="changes">
+  <div class="card">
+    <div class="card-header">
+      <div class="row">
+        <div class="col-6 col-md-2">
+          <div *ngIf="source === 1">
+            <img src="../../assets/images/bittrexIcon.png" class="block-icon float-left" />
+          </div>
+          <div *ngIf="source === 2">
+            <img src="../../assets/images/poloniexIcon.png" class="block-icon float-left" />
+          </div>
+        </div>
+        <div class="hidden-sm-down col-md-8">Изменение за время</div>
+        <div class="col-6 col-md-2">
+          <span class="pull-right">
+            <a href="#" (click)="reset()" title="Сброс">
+              <i class="fa fa-trash fa-lg"></i> 
+            </a>
+                          
+          </span>
+        </div>
+      </div>
+    </div>
+    <div class="card-block app-block">
+      <table class="table table-hover">
+        <tbody>
+          <tr *ngFor="let change of changes" [ngClass]="{'recently-changed': change.recentlyChanged}">
+
+            <td *ngIf="change.currency">{{change.currency}}</td>
+            <td *ngIf="change.currency">{{change.percentage | number:'1.0-1'}}%</td>
+
+            <td *ngIf="!change.currency" colspan="2"> {{change.message}}</td>
+
+            <td>{{change.time | date:'HH:mm:ss'}}</td>
+          </tr>
+          <tr *ngIf="message">{{message}}</tr>
+        </tbody>
+      </table>
+
+      <div #bottom></div>
+    </div>
+  </div>
+</div>

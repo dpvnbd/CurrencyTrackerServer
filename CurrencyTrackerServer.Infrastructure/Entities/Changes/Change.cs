@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace CurrencyTrackerServer.ChangeTrackerService.Entities
+namespace CurrencyTrackerServer.Infrastructure.Entities.Changes
 {
     public class Change
     {

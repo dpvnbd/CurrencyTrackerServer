@@ -5,6 +5,8 @@ using System.Threading.Tasks;
 using CurrencyTrackerServer.ChangeTrackerService.Concrete.Data;
 using CurrencyTrackerServer.ChangeTrackerService.Entities;
 using CurrencyTrackerServer.Infrastructure.Abstract;
+using CurrencyTrackerServer.Infrastructure.Entities.Changes;
+using Microsoft.EntityFrameworkCore;
 
 namespace CurrencyTrackerServer.ChangeTrackerService.Concrete
 {
@@ -173,7 +175,6 @@ namespace CurrencyTrackerServer.ChangeTrackerService.Concrete
 
             using (var historyRepo = _repoFactory.Create<ChangeHistoryEntryEntity>())
             {
-
                 var entries = historyRepo.GetAll();
 
                 foreach (var entry in entries)
@@ -215,7 +216,38 @@ namespace CurrencyTrackerServer.ChangeTrackerService.Concrete
                 }
                 await stateRepo.SaveChanges();
             }
-            
+        }
+
+        public async Task ResetFrom(ChangeSource source)
+        {
+            using (var repo = _repoFactory.Create<CurrencyStateEntity>())
+            {
+                var states = repo.GetAll().Where(s => s.ChangeSource == source);
+                foreach (var entity in states)
+                {
+                    await repo.Delete(entity, false);
+                }
+                await repo.SaveChanges();
+            }
+
+            using (var repo = _repoFactory.Create<ChangeHistoryEntryEntity>())
+            {
+                var history = repo.GetAll().Where(s => s.ChangeSource == source);
+                foreach (var entity in history)
+                {
+                    await repo.Delete(entity, false);
+                }
+                await repo.SaveChanges();
+
+                var entry = new ChangeHistoryEntryEntity
+                {
+                    Type = ChangeType.Info,
+                    Message = "Сброс информации о валютах",
+                    Time = DateTime.Now,
+                    ChangeSource = source
+                };
+                await repo.Add(entry);
+            }
         }
     }
 }

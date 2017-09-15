@@ -1,1 +1,2 @@
-dotnet watch run
+set ASPNETCORE_ENVIRONMENT=Development
+dotnet watch run 

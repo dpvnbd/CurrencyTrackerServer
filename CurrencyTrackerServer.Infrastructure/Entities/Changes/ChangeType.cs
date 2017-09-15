@@ -1,4 +1,4 @@
-﻿namespace CurrencyTrackerServer.ChangeTrackerService.Entities
+﻿namespace CurrencyTrackerServer.Infrastructure.Entities.Changes
 {
     public enum ChangeType
     {

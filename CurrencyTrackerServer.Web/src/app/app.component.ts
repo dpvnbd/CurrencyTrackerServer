@@ -1,16 +1,13 @@
 import { Component, OnInit } from '@angular/core';
-import { Http } from '@angular/http'
+import { Http } from '@angular/http';
 @Component({
     selector: 'app-root',
     templateUrl: './app.component.html',
     styleUrls: ['./app.component.css']
 })
 export class AppComponent implements OnInit {
-    constructor(private _httpService: Http) { }
-    apiValues: string[] = [];
+    constructor() { }
     ngOnInit() {
-        this._httpService.get('/api/changes').subscribe(values => {
-            this.apiValues = values.json() as string[];
-        });
+
     }
 }

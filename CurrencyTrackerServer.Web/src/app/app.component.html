@@ -1,4 +1,12 @@
-<h1>Application says what?</h1>
-<ul>
-  <li *ngFor="let value of apiValues">{{value}}</li>
-</ul>
+<div class="container block-container">
+  <div class="row">
+       
+    <div class="col-6">
+      <app-changes [source]="1"></app-changes>
+    </div>
+
+    <div class="col-6">
+      <app-changes [source]="2"></app-changes>
+    </div>
+  </div>
+</div>

@@ -18,7 +18,7 @@ namespace CurrencyTrackerServer.Web.Infrastructure.Abstract
 
         public virtual async Task OnConnected(WebSocket socket)
         {
-            await Task.Run(()=>WebSocketConnectionManager.AddSocket(socket));
+            await Task.Run(() => WebSocketConnectionManager.AddSocket(socket));
         }
 
         public virtual async Task OnDisconnected(WebSocket socket)
@@ -31,12 +31,16 @@ namespace CurrencyTrackerServer.Web.Infrastructure.Abstract
             if (socket.State != WebSocketState.Open)
                 return;
             var array = Encoding.UTF8.GetBytes(message);
-            await socket.SendAsync(buffer: new ArraySegment<byte>(array: array ,
-                    offset: 0,
-                    count: array.Length),
-                messageType: WebSocketMessageType.Text,
-                endOfMessage: true,
-                cancellationToken: CancellationToken.None);
+
+
+            await socket.SendAsync(buffer: new ArraySegment<byte>(array: array,
+                offset: 0,
+                count: array.Length),
+              messageType: WebSocketMessageType.Text,
+              endOfMessage: true,
+              cancellationToken: CancellationToken.None);
+
+
         }
 
         public async Task SendMessageAsync(string socketId, string message)
@@ -46,23 +50,21 @@ namespace CurrencyTrackerServer.Web.Infrastructure.Abstract
 
         public async Task SendMessageToAllAsync(string message)
         {
-            try
-            {
-                foreach (var pair in WebSocketConnectionManager.GetAll())
-                {
-                    if (pair.Value.State == WebSocketState.Open)
-                        await SendMessageAsync(pair.Value, message);
-                }
-            }
-            catch (Exception e)
-            {
 
-                Console.WriteLine(e.Message);
+            foreach (var pair in WebSocketConnectionManager.GetAll())
+            {
+                if (pair.Value.State == WebSocketState.Open)
+                    await SendMessageAsync(pair.Value, message);
+                else
+                {
+                    System.Console.WriteLine("Discarding not open socket");
+                    await OnDisconnected(pair.Value);
+                }
             }
         }
 
         public abstract Task ReceiveAsync(WebSocket socket, WebSocketReceiveResult result, byte[] buffer);
 
-   
+
     }
 }

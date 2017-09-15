@@ -1,1 +1,11 @@
 /* You can add global styles to this file, and also import other style files */
+.app-block{
+    height: calc(100vh - 100px);
+    overflow-y: scroll;
+}
+
+.block-icon{
+    max-width: 24px;
+    width: 100%;
+    height: auto;
+}

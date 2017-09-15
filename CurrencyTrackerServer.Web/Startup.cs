@@ -8,6 +8,7 @@ using CurrencyTrackerServer.ChangeTrackerService.Concrete.ProviderSpecific.Bittr
 using CurrencyTrackerServer.ChangeTrackerService.Concrete.ProviderSpecific.Poloniex;
 using CurrencyTrackerServer.ChangeTrackerService.Entities;
 using CurrencyTrackerServer.Infrastructure.Abstract;
+using CurrencyTrackerServer.Infrastructure.Entities.Changes;
 using CurrencyTrackerServer.Web.Infrastructure;
 using CurrencyTrackerServer.Web.Infrastructure.Concrete;
 using Microsoft.AspNetCore.Builder;
