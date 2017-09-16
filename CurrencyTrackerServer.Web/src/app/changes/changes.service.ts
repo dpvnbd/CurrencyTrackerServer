@@ -28,12 +28,11 @@ export interface Change {
 }
 
 export interface ChangeSettings {
-
   periodSeconds: number;
   percentage: number;
   resetHours: number;
   multipleChanges: boolean;
-  multiplechangesSpanMinutes: number;
+  multipleChangesSpanMinutes: number;
   marginPercentage: number;
   marginCurrencies: string[];
 }
@@ -63,7 +62,11 @@ export class ChangesService {
   }
 
   public getSettings(source: ChangeSource) {
-    return this.http.get('/api/settings/' + source).map(data => data as ChangeSettings).toPromise();
+    return this.http.get('/api/changes/settings/' + source).map(data => data as ChangeSettings).toPromise();
+  }
+
+  public saveSettings(source: ChangeSource, settings: ChangeSettings) {
+    return this.http.post('/api/changes/settings/' + source, settings).map(data => data).toPromise();
   }
 
   public getHistory(source: ChangeSource): any {

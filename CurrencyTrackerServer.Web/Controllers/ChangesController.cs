@@ -90,10 +90,17 @@ namespace CurrencyTrackerServer.Web.Controllers
     }
 
     [HttpPost("settings/{source}")]
-    public IActionResult SaveSettings(ChangeSource source, ChangeSettings settings)
+    public IActionResult SaveSettings(ChangeSource source, [FromBody] ChangeSettings settings)
     {
-      _settingsProvider.SaveSettings(source, settings);
-      return Ok();
+      if (ModelState.IsValid)
+      {
+        _settingsProvider.SaveSettings(source, settings);
+        return Ok();
+      }
+      else
+      {
+        return BadRequest(ModelState);
+      }
     }
   }
 }

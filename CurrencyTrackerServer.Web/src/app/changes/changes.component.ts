@@ -1,5 +1,5 @@
 import { Component, OnInit, AfterViewChecked, Input, ElementRef, ViewChild } from '@angular/core';
-import { ChangesService, Change, ChangeSource } from './changes.service';
+import { ChangesService, Change, ChangeSource, ChangeSettings } from './changes.service';
 import { DatePipe, DecimalPipe } from '@angular/common';
 import { NgbModal, ModalDismissReasons } from '@ng-bootstrap/ng-bootstrap';
 
@@ -16,6 +16,7 @@ export class ChangesComponent implements OnInit {
 
     @ViewChild('bottom') bottom: ElementRef;
     private changes: Change[] = [];
+    private settings: ChangeSettings;
     private message: string;
     private skipSpeech = true;
     modalCloseResult: string;
@@ -40,22 +41,19 @@ export class ChangesComponent implements OnInit {
     }
 
     openModal(content) {
-        this.modalService.open(content).result.then((result) => {
-            this.modalCloseResult = `Closed with: ${result}`;
-        }, (reason) => {
-            this.modalCloseResult = `Dismissed ${this.getDismissReason(reason)}`;
+        this.changesService.getSettings(this.source).then((settings) => {
+            if (settings) {
+                this.settings = settings;
+
+                this.modalService.open(content).result.then((save) => {
+                    if (save) {
+                        this.changesService.saveSettings(this.source, this.settings);
+                    }
+                });
+            }
         });
     }
 
-    private getDismissReason(reason: any): string {
-        if (reason === ModalDismissReasons.ESC) {
-            return 'by pressing ESC';
-        } else if (reason === ModalDismissReasons.BACKDROP_CLICK) {
-            return 'by clicking on a backdrop';
-        } else {
-            return `with: ${reason}`;
-        }
-    }
 
     reloadHistory() {
         this.message = 'Загрузка истории...';
@@ -100,12 +98,12 @@ export class ChangesComponent implements OnInit {
                 text += ' ' + change.currency;
             }
         }
-        responsiveVoice.speak(text, "Russian Female");
+        responsiveVoice.speak(text, 'Russian Female');
     }
 
     scrollToBottom() {
         if (this.bottom.nativeElement) {
-            //Timeout to let view load changes before scrolling
+            // Timeout to let view load changes before scrolling
             if (this.bottom.nativeElement !== undefined) {
                 setTimeout(() => { this.bottom.nativeElement.scrollIntoView(true); }, 200);
             }
