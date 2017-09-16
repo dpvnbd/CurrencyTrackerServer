@@ -17,8 +17,8 @@ namespace CurrencyTrackerServer.ChangeTrackerService.Concrete
         private IDataSource<IEnumerable<CurrencyChangeApiData>> _dataSource;
         private readonly RepositoryFactory _repoFactory;
         private readonly IChangeSettingsProvider _settingsProvider;
-        private ChangeSettings Settings { get; }
-        private ChangeSource Source { get; }
+        public ChangeSettings Settings { get; }
+        public ChangeSource Source { get; }
 
         public ChangeMonitor(IDataSource<IEnumerable<CurrencyChangeApiData>> dataSource,
             RepositoryFactory repoFactory, IChangeSettingsProvider settingsProvider)
@@ -31,8 +31,7 @@ namespace CurrencyTrackerServer.ChangeTrackerService.Concrete
         }
 
 
-        public async Task<IEnumerable<Change>> GetChanges( /*double percentage, TimeSpan multipleChangesSpan,
-            bool multipleChanges = false*/)
+        public async Task<IEnumerable<Change>> GetChanges()
         {
             var currencies = await _dataSource.GetData();
             if (currencies != null && !currencies.Any())

@@ -20,21 +20,11 @@ namespace CurrencyTrackerServer.Web.Controllers
     private readonly PoloniexTimerWorker _pWorker;
     private readonly IChangeSettingsProvider _settingsProvider;
 
-    public ChangesController(BittrexTimerWorker bWorker, PoloniexTimerWorker pWorker,
-      IChangeSettingsProvider settingsProvider)
+    public ChangesController(BittrexTimerWorker bWorker, PoloniexTimerWorker pWorker, IChangeSettingsProvider settingsProvider)
     {
       _bWorker = bWorker;
       _pWorker = pWorker;
       _settingsProvider = settingsProvider;
-
-      _bWorker.Percentage = 5;
-      _bWorker.Period = 3000;
-      _bWorker.ResetTimeSpan = TimeSpan.FromMinutes(15);
-
-
-      _pWorker.ResetTimeSpan = TimeSpan.FromMinutes(15);
-      _pWorker.Percentage = 5;
-      _pWorker.Period = 3000;
 
       _bWorker.Start();
       _pWorker.Start();

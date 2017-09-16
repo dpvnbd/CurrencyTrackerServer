@@ -6,9 +6,8 @@ namespace CurrencyTrackerServer.ChangeTrackerService.Concrete.ProviderSpecific.B
 {
    public class BittrexTimerWorker : ChangeTimerWorker
     {
-        public BittrexTimerWorker(BittrexChangeMonitor monitor, INotifier<Change> notifier, int period = 10000) : base(monitor, notifier, period)
+        public BittrexTimerWorker(BittrexChangeMonitor monitor, INotifier<Change> notifier) : base(monitor, notifier)
         {
-            ChangeSource = ChangeSource.Bittrex;
         }
     }
 }

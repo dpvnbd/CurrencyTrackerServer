@@ -14,18 +14,7 @@ namespace CurrencyTrackerServer.ChangeTrackerService.Concrete
         public IChangeMonitor<IEnumerable<Change>> Monitor { get; }
         private readonly INotifier<Change> _notifier;
 
-        public int Percentage { get; set; }
-
-        protected ChangeSource ChangeSource = ChangeSource.None;
-
-        public TimeSpan ResetTimeSpan { get; set; }
-
-        public bool MultipleChanges { get; set; }
-
-        public TimeSpan MultipleChangesSpan { get; set; }
-
-        public ChangeTimerWorker(IChangeMonitor<IEnumerable<Change>> monitor, INotifier<Change> notifier,
-            int period = 10000) : base(period)
+        public ChangeTimerWorker(IChangeMonitor<IEnumerable<Change>> monitor, INotifier<Change> notifier) : base()
         {
             Monitor = monitor;
             _notifier = notifier;
@@ -36,7 +25,7 @@ namespace CurrencyTrackerServer.ChangeTrackerService.Concrete
         {
             try
             {
-                await Monitor.ResetStates(ResetTimeSpan);
+                await Monitor.ResetStates(TimeSpan.FromHours(Monitor.Settings.ResetHours));
                 var changes = await Monitor.GetChanges();
                 if (changes.Any())
                     await _notifier.SendNotificationMessage(changes);
@@ -48,10 +37,14 @@ namespace CurrencyTrackerServer.ChangeTrackerService.Concrete
                     Type = ChangeType.Error,
                     Message = e.Message,
                     Time = DateTime.Now,
-                     ChangeSource = ChangeSource
+                    ChangeSource = Monitor.Source
                 };
 
                 await _notifier.SendNotificationMessage(errorMessage);
+            }
+            finally
+            {
+                Period = Monitor.Settings.PeriodSeconds * 1000;
             }
         }
     }

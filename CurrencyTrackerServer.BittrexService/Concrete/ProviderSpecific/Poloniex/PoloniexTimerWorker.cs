@@ -7,9 +7,8 @@ namespace CurrencyTrackerServer.ChangeTrackerService.Concrete.ProviderSpecific.P
 {
     public class PoloniexTimerWorker:ChangeTimerWorker
     {
-        public PoloniexTimerWorker(PoloniexChangeMonitor monitor, INotifier<Change> notifier, int period = 10000) : base(monitor, notifier, period)
+        public PoloniexTimerWorker(PoloniexChangeMonitor monitor, INotifier<Change> notifier) : base(monitor, notifier)
         {
-            ChangeSource = ChangeSource.Poloniex;
         }
     }
 }

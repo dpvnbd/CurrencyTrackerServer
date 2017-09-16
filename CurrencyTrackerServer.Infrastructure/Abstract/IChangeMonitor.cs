@@ -12,5 +12,7 @@ namespace CurrencyTrackerServer.Infrastructure.Abstract
         TChanges GetHistory(bool allHistory = false);
         Task ResetAll();
         Task ResetStates(TimeSpan olderThan);
+        ChangeSource Source { get; }
+        ChangeSettings Settings { get; }
     }
 }
