@@ -37,7 +37,7 @@ namespace CurrencyTrackerServer.ChangeTrackerService.Concrete
             try
             {
                 await Monitor.ResetStates(ResetTimeSpan);
-                var changes = await Monitor.GetChanges(Percentage, MultipleChangesSpan, MultipleChanges);
+                var changes = await Monitor.GetChanges();
                 if (changes.Any())
                     await _notifier.SendNotificationMessage(changes);
             }

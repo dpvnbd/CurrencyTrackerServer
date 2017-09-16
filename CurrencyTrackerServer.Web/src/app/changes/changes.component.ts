@@ -98,7 +98,10 @@ export class ChangesComponent implements OnInit {
                 text += ' ' + change.currency;
             }
         }
-        responsiveVoice.speak(text, 'Russian Female');
+
+        if (text.length > 0) {
+            responsiveVoice.speak(text, 'Russian Female');
+        }
     }
 
     scrollToBottom() {

@@ -40,29 +40,45 @@ namespace CurrencyTrackerServer.Web.Controllers
       _pWorker.Start();
     }
 
-    [HttpGet()]
-    public IEnumerable<Change> Get()
+    [HttpGet("{source}")]
+    public IEnumerable<Change> GetAsync(ChangeSource source)
     {
-      return _bWorker.Monitor.GetHistory();
+      switch (source)
+      {
+        case ChangeSource.Bittrex:
+          return _bWorker.Monitor.GetHistory();
+        case ChangeSource.Poloniex:
+          return _pWorker.Monitor.GetHistory();
+      }
+      return _bWorker.Monitor.GetHistory(allHistory: true);
     }
 
     [HttpPost("reset/{source}")]
     public async Task<IActionResult> Reset(ChangeSource source)
     {
-      await _bWorker.Monitor.ResetFrom(source);
+      switch (source)
+      {
+        case ChangeSource.Bittrex:
+          await _bWorker.Monitor.ResetAll();
+          break;
+        case ChangeSource.Poloniex:
+          await _pWorker.Monitor.ResetAll();
+          break;
+      }
       return Ok();
     }
 
     [HttpPost("start/{source}")]
     public IActionResult Start(ChangeSource source)
     {
-      if (source == ChangeSource.Bittrex)
+      switch (source)
       {
-        _bWorker.Start();
-      }
-      else if (source == ChangeSource.Poloniex)
-      {
-        _pWorker.Start();
+        case ChangeSource.Bittrex:
+          _bWorker.Start();
+          break;
+        case ChangeSource.Poloniex:
+          _pWorker.Start();
+          break;
       }
 
       return Ok();

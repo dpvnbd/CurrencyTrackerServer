@@ -60,5 +60,7 @@ namespace CurrencyTrackerServer.ChangeTrackerService.Concrete.ProviderSpecific.B
 
             return list;
         }
+
+        public ChangeSource Source => ChangeSource.Bittrex;
     }
 }

@@ -68,5 +68,7 @@ namespace CurrencyTrackerServer.ChangeTrackerService.Concrete.ProviderSpecific.P
 
             return list;
         }
+
+        public ChangeSource Source => ChangeSource.Poloniex;
     }
 }

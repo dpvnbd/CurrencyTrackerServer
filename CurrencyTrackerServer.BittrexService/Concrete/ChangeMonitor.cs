@@ -16,18 +16,23 @@ namespace CurrencyTrackerServer.ChangeTrackerService.Concrete
     {
         private IDataSource<IEnumerable<CurrencyChangeApiData>> _dataSource;
         private readonly RepositoryFactory _repoFactory;
-
+        private readonly IChangeSettingsProvider _settingsProvider;
+        private ChangeSettings Settings { get; }
+        private ChangeSource Source { get; }
 
         public ChangeMonitor(IDataSource<IEnumerable<CurrencyChangeApiData>> dataSource,
-            RepositoryFactory repoFactory)
+            RepositoryFactory repoFactory, IChangeSettingsProvider settingsProvider)
         {
             _dataSource = dataSource;
             this._repoFactory = repoFactory;
+            _settingsProvider = settingsProvider;
+            Source = dataSource.Source;
+            Settings = _settingsProvider.GetSettings(Source);
         }
 
 
-        public async Task<IEnumerable<Change>> GetChanges(double percentage, TimeSpan multipleChangesSpan,
-            bool multipleChanges = false)
+        public async Task<IEnumerable<Change>> GetChanges( /*double percentage, TimeSpan multipleChangesSpan,
+            bool multipleChanges = false*/)
         {
             var currencies = await _dataSource.GetData();
             if (currencies != null && !currencies.Any())
@@ -60,7 +65,7 @@ namespace CurrencyTrackerServer.ChangeTrackerService.Concrete
                 }
 
 
-                if (currency.PercentChanged < threshold + percentage)
+                if (currency.PercentChanged < threshold + Settings.Percentage)
                 {
                     continue;
                 }
@@ -70,13 +75,14 @@ namespace CurrencyTrackerServer.ChangeTrackerService.Concrete
                     Percentage = currency.PercentChanged,
                     Time = now,
                     Type = ChangeType.Currency,
-                    Threshold = CurrencyStateEntity.CalculateThreshold(percentage, currency.PercentChanged),
+                    Threshold = CurrencyStateEntity.CalculateThreshold(Settings.Percentage, currency.PercentChanged),
                     ChangeSource = currency.ChangeSource
                 };
 
                 await SaveState(change);
 
-                if (multipleChanges && now - lastChange > multipleChangesSpan)
+                if (Settings.MultipleChanges &&
+                    now - lastChange > TimeSpan.FromMinutes(Settings.MultipleChangesSpanMinutes))
                 {
                     continue;
                 }
@@ -139,12 +145,12 @@ namespace CurrencyTrackerServer.ChangeTrackerService.Concrete
             }
         }
 
-        public IEnumerable<Change> GetHistory()
+        public IEnumerable<Change> GetHistory(bool allHistory = false)
         {
             List<ChangeHistoryEntryEntity> entities;
             using (var repo = _repoFactory.Create<ChangeHistoryEntryEntity>())
             {
-                var enumerable = repo.GetAll();
+                var enumerable = repo.GetAll().Where(c => !allHistory && c.ChangeSource == Source);
                 entities = new List<ChangeHistoryEntryEntity>(enumerable.Skip(Math.Max(0, enumerable.Count() - 50)));
             }
 
@@ -162,11 +168,19 @@ namespace CurrencyTrackerServer.ChangeTrackerService.Concrete
 
         public async Task ResetAll()
         {
-            using (var stateRepo = _repoFactory.Create<CurrencyStateEntity>())
+            using (var repo = _repoFactory.Create<CurrencyStateEntity>())
             {
-                await stateRepo.DeleteAll();
+                var states = repo.GetAll().Where(s => s.ChangeSource == Source);
+                foreach (var entity in states)
+                {
+                    await repo.Delete(entity, false);
+                }
+                await repo.SaveChanges();
             }
+
             await ClearHistory(TimeSpan.Zero, true);
+
+
         }
 
         public async Task ClearHistory(TimeSpan olderThan, bool logDeletion = false)
@@ -175,7 +189,7 @@ namespace CurrencyTrackerServer.ChangeTrackerService.Concrete
 
             using (var historyRepo = _repoFactory.Create<ChangeHistoryEntryEntity>())
             {
-                var entries = historyRepo.GetAll();
+                var entries = historyRepo.GetAll().Where(c => c.ChangeSource == Source);
 
                 foreach (var entry in entries)
                 {
@@ -193,7 +207,8 @@ namespace CurrencyTrackerServer.ChangeTrackerService.Concrete
                     {
                         Type = ChangeType.Info,
                         Message = "Сброс информации о валютах",
-                        Time = DateTime.Now
+                        Time = DateTime.Now,
+                        ChangeSource = Source
                     };
                     await historyRepo.Add(entry);
                 }
@@ -206,7 +221,7 @@ namespace CurrencyTrackerServer.ChangeTrackerService.Concrete
 
             using (var stateRepo = _repoFactory.Create<CurrencyStateEntity>())
             {
-                var states = stateRepo.GetAll();
+                var states = stateRepo.GetAll().Where(c => c.ChangeSource == Source);
                 foreach (var state in states)
                 {
                     if (now > state.Created + olderThan)
@@ -215,38 +230,6 @@ namespace CurrencyTrackerServer.ChangeTrackerService.Concrete
                     }
                 }
                 await stateRepo.SaveChanges();
-            }
-        }
-
-        public async Task ResetFrom(ChangeSource source)
-        {
-            using (var repo = _repoFactory.Create<CurrencyStateEntity>())
-            {
-                var states = repo.GetAll().Where(s => s.ChangeSource == source);
-                foreach (var entity in states)
-                {
-                    await repo.Delete(entity, false);
-                }
-                await repo.SaveChanges();
-            }
-
-            using (var repo = _repoFactory.Create<ChangeHistoryEntryEntity>())
-            {
-                var history = repo.GetAll().Where(s => s.ChangeSource == source);
-                foreach (var entity in history)
-                {
-                    await repo.Delete(entity, false);
-                }
-                await repo.SaveChanges();
-
-                var entry = new ChangeHistoryEntryEntity
-                {
-                    Type = ChangeType.Info,
-                    Message = "Сброс информации о валютах",
-                    Time = DateTime.Now,
-                    ChangeSource = source
-                };
-                await repo.Add(entry);
             }
         }
     }

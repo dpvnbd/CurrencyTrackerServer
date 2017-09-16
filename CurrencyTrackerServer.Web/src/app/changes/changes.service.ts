@@ -70,7 +70,7 @@ export class ChangesService {
   }
 
   public getHistory(source: ChangeSource): any {
-    return this.http.get('/api/changes').map(data => data as Change[]).toPromise();
+    return this.http.get('/api/changes/' + source).map(data => data as Change[]).toPromise();
   }
 
   public reset(source: ChangeSource): any {
