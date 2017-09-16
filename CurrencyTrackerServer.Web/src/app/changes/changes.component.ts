@@ -15,9 +15,9 @@ export class ChangesComponent implements OnInit {
     source: ChangeSource;
 
     @ViewChild('bottom') bottom: ElementRef;
-    private changes: Change[] = [];
-    private settings: ChangeSettings;
-    private message: string;
+    changes: Change[] = [];
+    settings: ChangeSettings;
+    message: string;
     private skipSpeech = true;
     modalCloseResult: string;
 
