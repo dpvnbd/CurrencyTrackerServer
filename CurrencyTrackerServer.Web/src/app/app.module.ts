@@ -11,6 +11,8 @@ import { ChangesComponent } from './changes/changes.component';
 import { ChangesService } from './changes/changes.service';
 import {$WebSocket} from 'angular2-websocket/angular2-websocket';
 
+import {NgbModule} from '@ng-bootstrap/ng-bootstrap';
+
 
 
 @NgModule({
@@ -21,7 +23,8 @@ import {$WebSocket} from 'angular2-websocket/angular2-websocket';
   imports: [
     BrowserModule,
     FormsModule,
-    HttpClientModule
+    HttpClientModule,
+    NgbModule.forRoot()
   ],
   providers: [ChangesService],
   bootstrap: [AppComponent]

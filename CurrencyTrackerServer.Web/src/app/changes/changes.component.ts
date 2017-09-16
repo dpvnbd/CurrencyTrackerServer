@@ -1,8 +1,7 @@
 import { Component, OnInit, AfterViewChecked, Input, ElementRef, ViewChild } from '@angular/core';
 import { ChangesService, Change, ChangeSource } from './changes.service';
 import { DatePipe, DecimalPipe } from '@angular/common';
-import { HttpClient } from '@angular/common/http';
-
+import { NgbModal, ModalDismissReasons } from '@ng-bootstrap/ng-bootstrap';
 
 @Component({
     selector: 'app-changes',
@@ -16,16 +15,12 @@ export class ChangesComponent implements OnInit {
     source: ChangeSource;
 
     @ViewChild('bottom') bottom: ElementRef;
-
-
     private changes: Change[] = [];
-
     private message: string;
-
     private skipSpeech = true;
+    modalCloseResult: string;
 
-
-    constructor(private changesService: ChangesService, private http: HttpClient) { }
+    constructor(private changesService: ChangesService, private modalService: NgbModal) { }
 
     ngOnInit() {
         this.changesService.subject.subscribe((changes: Change[]) => {
@@ -42,23 +37,39 @@ export class ChangesComponent implements OnInit {
         });
 
         this.reloadHistory();
+    }
 
+    openModal(content) {
+        this.modalService.open(content).result.then((result) => {
+            this.modalCloseResult = `Closed with: ${result}`;
+        }, (reason) => {
+            this.modalCloseResult = `Dismissed ${this.getDismissReason(reason)}`;
+        });
+    }
+
+    private getDismissReason(reason: any): string {
+        if (reason === ModalDismissReasons.ESC) {
+            return 'by pressing ESC';
+        } else if (reason === ModalDismissReasons.BACKDROP_CLICK) {
+            return 'by clicking on a backdrop';
+        } else {
+            return `with: ${reason}`;
+        }
     }
 
     reloadHistory() {
         this.message = 'Загрузка истории...';
         this.changes.length = 0;
-
-        this.http.get('/api/changes').subscribe(data => {
-            const loaded = data as Change[];
-            this.skipSpeech = true;
-            this.addChanges(loaded);
-            this.message = null;
-        });
-
+        this.skipSpeech = true;
+        this.changesService.getHistory(this.source).then(
+            (history) => {
+                if (history) {
+                    this.addChanges(history);
+                }
+                this.message = null;
+            }
+        );
     }
-
-
 
     addChanges(changes: Change[]) {
         for (const oldChange of this.changes) {
@@ -71,7 +82,7 @@ export class ChangesComponent implements OnInit {
                 this.changes.push(change);
             }
         }
-        if (changes.length > 0) {
+        if (changes && changes.length > 0) {
             this.scrollToBottom();
         }
 
@@ -85,7 +96,7 @@ export class ChangesComponent implements OnInit {
 
         let text = '';
         for (const change of changes) {
-            if (change.currency.length > 0) {
+            if (change.currency && change.currency.length > 0) {
                 text += ' ' + change.currency;
             }
         }
@@ -94,8 +105,7 @@ export class ChangesComponent implements OnInit {
 
     scrollToBottom() {
         if (this.bottom.nativeElement) {
-            // I can't remember why I added a short timeout,
-            // the below works great though.
+            //Timeout to let view load changes before scrolling
             if (this.bottom.nativeElement !== undefined) {
                 setTimeout(() => { this.bottom.nativeElement.scrollIntoView(true); }, 200);
             }
@@ -103,7 +113,7 @@ export class ChangesComponent implements OnInit {
     }
 
     reset() {
-        this.http.post('/api/changes/reset/' + this.source, null).subscribe((response) => {
+        this.changesService.reset(this.source).then((response) => {
             this.reloadHistory();
         });
     }

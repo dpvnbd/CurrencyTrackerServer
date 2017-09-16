@@ -1,10 +1,12 @@
 import { Injectable } from '@angular/core';
 import { Subject } from 'rxjs/Subject';
 import 'rxjs/add/operator/map';
-import 'rxjs/add/operator/filter';
+import 'rxjs/add/operator/toPromise';
+
 import { isDevMode } from '@angular/core';
 import { Observable } from 'rxjs/Observable';
 import { $WebSocket } from 'angular2-websocket/angular2-websocket';
+import { HttpClient } from '@angular/common/http';
 
 
 
@@ -25,6 +27,17 @@ export interface Change {
   recentlyChanged?: boolean;
 }
 
+export interface ChangeSettings {
+
+  periodSeconds: number;
+  percentage: number;
+  resetHours: number;
+  multipleChanges: boolean;
+  multiplechangesSpanMinutes: number;
+  marginPercentage: number;
+  marginCurrencies: string[];
+}
+
 @Injectable()
 export class ChangesService {
 
@@ -35,7 +48,7 @@ export class ChangesService {
 
   url: string = 'ws://' + window.location.host + '/changeNotifications';
 
-  constructor() {
+  constructor(private http: HttpClient) {
     if (isDevMode()) {
       this.url = 'ws://localhost:5000/changeNotifications';
     }
@@ -48,6 +61,19 @@ export class ChangesService {
       return data;
     });
   }
+
+  public getSettings(source: ChangeSource) {
+    return this.http.get('/api/settings/' + source).map(data => data as ChangeSettings).toPromise();
+  }
+
+  public getHistory(source: ChangeSource): any {
+    return this.http.get('/api/changes').map(data => data as Change[]).toPromise();
+  }
+
+  public reset(source: ChangeSource): any {
+    return this.http.post('/api/changes/reset/' + source, null).toPromise();
+  }
+
 }
 
 
