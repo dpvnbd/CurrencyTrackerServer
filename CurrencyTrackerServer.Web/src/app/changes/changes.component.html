@@ -57,11 +57,23 @@
         <div class="form-group row">
           <label for="multiplechangesSpanMinutes" class="col-sm-6 col-form-label">... за время, мин</label>
           <div class="col-sm-6">
-            <input type="number" name="multipleChangesSpanMinutes"
-             class="form-control" id="multipleChangesSpanMinutes" [(ngModel)]="settings.multipleChangesSpanMinutes">
+            <input type="number" name="multipleChangesSpanMinutes" class="form-control" id="multipleChangesSpanMinutes" [(ngModel)]="settings.multipleChangesSpanMinutes">
           </div>
         </div>
-        <hr/>        
+        <hr/>
+
+        <div class="form-group row">
+            <label class="col-sm-6">Звук</label>
+            <div class="col-sm-6">
+              <div class="form-check">
+                <label class="form-check-label">
+                  <input class="form-check-input" name="soundEnabled"
+                   type="checkbox" [(ngModel)]="soundEnabled">
+                </label>
+              </div>
+            </div>
+          </div>
+
       </form>
     </div>
   </div>
@@ -71,17 +83,14 @@
   </div>
 </ng-template>
 
+
+
 <div class="changes">
   <div class="card">
     <div class="card-header">
       <div class="row">
         <div class="col-6 col-md-2">
-          <div *ngIf="source === 1">
-            <img src="../../assets/images/bittrexIcon.png" class="block-icon float-left" />
-          </div>
-          <div *ngIf="source === 2">
-            <img src="../../assets/images/poloniexIcon.png" class="block-icon float-left" />
-          </div>
+          <img src="{{iconPath}}" class="block-icon float-left" />
         </div>
         <div class="hidden-sm-down col-md-6">Изменение за время
 
@@ -103,7 +112,9 @@
         <tbody>
           <tr *ngFor="let change of changes" [ngClass]="{'recently-changed': change.recentlyChanged}">
 
-            <td *ngIf="change.currency">{{change.currency}}</td>
+            <td *ngIf="change.currency">
+              <a href="{{linkTemplate}}{{change.currency}}" target="_blank">{{change.currency}}</a>
+            </td>
             <td *ngIf="change.currency">{{change.percentage | number:'1.0-1'}}%</td>
 
             <td *ngIf="!change.currency" colspan="2"> {{change.message}}</td>

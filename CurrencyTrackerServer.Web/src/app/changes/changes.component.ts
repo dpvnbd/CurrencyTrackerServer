@@ -20,10 +20,21 @@ export class ChangesComponent implements OnInit {
     message: string;
     private skipSpeech = true;
     modalCloseResult: string;
+    linkTemplate: string;
+    iconPath: string;
+    soundEnabled = true;
 
     constructor(private changesService: ChangesService, private modalService: NgbModal) { }
 
     ngOnInit() {
+        if (this.source === ChangeSource.Bittrex) {
+            this.linkTemplate = 'https://bittrex.com/Market/Index?MarketName=BTC-';
+            this.iconPath = '../../assets/images/bittrexIcon.png';
+        } else if (this.source = ChangeSource.Poloniex) {
+            this.linkTemplate = 'https://poloniex.com/exchange#btc_';
+            this.iconPath = '../../assets/images/poloniexIcon.png';
+        }
+
         this.changesService.subject.subscribe((changes: Change[]) => {
             const localChanges: Change[] = [];
             for (const change of changes) {
@@ -87,7 +98,7 @@ export class ChangesComponent implements OnInit {
     }
 
     speakChanges(changes: Change[]) {
-        if (this.skipSpeech) {
+        if (this.skipSpeech || !this.soundEnabled) {
             this.skipSpeech = false;
             return;
         }
