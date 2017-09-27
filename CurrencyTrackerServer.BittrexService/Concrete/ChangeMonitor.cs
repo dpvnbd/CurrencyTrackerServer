@@ -15,12 +15,12 @@ namespace CurrencyTrackerServer.ChangeTrackerService.Concrete
 
     {
         private IDataSource<IEnumerable<CurrencyChangeApiData>> _dataSource;
-        private readonly RepositoryFactory _repoFactory;
+        private readonly IRepositoryFactory _repoFactory;
         public ChangeSettings Settings { get; }
         public ChangeSource Source { get; }
 
         public ChangeMonitor(IDataSource<IEnumerable<CurrencyChangeApiData>> dataSource,
-            RepositoryFactory repoFactory, IChangeSettingsProvider settingsProvider)
+            IRepositoryFactory repoFactory, IChangeSettingsProvider settingsProvider)
         {
             _dataSource = dataSource;
             this._repoFactory = repoFactory;
@@ -51,7 +51,8 @@ namespace CurrencyTrackerServer.ChangeTrackerService.Concrete
             {
                 var percentage = Settings.Percentage;
 
-                if (Settings.MarginCurrencies.Contains(currency.Currency, StringComparer.OrdinalIgnoreCase))
+                if (Settings.MarginCurrencies != null &&
+                    Settings.MarginCurrencies.Contains(currency.Currency, StringComparer.OrdinalIgnoreCase))
                 {
                     percentage = Settings.MarginPercentage;
                 }

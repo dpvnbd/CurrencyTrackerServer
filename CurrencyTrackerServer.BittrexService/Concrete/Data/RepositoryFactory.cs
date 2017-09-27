@@ -7,7 +7,7 @@ using Microsoft.EntityFrameworkCore.Infrastructure;
 
 namespace CurrencyTrackerServer.ChangeTrackerService.Concrete.Data
 {
-    public class RepositoryFactory
+    public class RepositoryFactory : IRepositoryFactory
     {
         private readonly DbContextFactoryOptions _options;
         public IDbContextFactory<DbContext> ContextFactory { get; }

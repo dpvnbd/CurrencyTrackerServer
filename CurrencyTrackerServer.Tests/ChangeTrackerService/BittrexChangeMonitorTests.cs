@@ -3,9 +3,12 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using CurrencyTrackerServer.ChangeTrackerService.Concrete;
+using CurrencyTrackerServer.ChangeTrackerService.Concrete.Data;
 using CurrencyTrackerServer.ChangeTrackerService.Entities;
 using CurrencyTrackerServer.Infrastructure.Abstract;
+using CurrencyTrackerServer.Infrastructure.Entities.Changes;
 using CurrencyTrackerServer.Tests.ChangeTrackerService.Entities;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 
@@ -14,29 +17,38 @@ namespace CurrencyTrackerServer.Tests.ChangeTrackerService
     [TestClass]
     public class BittrexChangeMonitorTests
     {
-        private ChangeMonitor _monitor;
+        private static IRepositoryFactory _repoFactory;
+
+        [ClassInitialize]
+        public static void Init(TestContext ctx)
+        {
+            var dbFactory = new TestDbContextFactory();
+            _repoFactory = new RepositoryFactory(dbFactory, null);
+        }
 
         [TestInitialize]
         public async Task Setup()
         {
-            //var datasourceMock = new Mock<IDataSource<IEnumerable<CurrencyChangeApiData>>>();
-            //_monitor = new ChangeMonitor(datasourceMock.Object);
-            //using (var stateRepo = new TestRepository<CurrencyStateEntity>())
-            //{
-            //    await stateRepo.DeleteAll();
-            //}
+            using (var repo = _repoFactory.Create<CurrencyStateEntity>())
+            {
+                await repo.DeleteAll();
+            }
 
-            //using (var historyRepo = new TestRepository<ChangeHistoryEntryEntity>())
-            //{
-            //    await historyRepo.DeleteAll();
-            //}
+            using (var repo = _repoFactory.Create<ChangeHistoryEntryEntity>())
+            {
+                await repo.DeleteAll();
+            }
         }
 
         [TestMethod]
         public async Task TestStateReset()
         {
             //Arrange
-            using (var stateRepo = new TestRepository<CurrencyStateEntity>())
+
+            var dataSourceMock = new Mock<IDataSource<IEnumerable<CurrencyChangeApiData>>>();
+            dataSourceMock.Setup(m => m.Source).Returns(ChangeSource.None);
+
+            using (var stateRepo = _repoFactory.Create<CurrencyStateEntity>())
             {
                 await stateRepo.Add(new CurrencyStateEntity
                 {
@@ -45,18 +57,18 @@ namespace CurrencyTrackerServer.Tests.ChangeTrackerService
                     Threshold = 45
                 });
             }
-
+            var monitor = new ChangeMonitor(dataSourceMock.Object, _repoFactory, new TestSettingsProvider(new ChangeSettings()));
             //Act
-            await _monitor.ResetAll();
+            await monitor.ResetAll();
 
             //Assert
-            using (var stateRepo = new TestRepository<CurrencyStateEntity>())
+            using (var stateRepo = _repoFactory.Create<CurrencyStateEntity>())
             {
                 var state = stateRepo.GetAll().FirstOrDefault();
                 Assert.IsNull(state);
             }
 
-            using (var historyRepo = new TestRepository<ChangeHistoryEntryEntity>())
+            using (var historyRepo = _repoFactory.Create<ChangeHistoryEntryEntity>())
             {
                 var historyEntry = historyRepo.GetAll().FirstOrDefault();
                 Assert.IsNotNull(historyEntry);
@@ -77,22 +89,26 @@ namespace CurrencyTrackerServer.Tests.ChangeTrackerService
             };
             dataSourceMock.Setup(m => m.GetData()).ReturnsAsync(apiData);
 
-            _monitor =
-                new ChangeMonitor<TestRepository<CurrencyStateEntity>, TestRepository<ChangeHistoryEntryEntity>>(
-                    dataSourceMock.Object);
+            var settings = new ChangeSettings()
+            {
+                Percentage = 45, MultipleChanges = false
+            };
+
+            var monitor =
+                new ChangeMonitor(dataSourceMock.Object, _repoFactory, new TestSettingsProvider(settings));
             //Act
-            var changes = (await _monitor.GetChanges(45, TimeSpan.MinValue, false)).ToList();
+            var changes = (await monitor.GetChanges()).ToList();
             var change = changes.FirstOrDefault();
 
             List<CurrencyStateEntity> states;
             List<ChangeHistoryEntryEntity> history;
 
-            using (var stateRepo = new TestRepository<CurrencyStateEntity>())
+            using (var stateRepo = _repoFactory.Create<CurrencyStateEntity>())
             {
                 states = new List<CurrencyStateEntity>(stateRepo.GetAll());
             }
 
-            using (var historyRepo = new TestRepository<ChangeHistoryEntryEntity>())
+            using (var historyRepo = _repoFactory.Create<ChangeHistoryEntryEntity>())
             {
                 history = new List<ChangeHistoryEntryEntity>(historyRepo.GetAll());
             }
@@ -138,7 +154,7 @@ namespace CurrencyTrackerServer.Tests.ChangeTrackerService
             };
             dataSourceMock.Setup(m => m.GetData()).ReturnsAsync(apiData);
 
-            using (var repo = new TestRepository<CurrencyStateEntity>())
+            using (var repo = _repoFactory.Create<CurrencyStateEntity>())
             {
                 await repo.Add(new CurrencyStateEntity
                 {
@@ -162,24 +178,27 @@ namespace CurrencyTrackerServer.Tests.ChangeTrackerService
                     Threshold = 10
                 });
             }
+            var settings = new ChangeSettings()
+            {
+                Percentage = 45, MultipleChangesSpanMinutes = 30, MultipleChanges = true
+            };
 
-            _monitor =
-                new ChangeMonitor<TestRepository<CurrencyStateEntity>, TestRepository<ChangeHistoryEntryEntity>>(
-                    dataSourceMock.Object);
+            var monitor =
+                new ChangeMonitor(dataSourceMock.Object, _repoFactory, new TestSettingsProvider(settings));
 
-            var changes = (await _monitor.GetChanges(45, TimeSpan.FromMinutes(30), true)).ToList();
+            var changes = (await monitor.GetChanges()).ToList();
 
             var change = changes.FirstOrDefault();
 
             List<CurrencyStateEntity> states;
             List<ChangeHistoryEntryEntity> history;
 
-            using (var stateRepo = new TestRepository<CurrencyStateEntity>())
+            using (var stateRepo = _repoFactory.Create<CurrencyStateEntity>())
             {
                 states = new List<CurrencyStateEntity>(stateRepo.GetAll());
             }
 
-            using (var historyRepo = new TestRepository<ChangeHistoryEntryEntity>())
+            using (var historyRepo = _repoFactory.Create<ChangeHistoryEntryEntity>())
             {
                 history = new List<ChangeHistoryEntryEntity>(historyRepo.GetAll());
             }

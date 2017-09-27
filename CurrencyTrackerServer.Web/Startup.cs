@@ -19,6 +19,7 @@ using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using IRepositoryFactory = CurrencyTrackerServer.ChangeTrackerService.Concrete.Data.IRepositoryFactory;
 
 namespace CurrencyTrackerServer.Web
 {
@@ -53,7 +54,7 @@ namespace CurrencyTrackerServer.Web
       services.AddSingleton<IDbContextFactory<DbContext>, DbFactory>();
       services.AddSingleton<DbContextFactoryOptions>(s =>
         new DbContextFactoryOptions() {ContentRootPath = _env.ContentRootPath, EnvironmentName = _env.EnvironmentName});
-      services.AddSingleton<RepositoryFactory>();
+      services.AddSingleton<IRepositoryFactory>();
 
       #endregion
 
