@@ -20,6 +20,18 @@
     <div class="container">
       <form>
         <div class="form-group row">
+          <label class="col-sm-6">Звук</label>
+          <div class="col-sm-6">
+            <div class="form-check">
+              <label class="form-check-label">
+                    <input class="form-check-input" name="soundEnabled"
+                     type="checkbox" [(ngModel)]="soundEnabled">
+                  </label>
+            </div>
+          </div>
+        </div>
+        <hr/>
+        <div class="form-group row">
           <label for="percentage" class="col-sm-6 col-form-label">Изменение, %</label>
           <div class="col-sm-6">
             <input type="number" name="percentage" class="form-control" id="percentage" [(ngModel)]="settings.percentage">
@@ -60,19 +72,48 @@
             <input type="number" name="multipleChangesSpanMinutes" class="form-control" id="multipleChangesSpanMinutes" [(ngModel)]="settings.multipleChangesSpanMinutes">
           </div>
         </div>
+
         <hr/>
 
         <div class="form-group row">
-            <label class="col-sm-6">Звук</label>
-            <div class="col-sm-6">
-              <div class="form-check">
-                <label class="form-check-label">
-                  <input class="form-check-input" name="soundEnabled"
-                   type="checkbox" [(ngModel)]="soundEnabled">
-                </label>
+          <label for="marginPercentage" class="col-sm-6 col-form-label">Маржевые валюты, %</label>
+          <div class="col-sm-6">
+            <input type="number" name="marginPercentage" class="form-control" id="marginPercentage" [(ngModel)]="settings.marginPercentage">
+          </div>
+        </div>
+
+        <a class="text-right" href="javascript:void(0)" data-toggle="collapse" data-target="#marginCurrencies">
+          Маржевые валюты
+        </a>
+
+        <div class="collapse" id="marginCurrencies">
+          <div class="row">
+            <div class="col-sm-6 offset-sm-6">
+              <li *ngFor="let currency of settings.marginCurrencies; index as i;">
+                {{currency}}
+                <button class="close" type="button" (click)="removeMargin(i)">
+                        <span aria-hidden="true">&times;</span>
+                     </button>
+              </li>
+            </div>
+          </div>
+
+          <div class="row form-inline" >
+            <div class="col-sm-6 offset-sm-6">
+              <div class="input-group">
+                <input type="text" name="newCurrency" class="form-control"
+                 id="newCurrency" [(ngModel)]="newCurrency">
+                <button type="button" class="btn btn-primary input-group-addon" (click)="addCurrencyToMargins()">
+                      <i class="fa fa-plus fa-lg"></i> 
+                </button>
               </div>
             </div>
           </div>
+        </div>
+
+        <hr/>
+
+
 
       </form>
     </div>
@@ -97,13 +138,13 @@
         </div>
         <div class="col-6 col-md-4">
           <span class="pull-right">
-            <a href="#" (click)="openModal(content)" title="Настройки">
+            <a href="javascript:void(0)" (click)="openModal(content)" title="Настройки">
               <i class="fa fa-cog fa-lg"></i> 
-            </a>                
-            <a href="#" (click)="reset()" title="Сброс">
+            </a>
+        <a href="javascript:void(0)" (click)="reset()" title="Сброс">
               <i class="fa fa-trash fa-lg"></i> 
-            </a>     
-          </span>
+            </a>
+        </span>
         </div>
       </div>
     </div>

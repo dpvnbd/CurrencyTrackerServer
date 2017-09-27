@@ -16,7 +16,6 @@ namespace CurrencyTrackerServer.ChangeTrackerService.Concrete
     {
         private IDataSource<IEnumerable<CurrencyChangeApiData>> _dataSource;
         private readonly RepositoryFactory _repoFactory;
-        private readonly IChangeSettingsProvider _settingsProvider;
         public ChangeSettings Settings { get; }
         public ChangeSource Source { get; }
 
@@ -25,9 +24,8 @@ namespace CurrencyTrackerServer.ChangeTrackerService.Concrete
         {
             _dataSource = dataSource;
             this._repoFactory = repoFactory;
-            _settingsProvider = settingsProvider;
             Source = dataSource.Source;
-            Settings = _settingsProvider.GetSettings(Source);
+            Settings = settingsProvider.GetSettings(Source);
         }
 
 
@@ -51,6 +49,13 @@ namespace CurrencyTrackerServer.ChangeTrackerService.Concrete
 
             foreach (var currency in currencies)
             {
+                var percentage = Settings.Percentage;
+
+                if (Settings.MarginCurrencies.Contains(currency.Currency, StringComparer.OrdinalIgnoreCase))
+                {
+                    percentage = Settings.MarginPercentage;
+                }
+
                 var threshold = 0d;
                 var lastChange = DateTime.MinValue;
 
@@ -64,7 +69,7 @@ namespace CurrencyTrackerServer.ChangeTrackerService.Concrete
                 }
 
 
-                if (currency.PercentChanged < threshold + Settings.Percentage)
+                if (currency.PercentChanged < threshold + percentage)
                 {
                     continue;
                 }
@@ -74,7 +79,7 @@ namespace CurrencyTrackerServer.ChangeTrackerService.Concrete
                     Percentage = currency.PercentChanged,
                     Time = now,
                     Type = ChangeType.Currency,
-                    Threshold = CurrencyStateEntity.CalculateThreshold(Settings.Percentage, currency.PercentChanged),
+                    Threshold = CurrencyStateEntity.CalculateThreshold(percentage, currency.PercentChanged),
                     ChangeSource = currency.ChangeSource
                 };
 

@@ -62,7 +62,13 @@ export class ChangesService {
   }
 
   public getSettings(source: ChangeSource) {
-    return this.http.get('/api/changes/settings/' + source).map(data => data as ChangeSettings).toPromise();
+    return this.http.get('/api/changes/settings/' + source).map(data => {
+      const settings = data as ChangeSettings;
+      if (!settings.marginCurrencies) {
+        settings.marginCurrencies = [];
+      }
+      return settings;
+    }).toPromise();
   }
 
   public saveSettings(source: ChangeSource, settings: ChangeSettings) {

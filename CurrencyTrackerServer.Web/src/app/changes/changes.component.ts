@@ -20,6 +20,8 @@ export class ChangesComponent implements OnInit {
     message: string;
     private skipSpeech = true;
     modalCloseResult: string;
+    newCurrency: string;
+
     linkTemplate: string;
     iconPath: string;
     soundEnabled = true;
@@ -128,5 +130,23 @@ export class ChangesComponent implements OnInit {
         this.changesService.reset(this.source).then((response) => {
             this.reloadHistory();
         });
+    }
+
+    addCurrencyToMargins() {
+        if (!this.newCurrency) {
+            return;
+        }
+
+        if (!this.settings.marginCurrencies) {
+            this.settings.marginCurrencies = [];
+        }
+        if (!this.settings.marginCurrencies.includes(this.newCurrency)) {
+            this.settings.marginCurrencies.push(this.newCurrency);
+        }
+        this.newCurrency = '';
+    }
+
+    removeMargin(i: number) {
+        this.settings.marginCurrencies.splice(i, 1);
     }
 }
