@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using CurrencyTrackerServer.ChangeTrackerService.Concrete.Data;
 using CurrencyTrackerServer.ChangeTrackerService.Entities;
 using CurrencyTrackerServer.Infrastructure.Abstract;
+using CurrencyTrackerServer.Infrastructure.Entities;
 using CurrencyTrackerServer.Infrastructure.Entities.Changes;
 using Microsoft.EntityFrameworkCore;
 
@@ -20,7 +21,7 @@ namespace CurrencyTrackerServer.ChangeTrackerService.Concrete
         public ChangeSource Source { get; }
 
         public ChangeMonitor(IDataSource<IEnumerable<CurrencyChangeApiData>> dataSource,
-            IRepositoryFactory repoFactory, IChangeSettingsProvider settingsProvider)
+            IRepositoryFactory repoFactory, IChangeSettingsProvider<ChangeSettings> settingsProvider)
         {
             _dataSource = dataSource;
             this._repoFactory = repoFactory;

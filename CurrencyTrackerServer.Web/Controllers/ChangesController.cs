@@ -6,6 +6,7 @@ using CurrencyTrackerServer.ChangeTrackerService.Concrete.ProviderSpecific.Bittr
 using CurrencyTrackerServer.ChangeTrackerService.Concrete.ProviderSpecific.Poloniex;
 using CurrencyTrackerServer.ChangeTrackerService.Entities;
 using CurrencyTrackerServer.Infrastructure.Abstract;
+using CurrencyTrackerServer.Infrastructure.Entities;
 using CurrencyTrackerServer.Infrastructure.Entities.Changes;
 using Microsoft.AspNetCore.Mvc;
 
@@ -18,9 +19,10 @@ namespace CurrencyTrackerServer.Web.Controllers
   {
     private readonly BittrexTimerWorker _bWorker;
     private readonly PoloniexTimerWorker _pWorker;
-    private readonly IChangeSettingsProvider _settingsProvider;
+    private readonly IChangeSettingsProvider<ChangeSettings> _settingsProvider;
 
-    public ChangesController(BittrexTimerWorker bWorker, PoloniexTimerWorker pWorker, IChangeSettingsProvider settingsProvider)
+    public ChangesController(BittrexTimerWorker bWorker, PoloniexTimerWorker pWorker,
+      IChangeSettingsProvider<ChangeSettings> settingsProvider)
     {
       _bWorker = bWorker;
       _pWorker = pWorker;

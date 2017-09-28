@@ -70,7 +70,7 @@ namespace CurrencyTrackerServer.Web
 
       #region Background workers DI
 
-      services.AddSingleton<IChangeSettingsProvider, ChangeSettingsProvider>();
+      services.AddSingleton<IChangeSettingsProvider<ChangeSettings>, ChangeSettingsProvider>();
 
       services.AddTransient<PoloniexChangeMonitor>();
       services.AddTransient<BittrexChangeMonitor>();

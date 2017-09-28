@@ -5,11 +5,11 @@ using System.Threading.Tasks;
 using CurrencyTrackerServer.Infrastructure.Entities;
 using CurrencyTrackerServer.Infrastructure.Entities.Changes;
 
-namespace CurrencyTrackerServer.Infrastructure.Abstract
+namespace CurrencyTrackerServer.Infrastructure.Abstract.Price
 {
-    public interface IDataSource<T>
+    public interface IPriceSource
     {
-        Task<T> GetData();
+        Task<ApiPrice> GetPrice(string currency);
         ChangeSource Source { get; }
-    }
+    } 
 }

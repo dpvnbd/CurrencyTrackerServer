@@ -23,6 +23,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\CurrencyTrackerServer.BittrexService\CurrencyTrackerServer.ChangeTrackerService.csproj" />
+    <ProjectReference Include="..\CurrencyTrackerServer.PriceService\CurrencyTrackerServer.PriceService.csproj" />
   </ItemGroup>
 
   <ItemGroup>

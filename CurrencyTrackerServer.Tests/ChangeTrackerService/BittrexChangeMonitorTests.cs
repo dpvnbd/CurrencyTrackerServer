@@ -6,6 +6,7 @@ using CurrencyTrackerServer.ChangeTrackerService.Concrete;
 using CurrencyTrackerServer.ChangeTrackerService.Concrete.Data;
 using CurrencyTrackerServer.ChangeTrackerService.Entities;
 using CurrencyTrackerServer.Infrastructure.Abstract;
+using CurrencyTrackerServer.Infrastructure.Entities;
 using CurrencyTrackerServer.Infrastructure.Entities.Changes;
 using CurrencyTrackerServer.Tests.ChangeTrackerService.Entities;
 using Microsoft.EntityFrameworkCore;
