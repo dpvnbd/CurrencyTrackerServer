@@ -33,6 +33,7 @@
   <ItemGroup>
     <ProjectReference Include="..\CurrencyTrackerServer.BittrexService\CurrencyTrackerServer.ChangeTrackerService.csproj" />
     <ProjectReference Include="..\CurrencyTrackerServer.Infrastructure\CurrencyTrackerServer.Infrastructure.csproj" />
+    <ProjectReference Include="..\CurrencyTrackerServer.PriceService\CurrencyTrackerServer.PriceService.csproj" />
   </ItemGroup>
 
   <Target Name="Build Angular" Condition="'$(Configuration)'=='Release'" BeforeTargets="Build">

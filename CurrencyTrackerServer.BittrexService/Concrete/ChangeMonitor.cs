@@ -21,7 +21,7 @@ namespace CurrencyTrackerServer.ChangeTrackerService.Concrete
         public ChangeSource Source { get; }
 
         public ChangeMonitor(IDataSource<IEnumerable<CurrencyChangeApiData>> dataSource,
-            IRepositoryFactory repoFactory, IChangeSettingsProvider<ChangeSettings> settingsProvider)
+            IRepositoryFactory repoFactory, ISettingsProvider<ChangeSettings> settingsProvider)
         {
             _dataSource = dataSource;
             this._repoFactory = repoFactory;

@@ -6,7 +6,7 @@ using Newtonsoft.Json;
 
 namespace CurrencyTrackerServer.Infrastructure.Abstract
 {
-    public abstract class FileDictionarySettingsProvider<T> : IChangeSettingsProvider<T> where T : new()
+    public abstract class FileDictionarySettingsProvider<T> : ISettingsProvider<T> where T : new()
     {
         private Dictionary<ChangeSource, T> _settings;
 

@@ -6,16 +6,15 @@ using System.Text;
 using System.Threading.Tasks;
 using CurrencyTrackerServer.ChangeTrackerService.Entities;
 using CurrencyTrackerServer.Infrastructure.Abstract;
-using CurrencyTrackerServer.Infrastructure.Entities.Changes;
 using CurrencyTrackerServer.Web.Infrastructure.Abstract;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
 
 namespace CurrencyTrackerServer.Web.Infrastructure.Concrete
 {
-    public class ChangeNotificationsMessageHandler : WebSocketHandler, INotifier<Change>
+    public class NotificationsMessageHandler<T> : WebSocketHandler, INotifier<T>
     {
-        public ChangeNotificationsMessageHandler(WebSocketConnectionManager webSocketConnectionManager) : base(
+        public NotificationsMessageHandler(WebSocketConnectionManager webSocketConnectionManager) : base(
             webSocketConnectionManager)
         {
         }
@@ -26,18 +25,18 @@ namespace CurrencyTrackerServer.Web.Infrastructure.Concrete
             await SendMessageAsync(socket, message);
         }
 
-        public async Task SendNotificationMessage(IEnumerable<Change> changes)
+        public async Task SendNotificationMessage(IEnumerable<T> message)
         {
-            if (changes.Any())
-                await SendMessageToAllAsync(JsonConvert.SerializeObject(changes, new JsonSerializerSettings
+            if (message.Any())
+                await SendMessageToAllAsync(JsonConvert.SerializeObject(message, new JsonSerializerSettings
                 {
                     ContractResolver = new CamelCasePropertyNamesContractResolver()
                 }));
         }
 
-        public async Task SendNotificationMessage(Change changes)
+        public async Task SendNotificationMessage(T message)
         {
-            await SendNotificationMessage(new List<Change>() { changes });
+            await SendNotificationMessage(new List<T>() { message });
         }
     }
 }

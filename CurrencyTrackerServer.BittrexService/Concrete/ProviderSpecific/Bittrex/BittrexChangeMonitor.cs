@@ -8,7 +8,7 @@ namespace CurrencyTrackerServer.ChangeTrackerService.Concrete.ProviderSpecific.B
 {
     public class BittrexChangeMonitor:ChangeMonitor
     {
-        public BittrexChangeMonitor(IRepositoryFactory repoFactory, IChangeSettingsProvider<ChangeSettings> settingsProvider) : base(new BittrexApiDataSource(), repoFactory, settingsProvider)
+        public BittrexChangeMonitor(IRepositoryFactory repoFactory, ISettingsProvider<ChangeSettings> settingsProvider) : base(new BittrexApiDataSource(), repoFactory, settingsProvider)
         {
         }
     }

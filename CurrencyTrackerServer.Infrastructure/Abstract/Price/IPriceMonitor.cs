@@ -1,11 +1,15 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using System.Threading.Tasks;
+using CurrencyTrackerServer.Infrastructure.Entities;
+using CurrencyTrackerServer.Infrastructure.Entities.Price;
 
 namespace CurrencyTrackerServer.Infrastructure.Abstract.Price
 {
-    public interface IPriceMonitor<out T>
+    public interface IPriceMonitor<T>
     {
-        IEnumerable<string> Currencies { get; set; }
-        IEnumerable<T> GetPrices();
+        PriceSettings Settings { get; }
+        ChangeSource Source { get; }
+        Task<IEnumerable<T>> GetPrices();
     }
 }

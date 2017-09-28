@@ -7,7 +7,7 @@ using CurrencyTrackerServer.Infrastructure.Entities.Changes;
 
 namespace CurrencyTrackerServer.Tests.ChangeTrackerService.Entities
 {
-    class TestSettingsProvider:IChangeSettingsProvider
+    class TestSettingsProvider:ISettingsProvider<ChangeSettings>
     {
         private readonly ChangeSettings _settings;
 

@@ -19,10 +19,10 @@ namespace CurrencyTrackerServer.Web.Controllers
   {
     private readonly BittrexTimerWorker _bWorker;
     private readonly PoloniexTimerWorker _pWorker;
-    private readonly IChangeSettingsProvider<ChangeSettings> _settingsProvider;
+    private readonly ISettingsProvider<ChangeSettings> _settingsProvider;
 
     public ChangesController(BittrexTimerWorker bWorker, PoloniexTimerWorker pWorker,
-      IChangeSettingsProvider<ChangeSettings> settingsProvider)
+      ISettingsProvider<ChangeSettings> settingsProvider)
     {
       _bWorker = bWorker;
       _pWorker = pWorker;

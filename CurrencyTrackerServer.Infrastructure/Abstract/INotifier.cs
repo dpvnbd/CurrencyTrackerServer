@@ -5,9 +5,9 @@ using System.Threading.Tasks;
 
 namespace CurrencyTrackerServer.Infrastructure.Abstract
 {
-    public interface INotifier<in TChanges>
+    public interface INotifier<in T>
     {
-        Task SendNotificationMessage(TChanges changes);
-        Task SendNotificationMessage(IEnumerable<TChanges> changes);
+        Task SendNotificationMessage(T message);
+        Task SendNotificationMessage(IEnumerable<T> message);
     }
 }

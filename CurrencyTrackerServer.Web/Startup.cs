@@ -9,6 +9,9 @@ using CurrencyTrackerServer.ChangeTrackerService.Concrete.ProviderSpecific.Polon
 using CurrencyTrackerServer.ChangeTrackerService.Entities;
 using CurrencyTrackerServer.Infrastructure.Abstract;
 using CurrencyTrackerServer.Infrastructure.Entities.Changes;
+using CurrencyTrackerServer.Infrastructure.Entities.Price;
+using CurrencyTrackerServer.PriceService.Concrete;
+using CurrencyTrackerServer.PriceService.Concrete.Bittrex;
 using CurrencyTrackerServer.Web.Infrastructure;
 using CurrencyTrackerServer.Web.Infrastructure.Concrete;
 using Microsoft.AspNetCore.Builder;
@@ -44,6 +47,10 @@ namespace CurrencyTrackerServer.Web
     public void ConfigureServices(IServiceCollection services)
     {
       services.AddMvc();
+      services.AddWebSocketManager();
+
+      var provider = services.BuildServiceProvider();
+      var connectionManager = provider.GetRequiredService<WebSocketConnectionManager>();
 
       #region Persistence DI
 
@@ -57,20 +64,18 @@ namespace CurrencyTrackerServer.Web
 
       #endregion
 
+
       #region Websockets & notifications DI
 
-      services.AddWebSocketManager();
-      var provider = services.BuildServiceProvider();
-      var connectionManager = provider.GetRequiredService<WebSocketConnectionManager>();
-      var wsHandler = new ChangeNotificationsMessageHandler(connectionManager);
-      services.AddSingleton<ChangeNotificationsMessageHandler>(wsHandler);
-      services.AddSingleton<INotifier<Change>>(wsHandler);
+      var changeHandler = new NotificationsMessageHandler<Change>(connectionManager);
+      services.AddSingleton<NotificationsMessageHandler<Change>>(changeHandler);
+      services.AddSingleton<INotifier<Change>>(changeHandler);
 
       #endregion
 
       #region Background workers DI
 
-      services.AddSingleton<IChangeSettingsProvider<ChangeSettings>, ChangeSettingsProvider>();
+      services.AddSingleton<ISettingsProvider<ChangeSettings>, ChangeSettingsProvider>();
 
       services.AddTransient<PoloniexChangeMonitor>();
       services.AddTransient<BittrexChangeMonitor>();
@@ -78,6 +83,18 @@ namespace CurrencyTrackerServer.Web
       services.AddSingleton<BittrexTimerWorker>();
       services.AddSingleton<PoloniexTimerWorker>();
 
+      #endregion
+
+      #region PriceTracker DI
+
+      services.AddSingleton<ISettingsProvider<PriceSettings>, PriceSettingsProvider>();
+      services.AddSingleton<BittrexPriceDataSource>();
+      services.AddSingleton<BittrexPriceMonitor>();
+      services.AddSingleton<BittrexPriceTimerWorker>();
+
+      var priceHandler = new NotificationsMessageHandler<Price>(connectionManager);
+      services.AddSingleton<NotificationsMessageHandler<Price>>(priceHandler);
+      services.AddSingleton<INotifier<Price>>(priceHandler);
       #endregion
     }
 
@@ -93,7 +110,10 @@ namespace CurrencyTrackerServer.Web
       app.UseWebSockets(webSocketOptions);
 
       app.MapWebSocketManager("/changeNotifications",
-        serviceProvider.GetRequiredService<ChangeNotificationsMessageHandler>());
+        serviceProvider.GetRequiredService<NotificationsMessageHandler<Change>>());
+
+      app.MapWebSocketManager("/priceNotifications",
+        serviceProvider.GetRequiredService<NotificationsMessageHandler<Price>>());
 
       app.Use(async (context, next) =>
       {

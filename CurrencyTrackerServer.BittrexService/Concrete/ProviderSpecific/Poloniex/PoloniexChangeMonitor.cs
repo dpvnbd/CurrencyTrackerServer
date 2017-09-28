@@ -9,7 +9,7 @@ namespace CurrencyTrackerServer.ChangeTrackerService.Concrete.ProviderSpecific.P
 {
     public class PoloniexChangeMonitor:ChangeMonitor
     {
-        public PoloniexChangeMonitor(IRepositoryFactory repoFactory, IChangeSettingsProvider<ChangeSettings> settingsProvider) 
+        public PoloniexChangeMonitor(IRepositoryFactory repoFactory, ISettingsProvider<ChangeSettings> settingsProvider) 
             : base(new PoloniexApiDataSource(), repoFactory, settingsProvider)
         {
         }

@@ -12,5 +12,7 @@ namespace CurrencyTrackerServer.Infrastructure.Entities.Price
         public double Last { get; set; }
         public double High { get; set; }
         public double Low { get; set; }
+
+        public string Message { get; set; }
     }
 }
