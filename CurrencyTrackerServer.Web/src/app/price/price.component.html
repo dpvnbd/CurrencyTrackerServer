@@ -1,0 +1,30 @@
+<div class="price">
+  <div class="card">
+    <div class="card-header py-1">
+      <div class="row">
+        <div class="col-6 col-md-2">
+          <img src="{{iconPath}}" class="block-icon float-left" />
+        </div>
+        <div class="hidden-sm-down col-md-6">Цена валют
+
+        </div>
+        <div class="col-6 col-md-4">
+          <span class="pull-right">
+              <!-- <a href="javascript:void(0)" (click)="openModal(content)" title="Настройки"> -->
+                <i class="fa fa-cog fa-lg"></i> 
+              <!-- </a>-->
+          </span>
+        </div>
+      </div>
+    </div>
+    <div class="card-block app-block">
+      <table class="table table-hover">
+        <tbody>
+          <tr *ngFor="let price of prices" [ngClass]="{'recently-changed': price.recentlyChanged}">
+
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>

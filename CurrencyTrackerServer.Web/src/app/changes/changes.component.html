@@ -98,11 +98,10 @@
             </div>
           </div>
 
-          <div class="row form-inline" >
+          <div class="row form-inline">
             <div class="col-sm-6 offset-sm-6">
               <div class="input-group">
-                <input type="text" name="newCurrency" class="form-control"
-                 id="newCurrency" [(ngModel)]="newCurrency">
+                <input type="text" name="newCurrency" class="form-control" id="newCurrency" [(ngModel)]="newCurrency">
                 <button type="button" class="btn btn-primary input-group-addon" (click)="addCurrencyToMargins()">
                       <i class="fa fa-plus fa-lg"></i> 
                 </button>
@@ -128,7 +127,7 @@
 
 <div class="changes">
   <div class="card">
-    <div class="card-header">
+    <div class="card-header py-1">
       <div class="row">
         <div class="col-6 col-md-2">
           <img src="{{iconPath}}" class="block-icon float-left" />
@@ -153,16 +152,15 @@
         <tbody>
           <tr *ngFor="let change of changes" [ngClass]="{'recently-changed': change.recentlyChanged}">
 
-            <td *ngIf="change.currency">
+            <td *ngIf="change.currency" class="py-1">
               <a href="{{linkTemplate}}{{change.currency}}" target="_blank">{{change.currency}}</a>
             </td>
-            <td *ngIf="change.currency">{{change.percentage | number:'1.0-1'}}%</td>
+            <td *ngIf="change.currency" class="py-1">{{change.percentage | number:'1.0-1'}}%</td>
 
-            <td *ngIf="!change.currency" colspan="2"> {{change.message}}</td>
+            <td *ngIf="!change.currency" colspan="2" class="py-1"> {{change.message}}</td>
 
-            <td>{{change.time | date:'HH:mm:ss'}}</td>
+            <td class="py-1">{{change.time | date:'HH:mm:ss'}}</td>
           </tr>
-          <tr *ngIf="message">{{message}}</tr>
         </tbody>
       </table>
 

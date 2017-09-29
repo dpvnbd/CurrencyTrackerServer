@@ -1,7 +1,8 @@
 import { Component, OnInit, AfterViewChecked, Input, ElementRef, ViewChild } from '@angular/core';
-import { ChangesService, Change, ChangeSource, ChangeSettings } from './changes.service';
+import { ChangesService, Change, ChangeSettings } from './changes.service';
 import { DatePipe, DecimalPipe } from '@angular/common';
 import { NgbModal, ModalDismissReasons } from '@ng-bootstrap/ng-bootstrap';
+import { Source } from '../shared';
 
 @Component({
     selector: 'app-changes',
@@ -12,7 +13,7 @@ export class ChangesComponent implements OnInit {
 
 
     @Input()
-    source: ChangeSource;
+    source: Source;
 
     @ViewChild('bottom') bottom: ElementRef;
     changes: Change[] = [];
@@ -29,10 +30,10 @@ export class ChangesComponent implements OnInit {
     constructor(private changesService: ChangesService, private modalService: NgbModal) { }
 
     ngOnInit() {
-        if (this.source === ChangeSource.Bittrex) {
+        if (this.source === Source.Bittrex) {
             this.linkTemplate = 'https://bittrex.com/Market/Index?MarketName=BTC-';
             this.iconPath = '../../assets/images/bittrexIcon.png';
-        } else if (this.source = ChangeSource.Poloniex) {
+        } else if (this.source = Source.Poloniex) {
             this.linkTemplate = 'https://poloniex.com/exchange#btc_';
             this.iconPath = '../../assets/images/poloniexIcon.png';
         }

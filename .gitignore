@@ -261,3 +261,4 @@ __pycache__/
 *.pyc
 CurrencyTrackerServer.Web/changeSettings.json
 /CurrencyTrackerServer.Web/wwwroot
+/CurrencyTrackerServer.Web/currencies.settings.json

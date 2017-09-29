@@ -6,6 +6,7 @@ import { HttpClientModule } from '@angular/common/http';
 
 import { AppComponent } from './app.component';
 import { ChangesComponent } from './changes/changes.component';
+import { PriceComponent } from './price/price.component';
 
 // services
 import { ChangesService } from './changes/changes.service';
@@ -18,7 +19,8 @@ import {NgbModule} from '@ng-bootstrap/ng-bootstrap';
 @NgModule({
   declarations: [
     AppComponent,
-    ChangesComponent
+    ChangesComponent,
+    PriceComponent
   ],
   imports: [
     BrowserModule,
