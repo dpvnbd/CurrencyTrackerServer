@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, Inject } from '@angular/core';
 import { Subject } from 'rxjs/Subject';
 import 'rxjs/add/operator/map';
 import 'rxjs/add/operator/toPromise';
@@ -71,7 +71,7 @@ export class ChangesService {
   }
 
   public saveSettings(source: Source, settings: ChangeSettings) {
-    return this.http.post('/api/changes/settings/' + source, settings).map(data => data).toPromise();
+    return this.http.post('/api/changes/settings/' + source, settings, { responseType: 'text' }).map(data => data).toPromise();
   }
 
   public getHistory(source: Source): any {
@@ -79,7 +79,7 @@ export class ChangesService {
   }
 
   public reset(source: Source): any {
-    return this.http.post('/api/changes/reset/' + source, null).toPromise();
+    return this.http.post('/api/changes/reset/' + source, null, { responseType: 'text' }).toPromise();
   }
 
 }

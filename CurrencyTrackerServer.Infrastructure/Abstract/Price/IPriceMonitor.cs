@@ -11,5 +11,6 @@ namespace CurrencyTrackerServer.Infrastructure.Abstract.Price
         PriceSettings Settings { get; }
         ChangeSource Source { get; }
         Task<IEnumerable<T>> GetPrices();
+        Task<T> GetPrice(string currency);
     }
 }

@@ -23,21 +23,37 @@ namespace CurrencyTrackerServer.Web.Controllers
     {
       _settingsProvider = settingsProvider;
       _bWorker = bWorker;
+      _bWorker.Start();
     }
 
     [HttpGet("{source}")]
-    public IEnumerable<Price> GetAsync(ChangeSource source)
+    public IEnumerable<Price> Get(ChangeSource source)
     {
       switch (source)
       {
         case ChangeSource.Bittrex:
-          return _bWorker.Monitor.Settings.Currencies;
+          return _bWorker.Monitor.Settings.Prices;
         case ChangeSource.Poloniex:
-          return _bWorker.Monitor.Settings.Currencies; //TODO: Change to Poloniex
+          return _bWorker.Monitor.Settings.Prices; //TODO: Change to Poloniex
       }
       return new Price[0];
     }
-    
+
+
+    [HttpGet("lastPrice/{source}/{currency}")]
+    public async Task<Price> GetLastPrice(ChangeSource source, string currency)
+    {
+      switch (source)
+      {
+        case ChangeSource.Bittrex:
+          return await _bWorker.Monitor.GetPrice(currency);
+        case ChangeSource.Poloniex:
+          return await _bWorker.Monitor.GetPrice(currency); //TODO: Change to Poloniex
+        default:
+          return new Price {Message = "Source " + source + " doesn't exist"};
+      }
+    }
+
     [HttpPost("start/{source}")]
     public IActionResult Start(ChangeSource source)
     {
@@ -47,7 +63,7 @@ namespace CurrencyTrackerServer.Web.Controllers
           _bWorker.Start();
           break;
         case ChangeSource.Poloniex:
-          _bWorker.Start();  //TODO: Change to Poloniex
+          _bWorker.Start(); //TODO: Change to Poloniex
           break;
       }
 
@@ -63,7 +79,7 @@ namespace CurrencyTrackerServer.Web.Controllers
       }
       else if (source == ChangeSource.Poloniex)
       {
-        _bWorker.Stop();  //TODO: Change to Poloniex
+        _bWorker.Stop(); //TODO: Change to Poloniex
       }
 
       return Ok();

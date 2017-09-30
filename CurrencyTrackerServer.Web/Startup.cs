@@ -50,7 +50,7 @@ namespace CurrencyTrackerServer.Web
       services.AddWebSocketManager();
 
       var provider = services.BuildServiceProvider();
-      var connectionManager = provider.GetRequiredService<WebSocketConnectionManager>();
+      var changesConnectionManager = provider.GetRequiredService<WebSocketConnectionManager>();
 
       #region Persistence DI
 
@@ -67,7 +67,7 @@ namespace CurrencyTrackerServer.Web
 
       #region Websockets & notifications DI
 
-      var changeHandler = new NotificationsMessageHandler<Change>(connectionManager);
+      var changeHandler = new NotificationsMessageHandler<Change>(changesConnectionManager);
       services.AddSingleton<NotificationsMessageHandler<Change>>(changeHandler);
       services.AddSingleton<INotifier<Change>>(changeHandler);
 
@@ -92,7 +92,9 @@ namespace CurrencyTrackerServer.Web
       services.AddSingleton<BittrexPriceMonitor>();
       services.AddSingleton<BittrexPriceTimerWorker>();
 
-      var priceHandler = new NotificationsMessageHandler<Price>(connectionManager);
+      var priceConnectionManager = provider.GetRequiredService<WebSocketConnectionManager>();
+
+      var priceHandler = new NotificationsMessageHandler<Price>(priceConnectionManager);
       services.AddSingleton<NotificationsMessageHandler<Price>>(priceHandler);
       services.AddSingleton<INotifier<Price>>(priceHandler);
       #endregion

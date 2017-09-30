@@ -13,7 +13,8 @@ namespace CurrencyTrackerServer.Infrastructure.Entities.Price
         [Range(1, int.MaxValue, ErrorMessage = "Период не меньше секунды")]
         public int PeriodSeconds { get; set; } = 3;
 
-        public List<Price> Currencies
+        
+        public List<Price> Prices
         {
             get => _currencies ?? (_currencies = new List<Price>());
             set => _currencies = value;
