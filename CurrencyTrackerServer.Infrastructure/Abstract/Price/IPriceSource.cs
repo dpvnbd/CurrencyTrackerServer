@@ -9,7 +9,7 @@ namespace CurrencyTrackerServer.Infrastructure.Abstract.Price
 {
     public interface IPriceSource
     {
-        Task<ApiPrice> GetPrice(string currency);
+        Task<IEnumerable<ApiPrice>> GetPrices(IEnumerable<string> currencies);
         ChangeSource Source { get; }
     } 
 }

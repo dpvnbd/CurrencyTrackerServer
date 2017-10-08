@@ -32,13 +32,13 @@ namespace CurrencyTrackerServer.ChangeTrackerService.Concrete.ProviderSpecific.P
                     continue; //пропускаем все что не биткоины
                 }
                 dynamic value = pair.Value;
-                string priceString = value.percentChange.ToString();
-                var price = Double.Parse(priceString, CultureInfo.InvariantCulture);
+                string percentageString = value.percentChange.ToString();
+                var percent = Double.Parse(percentageString, CultureInfo.InvariantCulture);
 
                 list.Add(new CurrencyChangeApiData()
                 {
                     Currency = currencies[1],
-                    PercentChanged = price * 100,
+                    PercentChanged = percent * 100,
                     ChangeSource = ChangeSource.Poloniex
                 });
             }

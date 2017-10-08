@@ -14,37 +14,43 @@ namespace CurrencyTrackerServer.PriceService.Concrete.Bittrex
     {
         private string _url = @"https://bittrex.com/api/v1.1/public/getticker?market=BTC-";
 
-        public async Task<ApiPrice> GetPrice(string currency)
+        public async Task<IEnumerable<ApiPrice>> GetPrices(IEnumerable<string> currencies)
         {
-            string json;
-            try
-            {
-                using (var client = new HttpClient())
-                {
-                    var result = await client.GetAsync(_url + currency);
-                    if (!result.IsSuccessStatusCode)
-                    {
-                        throw new Exception("Ошибка работы с API (Poloniex)");
-                    }
-                    json = await result.Content.ReadAsStringAsync();
-                }
-                var price = ParseResponse(json);
+            var prices = new List<ApiPrice>();
 
-                if (price != null)
-                {
-                    price.Currency = currency.ToUpperInvariant();
-                    price.Source = ChangeSource.Bittrex;
-                    return price;
-                }
-                else
-                {
-                    throw new Exception();
-                }
-            }
-            catch (Exception e)
+            foreach (var currency in currencies)
             {
-                throw new Exception("Ошибка загрузки значений (Bittrex); ", e);
+                string json;
+                try
+                {
+                    using (var client = new HttpClient())
+                    {
+                        var result = await client.GetAsync(_url + currency);
+                        if (!result.IsSuccessStatusCode)
+                        {
+                            throw new Exception("Ошибка работы с API (Poloniex)");
+                        }
+                        json = await result.Content.ReadAsStringAsync();
+                    }
+                    var price = ParseResponse(json);
+
+                    if (price != null)
+                    {
+                        price.Currency = currency.ToUpperInvariant();
+                        price.Source = ChangeSource.Bittrex;
+                        prices.Add(price);
+                    }
+                    else
+                    {
+                        throw new Exception();
+                    }
+                }
+                catch (Exception e)
+                {
+                    throw new Exception("Ошибка загрузки значений (Bittrex); ", e);
+                }
             }
+            return prices;
         }
 
         public ApiPrice ParseResponse(string json)

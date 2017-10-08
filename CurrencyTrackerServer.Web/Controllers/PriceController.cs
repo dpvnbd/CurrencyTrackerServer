@@ -6,6 +6,7 @@ using CurrencyTrackerServer.Infrastructure.Abstract;
 using CurrencyTrackerServer.Infrastructure.Entities;
 using CurrencyTrackerServer.Infrastructure.Entities.Price;
 using CurrencyTrackerServer.PriceService.Concrete.Bittrex;
+using CurrencyTrackerServer.PriceService.Concrete.Poloniex;
 using Microsoft.AspNetCore.Mvc;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
@@ -17,13 +18,17 @@ namespace CurrencyTrackerServer.Web.Controllers
   {
     private readonly ISettingsProvider<PriceSettings> _settingsProvider;
     private readonly BittrexPriceTimerWorker _bWorker;
+    private readonly PoloniexPriceTimerWorker _pWorker;
 
 
-    public PriceController(ISettingsProvider<PriceSettings> settingsProvider, BittrexPriceTimerWorker bWorker)
+    public PriceController(ISettingsProvider<PriceSettings> settingsProvider, BittrexPriceTimerWorker bWorker,
+      PoloniexPriceTimerWorker pWorker)
     {
       _settingsProvider = settingsProvider;
       _bWorker = bWorker;
+      _pWorker = pWorker;
       _bWorker.Start();
+      _pWorker.Start();
     }
 
     [HttpGet("{source}")]
@@ -34,7 +39,7 @@ namespace CurrencyTrackerServer.Web.Controllers
         case ChangeSource.Bittrex:
           return _bWorker.Monitor.Settings.Prices;
         case ChangeSource.Poloniex:
-          return _bWorker.Monitor.Settings.Prices; //TODO: Change to Poloniex
+          return _pWorker.Monitor.Settings.Prices; 
       }
       return new Price[0];
     }
@@ -48,7 +53,7 @@ namespace CurrencyTrackerServer.Web.Controllers
         case ChangeSource.Bittrex:
           return await _bWorker.Monitor.GetPrice(currency);
         case ChangeSource.Poloniex:
-          return await _bWorker.Monitor.GetPrice(currency); //TODO: Change to Poloniex
+          return await _pWorker.Monitor.GetPrice(currency); 
         default:
           return new Price {Message = "Source " + source + " doesn't exist"};
       }
@@ -63,7 +68,7 @@ namespace CurrencyTrackerServer.Web.Controllers
           _bWorker.Start();
           break;
         case ChangeSource.Poloniex:
-          _bWorker.Start(); //TODO: Change to Poloniex
+          _pWorker.Start(); 
           break;
       }
 
@@ -79,7 +84,7 @@ namespace CurrencyTrackerServer.Web.Controllers
       }
       else if (source == ChangeSource.Poloniex)
       {
-        _bWorker.Stop(); //TODO: Change to Poloniex
+        _pWorker.Stop(); 
       }
 
       return Ok();

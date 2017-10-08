@@ -38,12 +38,16 @@ export class PriceComponent implements OnInit {
 
         this.priceService.subject.subscribe((prices: Price[]) => {
             const localPrices: Price[] = [];
+
             for (const price of prices) {
                 if (price.source === this.source) {
                     localPrices.push(price);
                 }
             }
-            this.prices = localPrices;
+            if (localPrices && localPrices[0].source === this.source) {
+                this.prices = localPrices;
+
+            }
         });
 
         this.priceService.getPrices(this.source).then((prices) => {

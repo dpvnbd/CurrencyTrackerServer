@@ -12,6 +12,7 @@ using CurrencyTrackerServer.Infrastructure.Entities.Changes;
 using CurrencyTrackerServer.Infrastructure.Entities.Price;
 using CurrencyTrackerServer.PriceService.Concrete;
 using CurrencyTrackerServer.PriceService.Concrete.Bittrex;
+using CurrencyTrackerServer.PriceService.Concrete.Poloniex;
 using CurrencyTrackerServer.Web.Infrastructure;
 using CurrencyTrackerServer.Web.Infrastructure.Concrete;
 using Microsoft.AspNetCore.Builder;
@@ -91,6 +92,10 @@ namespace CurrencyTrackerServer.Web
       services.AddSingleton<BittrexPriceDataSource>();
       services.AddSingleton<BittrexPriceMonitor>();
       services.AddSingleton<BittrexPriceTimerWorker>();
+
+      services.AddSingleton<PoloniexPriceDataSource>();
+      services.AddSingleton<PoloniexPriceMonitor>();
+      services.AddSingleton<PoloniexPriceTimerWorker>();
 
       var priceConnectionManager = provider.GetRequiredService<WebSocketConnectionManager>();
 
