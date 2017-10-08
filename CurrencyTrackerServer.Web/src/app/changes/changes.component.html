@@ -1,0 +1,192 @@
+<ng-template #content let-c="close" let-d="dismiss">
+  <div class="modal-header">
+    <h4 class="modal-title">Настройки</h4>
+    <button type="button" class="close" aria-label="Close" (click)="d('Cross click')">
+      <span aria-hidden="true">&times;</span>
+    </button>
+  </div>
+
+  <!-- export interface ChangeSettings {
+    periodSeconds: number;
+    percentage: number;
+    resetHours: number;
+    multipleChanges: boolean;
+    multiplechangesSpanMinutes: number;
+    marginPercentage: number;
+    marginCurrencies: string[];
+  } -->
+
+  <div class="modal-body">
+    <div class="container">
+      <form>
+        <div class="form-group row">
+          <label class="col-sm-6">Звук</label>
+          <div class="col-sm-6">
+            <div class="form-check">
+              <label class="form-check-label">
+                    <input class="form-check-input" name="soundEnabled"
+                     type="checkbox" [(ngModel)]="soundEnabled">
+                  </label>
+            </div>
+          </div>
+        </div>
+        
+        <hr/>
+
+        <div class="form-group row">
+          <label class="col-sm-6">Периодическое напоминание</label>
+          <div class="col-sm-6">
+            <div class="form-check">
+              <label class="form-check-label">
+                    <input class="form-check-input" name="pingEnabled"
+                     type="checkbox" [(ngModel)]="settings.pingClient">
+                  </label>
+            </div>
+          </div>
+        </div>
+
+        <div class="form-group row">
+          <label for="percentage" class="col-sm-6 col-form-label">Циклов между напоминаниями</label>
+          <div class="col-sm-6">
+            <input type="number" name="pingCycles" class="form-control" [(ngModel)]="settings.pingPeriodCycles">
+          </div>
+        </div>
+
+        <hr/>
+        <div class="form-group row">
+          <label for="percentage" class="col-sm-6 col-form-label">Изменение, %</label>
+          <div class="col-sm-6">
+            <input type="number" name="percentage" class="form-control" id="percentage" [(ngModel)]="settings.percentage">
+          </div>
+        </div>
+
+        <div class="form-group row">
+          <label for="period" class="col-sm-6 col-form-label">Период, сек</label>
+          <div class="col-sm-6">
+            <input type="number" name="period" class="form-control" id="period" [(ngModel)]="settings.periodSeconds">
+          </div>
+        </div>
+
+        <div class="form-group row">
+          <label for="resetHours" class="col-sm-6 col-form-label">Сброс, часов</label>
+          <div class="col-sm-6">
+            <input type="number" name="resetHours" class="form-control" id="resetHours" [(ngModel)]="settings.resetHours">
+          </div>
+        </div>
+
+        <hr/>
+
+        <div class="form-group row">
+          <label class="col-sm-6">Несколько изменений</label>
+          <div class="col-sm-6">
+            <div class="form-check">
+              <label class="form-check-label">
+                <input class="form-check-input" name="multipleChanges"
+                 type="checkbox" [(ngModel)]="settings.multipleChanges">
+              </label>
+            </div>
+          </div>
+        </div>
+
+        <div class="form-group row">
+          <label for="multiplechangesSpanMinutes" class="col-sm-6 col-form-label">... за время, мин</label>
+          <div class="col-sm-6">
+            <input type="number" name="multipleChangesSpanMinutes" class="form-control" id="multipleChangesSpanMinutes" [(ngModel)]="settings.multipleChangesSpanMinutes">
+          </div>
+        </div>
+
+        <hr/>
+
+        <div class="form-group row">
+          <label for="marginPercentage" class="col-sm-6 col-form-label">Маржевые валюты, %</label>
+          <div class="col-sm-6">
+            <input type="number" step="0.01" name="marginPercentage" class="form-control" id="marginPercentage" [(ngModel)]="settings.marginPercentage">
+          </div>
+        </div>
+
+        <a class="text-right" href="javascript:void(0)" data-toggle="collapse" data-target="#marginCurrencies">
+          Маржевые валюты
+        </a>
+
+        <div class="collapse" id="marginCurrencies">
+          <div class="row">
+            <div class="col-sm-6 offset-sm-6">
+              <li *ngFor="let currency of settings.marginCurrencies; index as i;">
+                {{currency}}
+                <button class="close" type="button" (click)="removeMargin(i)">
+                        <span aria-hidden="true">&times;</span>
+                     </button>
+              </li>
+            </div>
+          </div>
+
+          <div class="row form-inline">
+            <div class="col-sm-6 offset-sm-6">
+              <div class="input-group">
+                <input type="text" name="newCurrency" class="form-control" id="newCurrency" [(ngModel)]="newCurrency">
+                <button type="button" class="btn btn-primary input-group-addon" (click)="addCurrencyToMargins()">
+                      <i class="fa fa-plus fa-lg"></i> 
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <hr/>
+
+
+
+      </form>
+    </div>
+  </div>
+  <div class="modal-footer">
+    <button type="button" class="btn btn-secondary" (click)="c(false)">Закрыть</button>
+    <button type="button" class="btn btn-primary" (click)="c(true)">Сохранить</button>
+  </div>
+</ng-template>
+
+
+
+<div class="changes">
+  <div class="card">
+    <div class="card-header py-1">
+      <div class="row">
+        <div class="col-6 col-md-2">
+          <img src="{{iconPath}}" class="block-icon float-left" />
+        </div>
+        <div class="hidden-sm-down col-md-6">Изменение за время
+
+        </div>
+        <div class="col-6 col-md-4">
+          <span class="pull-right">
+            <a href="javascript:void(0)" (click)="openModal(content)" title="Настройки">
+              <i class="fa fa-cog fa-lg"></i> 
+            </a>
+        <a href="javascript:void(0)" (click)="reset()" title="Сброс">
+              <i class="fa fa-trash fa-lg"></i> 
+            </a>
+        </span>
+        </div>
+      </div>
+    </div>
+    <div class="card-block app-block">
+      <table class="table table-hover">
+        <tbody>
+          <tr *ngFor="let change of changes" [ngClass]="{'recently-changed': change.recentlyChanged}">
+
+            <td *ngIf="change.currency" class="py-1">
+              <a href="{{linkTemplate}}{{change.currency}}" target="_blank">{{change.currency}}</a>
+            </td>
+            <td *ngIf="change.currency" class="py-1">{{change.percentage | number:'1.0-1'}}%</td>
+
+            <td *ngIf="!change.currency" colspan="2" class="py-1"> {{change.message}}</td>
+
+            <td class="py-1">{{change.time | date:'HH:mm:ss'}}</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div #bottom></div>
+    </div>
+  </div>
+</div>

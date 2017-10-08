@@ -5,6 +5,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using CurrencyTrackerServer.ChangeTrackerService.Entities;
 using CurrencyTrackerServer.Infrastructure.Abstract;
+using CurrencyTrackerServer.Infrastructure.Entities.Changes;
 
 namespace CurrencyTrackerServer.ChangeTrackerService.Concrete
 {
@@ -13,28 +14,20 @@ namespace CurrencyTrackerServer.ChangeTrackerService.Concrete
         public IChangeMonitor<IEnumerable<Change>> Monitor { get; }
         private readonly INotifier<Change> _notifier;
 
-        public int Percentage { get; set; }
-
-        public TimeSpan ResetTimeSpan { get; set; }
-
-        public bool MultipleChanges { get; set; }
-
-        public TimeSpan MultipleChangesSpan { get; set; }
-
-        public ChangeTimerWorker(IChangeMonitor<IEnumerable<Change>> monitor, INotifier<Change> notifier,
-            int period = 10000) : base(period)
+        public ChangeTimerWorker(IChangeMonitor<IEnumerable<Change>> monitor, INotifier<Change> notifier) : base()
         {
             Monitor = monitor;
             _notifier = notifier;
         }
 
+        private int _cyclesPassed = 0;
 
         protected override async Task DoWork()
         {
             try
             {
-                await Monitor.ResetStates(ResetTimeSpan);
-                var changes = await Monitor.GetChanges(Percentage, MultipleChangesSpan, MultipleChanges);
+                await Monitor.ResetStates(TimeSpan.FromHours(Monitor.Settings.ResetHours));
+                var changes = await Monitor.GetChanges();
                 if (changes.Any())
                     await _notifier.SendNotificationMessage(changes);
             }
@@ -44,11 +37,32 @@ namespace CurrencyTrackerServer.ChangeTrackerService.Concrete
                 {
                     Type = ChangeType.Error,
                     Message = e.Message,
-                    Time = DateTime.Now
+                    Time = DateTime.Now,
+                    ChangeSource = Monitor.Source
                 };
 
                 await _notifier.SendNotificationMessage(errorMessage);
             }
+            finally
+            {
+                Period = Monitor.Settings.PeriodSeconds * 1000;
+            }
+
+            if (Monitor.Settings.PingClient)
+            {
+                _cyclesPassed++;
+
+                if (_cyclesPassed > Monitor.Settings.PingPeriodCycles)
+                {
+                    _cyclesPassed = 0;
+                    await _notifier.SendNotificationMessage((new Change
+                    {
+                        ChangeSource = Monitor.Source,
+                        Type = ChangeType.Info
+                    }));
+                }
+            }
+
         }
     }
 }

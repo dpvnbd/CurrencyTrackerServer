@@ -1,4 +1,6 @@
 ﻿using System;
+using CurrencyTrackerServer.Infrastructure.Entities;
+using CurrencyTrackerServer.Infrastructure.Entities.Changes;
 
 namespace CurrencyTrackerServer.ChangeTrackerService.Entities
 {

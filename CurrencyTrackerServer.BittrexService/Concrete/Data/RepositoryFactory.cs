@@ -1,12 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using CurrencyTrackerServer.Infrastructure.Abstract;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 
 namespace CurrencyTrackerServer.ChangeTrackerService.Concrete.Data
 {
-    public class RepositoryFactory
+    public class RepositoryFactory : IRepositoryFactory
     {
         private readonly DbContextFactoryOptions _options;
         public IDbContextFactory<DbContext> ContextFactory { get; }
@@ -17,7 +18,7 @@ namespace CurrencyTrackerServer.ChangeTrackerService.Concrete.Data
             this.ContextFactory = contextFactory;
         }
 
-        public Repository<T> Create<T>() where T : class
+        public IRepository<T> Create<T>() where T : class
         {
             return new Repository<T>(ContextFactory.Create(_options));
         }

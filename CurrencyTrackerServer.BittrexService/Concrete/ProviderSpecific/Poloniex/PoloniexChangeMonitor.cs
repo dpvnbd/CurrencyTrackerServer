@@ -3,12 +3,14 @@ using CurrencyTrackerServer.ChangeTrackerService.Concrete.Data;
 using CurrencyTrackerServer.ChangeTrackerService.Concrete.ProviderSpecific.Bittrex;
 using CurrencyTrackerServer.ChangeTrackerService.Entities;
 using CurrencyTrackerServer.Infrastructure.Abstract;
+using CurrencyTrackerServer.Infrastructure.Entities.Changes;
 
 namespace CurrencyTrackerServer.ChangeTrackerService.Concrete.ProviderSpecific.Poloniex
 {
     public class PoloniexChangeMonitor:ChangeMonitor
     {
-        public PoloniexChangeMonitor(RepositoryFactory repoFactory) : base(new PoloniexApiDataSource(), repoFactory)
+        public PoloniexChangeMonitor(IRepositoryFactory repoFactory, ISettingsProvider<ChangeSettings> settingsProvider) 
+            : base(new PoloniexApiDataSource(), repoFactory, settingsProvider)
         {
         }
     }

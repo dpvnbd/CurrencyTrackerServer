@@ -1,0 +1,165 @@
+<ng-template #content let-c="close" let-d="dismiss">
+  <div class="modal-header">
+    <h4 class="modal-title">Настройки</h4>
+    <button type="button" class="close" aria-label="Close" (click)="d('Cross click')">
+      <span aria-hidden="true">&times;</span>
+    </button>
+  </div>
+
+  <!-- export interface Price {
+    currency: string;
+    source: Source;
+    message?: string;
+    recentlyChanged?: boolean;
+}
+export interface PriceSettings {
+    periodSeconds: number;
+    prices?: Price[];
+}
+  } -->
+
+  <div class="modal-body">
+    <div class="container">
+      <form>
+        <div class="form-group row">
+          <label class="col-sm-6">Звук</label>
+          <div class="col-sm-6">
+            <div class="form-check">
+              <label class="form-check-label">
+                    <input class="form-check-input" name="soundEnabled"
+                     type="checkbox" [(ngModel)]="soundEnabled">
+                  </label>
+            </div>
+          </div>
+        </div>
+        <hr/>
+
+        <div class="form-group row">
+          <label for="period" class="col-sm-6 col-form-label">Период, сек</label>
+          <div class="col-sm-6">
+            <input type="number" name="period" class="form-control" id="period" [(ngModel)]="settings.periodSeconds">
+          </div>
+        </div>
+
+        <hr/>
+
+        <div class="form-group row">
+          <label for="currency" class="col-sm-6 col-form-label">Валюта</label>
+          <div class="col-sm-4">
+            <input type="text" name="currency" class="form-control" id="currency" [(ngModel)]="addedCurrency.currency">
+          </div>
+
+          <button class="col-sm-2 btn btn-primary" (click)="getPrice()">
+              Цена
+          </button>
+        </div>
+
+        <div *ngIf="addedCurrency.message">
+          {{addedCurrency.message}}
+        </div>
+
+
+        <div class="form-group row">
+          <label for="low" class="col-sm-6 col-form-label">Нижний порог</label>
+          <div class="col-sm-6">
+            <input type="number" name="low" id="low" class="form-control" step="0.00000001" [(ngModel)]="addedCurrency.low">
+          </div>
+        </div>
+
+        <div class="form-group row">
+          <label for="high" class="col-sm-6 col-form-label">Верхний порог</label>
+          <div class="col-sm-6">
+            <input type="number" name="high" id="high" class="form-control" step="0.00000001" [(ngModel)]="addedCurrency.high ">
+          </div>
+        </div>
+
+
+        <div class="form-group row">
+          <div class="offset-sm-6">
+            <button class="btn btn-primary" (click)="addCurrencyToSettings()">
+              Добавить
+          </button>
+          </div>
+        </div>
+
+        <table class="table">
+          <tbody>
+            <th class="text-center">Валюта</th>
+            <th class="text-center"><i class="fa fa-arrow-down"></i></th>
+            <th class="text-center"><i class="fa fa-arrow-up"></i></th>
+            <th class="text-center"></th>
+
+            <tr *ngFor="let price of settings.prices; index as i;" [ngClass]="{'recently-changed': price.recentlyChanged}">
+              <td>
+                <a href="{{linkTemplate}}{{price.currency}}" target="_blank">{{price.currency}}</a>
+              </td>
+              <td>
+                <input type="number" name="low{{i}}" class="form-control" step="0.00000001" [(ngModel)]="price.low ">
+              </td>
+              <td>
+                <input type="number" name="high{{i}}" class="form-control" step="0.00000001" [(ngModel)]="price.high ">
+              </td>
+              <td class="text-center">
+                <button class="close" type="button" (click)="removeCurrencyFromSettings(i)">
+                      <span aria-hidden="true">&times;</span>
+                   </button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </form>
+    </div>
+  </div>
+  <div class="modal-footer">
+    <button type="button" class="btn btn-secondary" (click)="c(false)">Закрыть</button>
+    <button type="button" class="btn btn-primary" (click)="c(true)">Сохранить</button>
+  </div>
+</ng-template>
+
+
+
+<div class="price">
+  <div class="card">
+    <div class="card-header py-1">
+      <div class="row">
+        <div class="col-6 col-md-2">
+          <img src="{{iconPath}}" class="block-icon float-left" />
+        </div>
+        <div class="hidden-sm-down col-md-6">Цена валют
+
+        </div>
+        <div class="col-6 col-md-4">
+          <span class="pull-right">
+              <a href="javascript:void(0)" (click)="openModal(content)" title="Настройки">
+                <i class="fa fa-cog fa-lg"></i> 
+              </a>
+          </span>
+        </div>
+      </div>
+    </div>
+    <div class="card-block app-block">
+      <table class="table table-hover">
+        <th class="py-1 text-center">Валюта</th>
+        <th class="py-1 text-center"><i class="fa fa-arrow-down"></i></th>
+        <th class="py-1 text-center">Цена</th>
+        <th class="py-1 text-center"><i class="fa fa-arrow-up"></i></th>
+        <tr *ngFor="let price of prices" [ngClass]="{'recently-changed': price.recentlyChanged,
+         'priceLow': price.last <= price.low, 'priceHigh': price.last >= price.high }">
+          <td class="py-1 text-center">
+            <a href="{{linkTemplate}}{{price.currency}}" target="_blank">{{price.currency}}</a>
+          </td>
+          <td class="py-1 text-center">
+            {{price.low | number:'1.8-8'}}
+          </td>
+          <td class="py-1 text-center">
+            {{price.last | number:'1.8-8'}}
+          </td>
+          <td class="py-1 text-center">
+            {{price.high | number:'1.8-8'}}
+          </td>
+        </tr>
+
+      </table>
+    </div>
+  </div>
+</div>

@@ -5,6 +5,8 @@ using System.Net.Http;
 using System.Threading.Tasks;
 using CurrencyTrackerServer.ChangeTrackerService.Entities;
 using CurrencyTrackerServer.Infrastructure.Abstract;
+using CurrencyTrackerServer.Infrastructure.Entities;
+using CurrencyTrackerServer.Infrastructure.Entities.Changes;
 using Newtonsoft.Json;
 
 namespace CurrencyTrackerServer.ChangeTrackerService.Concrete.ProviderSpecific.Bittrex
@@ -59,5 +61,7 @@ namespace CurrencyTrackerServer.ChangeTrackerService.Concrete.ProviderSpecific.B
 
             return list;
         }
+
+        public ChangeSource Source => ChangeSource.Bittrex;
     }
 }

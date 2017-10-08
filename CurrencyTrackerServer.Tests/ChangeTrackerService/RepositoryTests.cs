@@ -13,12 +13,12 @@ namespace CurrencyTrackerServer.Tests.ChangeTrackerService
         [TestMethod]
         public async Task TestAdd()
         {
-            var options = new DbContextOptionsBuilder<BittrexTestContext>()
+            var options = new DbContextOptionsBuilder<TestDbContext>()
                 .UseInMemoryDatabase(databaseName: "TestCRUD")
                 .Options;
 
             // Run the test against one instance of the context
-            using (var context = new BittrexTestContext(options))
+            using (var context = new TestDbContext(options))
             {
                 var constituent = new TestEntity
                 {
@@ -30,7 +30,7 @@ namespace CurrencyTrackerServer.Tests.ChangeTrackerService
             }
 
             // Use a separate instance of the context to verify correct data was saved to database
-            using (var context = new BittrexTestContext(options))
+            using (var context = new TestDbContext(options))
             {
                 var entity = context.TestSet.FirstOrDefault();
                 Assert.AreEqual(1, context.TestSet.Count());
@@ -43,7 +43,7 @@ namespace CurrencyTrackerServer.Tests.ChangeTrackerService
             }
 
             // Use a separate instance of the context to verify correct data was saved to database
-            using (var context = new BittrexTestContext(options))
+            using (var context = new TestDbContext(options))
             {
                 var entity = context.TestSet.FirstOrDefault();
 
@@ -56,7 +56,7 @@ namespace CurrencyTrackerServer.Tests.ChangeTrackerService
             }
 
             //use separate context to verify delete
-            using (var context = new BittrexTestContext(options))
+            using (var context = new TestDbContext(options))
             {
                 Assert.AreEqual(0, context.TestSet.Count());
             }
