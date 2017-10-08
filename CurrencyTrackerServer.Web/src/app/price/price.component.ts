@@ -6,7 +6,8 @@ import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 
 @Component({
     selector: 'app-price',
-    templateUrl: 'price.component.html'
+    templateUrl: 'price.component.html',
+    styleUrls: ['price.component.css']
 })
 
 export class PriceComponent implements OnInit {
@@ -25,9 +26,15 @@ export class PriceComponent implements OnInit {
     iconPath: string;
     soundEnabled = true;
 
+    audioHigh: HTMLAudioElement;
+    audioLow: HTMLAudioElement;
+
     constructor(private priceService: PriceService, private modalService: NgbModal) { }
 
     ngOnInit() {
+        this.audioHigh = new Audio('../../assets/sounds/high.wav');
+        this.audioLow = new Audio('../../assets/sounds/low.wav');
+
         if (this.source === Source.Bittrex) {
             this.linkTemplate = 'https://bittrex.com/Market/Index?MarketName=BTC-';
             this.iconPath = '../../assets/images/bittrexIcon.png';
@@ -35,6 +42,7 @@ export class PriceComponent implements OnInit {
             this.linkTemplate = 'https://poloniex.com/exchange#btc_';
             this.iconPath = '../../assets/images/poloniexIcon.png';
         }
+
 
         this.priceService.subject.subscribe((prices: Price[]) => {
             const localPrices: Price[] = [];
@@ -44,9 +52,9 @@ export class PriceComponent implements OnInit {
                     localPrices.push(price);
                 }
             }
-            if (localPrices && localPrices[0].source === this.source) {
+            if (localPrices[0] && localPrices[0].source === this.source) {
                 this.prices = localPrices;
-
+                this.checkPriceBounds();
             }
         });
 
@@ -55,6 +63,35 @@ export class PriceComponent implements OnInit {
                 this.prices = prices;
             }
         });
+    }
+
+    checkPriceBounds() {
+        let changed = false;
+        let low = false;
+        let high = false;
+        for (const price of this.prices) {
+            if (price.last <= price.low) {
+                low = true;
+                changed = true;
+            } else if (price.last >= price.high) {
+                high = true;
+                changed = true;
+            }
+        }
+        if (changed) {
+            this.playAlarm(high, low);
+        }
+    }
+
+    playAlarm(high: boolean, low: boolean) {
+        if (!this.soundEnabled) {
+            return;
+        }
+        if (high) {
+            this.audioHigh.play();
+        } else if (low) {
+            this.audioLow.play();
+        }
     }
 
     openModal(content) {
