@@ -1,3 +1,0 @@
-cd CurrencyTrackerServer
-dotnet run
-pause
