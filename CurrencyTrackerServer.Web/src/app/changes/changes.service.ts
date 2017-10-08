@@ -34,6 +34,9 @@ export interface ChangeSettings {
   multipleChangesSpanMinutes: number;
   marginPercentage: number;
   marginCurrencies: string[];
+
+  pingClient: boolean;
+  pingPeriodCycles: number;
 }
 
 @Injectable()

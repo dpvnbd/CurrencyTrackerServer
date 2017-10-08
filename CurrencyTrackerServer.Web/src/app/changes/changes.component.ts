@@ -1,5 +1,5 @@
 import { Component, OnInit, AfterViewChecked, Input, ElementRef, ViewChild } from '@angular/core';
-import { ChangesService, Change, ChangeSettings } from './changes.service';
+import { ChangesService, Change, ChangeSettings, ChangeType } from './changes.service';
 import { DatePipe, DecimalPipe } from '@angular/common';
 import { NgbModal, ModalDismissReasons } from '@ng-bootstrap/ng-bootstrap';
 import { Source } from '../shared';
@@ -27,9 +27,14 @@ export class ChangesComponent implements OnInit {
     iconPath: string;
     soundEnabled = true;
 
+    audioPing: HTMLAudioElement;
+
+
     constructor(private changesService: ChangesService, private modalService: NgbModal) { }
 
     ngOnInit() {
+        this.audioPing = new Audio('../../assets/sounds/ping.mp3');
+
         if (this.source === Source.Bittrex) {
             this.linkTemplate = 'https://bittrex.com/Market/Index?MarketName=BTC-';
             this.iconPath = '../../assets/images/bittrexIcon.png';
@@ -42,7 +47,11 @@ export class ChangesComponent implements OnInit {
             const localChanges: Change[] = [];
             for (const change of changes) {
                 if (change.changeSource === this.source) {
-                    localChanges.push(change);
+                    if (change.type === ChangeType.Info && this.settings.pingClient && this.soundEnabled) {
+                        this.audioPing.play();
+                    } else {
+                        localChanges.push(change);
+                    }
                 }
             }
             if (localChanges.length > 0) {

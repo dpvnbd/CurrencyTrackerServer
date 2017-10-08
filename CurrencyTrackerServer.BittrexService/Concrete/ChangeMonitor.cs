@@ -50,7 +50,7 @@ namespace CurrencyTrackerServer.ChangeTrackerService.Concrete
 
             foreach (var currency in currencies)
             {
-                var percentage = Settings.Percentage;
+                double percentage = Settings.Percentage;
 
                 if (Settings.MarginCurrencies != null &&
                     Settings.MarginCurrencies.Contains(currency.Currency, StringComparer.OrdinalIgnoreCase))
