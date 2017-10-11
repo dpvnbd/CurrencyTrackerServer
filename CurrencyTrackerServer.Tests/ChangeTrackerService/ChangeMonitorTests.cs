@@ -16,7 +16,7 @@ using Moq;
 namespace CurrencyTrackerServer.Tests.ChangeTrackerService
 {
     [TestClass]
-    public class BittrexChangeMonitorTests
+    public class ChangeMonitorTests
     {
         private static IRepositoryFactory _repoFactory;
 
@@ -58,7 +58,8 @@ namespace CurrencyTrackerServer.Tests.ChangeTrackerService
                     Threshold = 45
                 });
             }
-            var monitor = new ChangeMonitor(dataSourceMock.Object, _repoFactory, new TestSettingsProvider(new ChangeSettings()));
+            var monitor = new ChangeMonitor(dataSourceMock.Object, _repoFactory,
+                new TestSettingsProvider(new ChangeSettings()));
             //Act
             await monitor.ResetAll();
 
@@ -92,7 +93,8 @@ namespace CurrencyTrackerServer.Tests.ChangeTrackerService
 
             var settings = new ChangeSettings()
             {
-                Percentage = 45, MultipleChanges = false
+                Percentage = 45,
+                MultipleChanges = false
             };
 
             var monitor =
@@ -181,7 +183,9 @@ namespace CurrencyTrackerServer.Tests.ChangeTrackerService
             }
             var settings = new ChangeSettings()
             {
-                Percentage = 45, MultipleChangesSpanMinutes = 30, MultipleChanges = true
+                Percentage = 45,
+                MultipleChangesSpanMinutes = 30,
+                MultipleChanges = true
             };
 
             var monitor =
@@ -230,6 +234,50 @@ namespace CurrencyTrackerServer.Tests.ChangeTrackerService
             Assert.AreEqual(100, historyEntry.Percentage);
             Assert.AreEqual(ChangeType.Currency, historyEntry.Type);
             Assert.IsTrue(historyEntry.Time > DateTime.Now - TimeSpan.FromMinutes(10));
+        }
+
+        [TestMethod]
+        public async Task TestMultipleQuickChanges()
+        {
+            //Arrange
+            var dataSourceMock = new Mock<IDataSource<IEnumerable<CurrencyChangeApiData>>>();
+            var apiChange = new CurrencyChangeApiData {Currency = "MUSIC", CurrentBid = 105, PreviousDayBid = 100};
+            var apiChange1 = new CurrencyChangeApiData {Currency = "MUSIC", CurrentBid = 108, PreviousDayBid = 100};
+            var apiChange2 = new CurrencyChangeApiData {Currency = "MUSIC", CurrentBid = 112, PreviousDayBid = 100};
+            var apiData = new List<CurrencyChangeApiData>
+            {
+                apiChange,
+            };
+            dataSourceMock.Setup(m => m.GetData()).ReturnsAsync(apiData);
+
+
+
+            var settings = new ChangeSettings()
+            {
+                Percentage = 5,
+                MultipleChangesSpanMinutes = 2,
+                MultipleChanges = true
+            };
+
+            var monitor =
+                new ChangeMonitor(dataSourceMock.Object, _repoFactory, new TestSettingsProvider(settings));
+
+            await monitor.GetChanges();
+
+            apiData[0] = apiChange1;
+            await monitor.GetChanges();
+
+            apiData[0] = apiChange2;
+            await monitor.GetChanges();
+            
+            List<ChangeHistoryEntryEntity> history;
+            
+            using (var historyRepo = _repoFactory.Create<ChangeHistoryEntryEntity>())
+            {
+                history = new List<ChangeHistoryEntryEntity>(historyRepo.GetAll());
+            }
+
+            Assert.AreEqual(1, history.Count);
         }
     }
 }
