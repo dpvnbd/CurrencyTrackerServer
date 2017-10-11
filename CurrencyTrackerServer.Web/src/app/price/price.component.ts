@@ -26,6 +26,8 @@ export class PriceComponent implements OnInit {
     iconPath: string;
     soundEnabled = true;
 
+    tempMute = false;
+
     audioHigh: HTMLAudioElement;
     audioLow: HTMLAudioElement;
 
@@ -34,6 +36,9 @@ export class PriceComponent implements OnInit {
     ngOnInit() {
         this.audioHigh = new Audio('../../assets/sounds/high.wav');
         this.audioLow = new Audio('../../assets/sounds/low.wav');
+
+        this.audioHigh.loop = true;
+        this.audioLow.loop = true;
 
         if (this.source === Source.Bittrex) {
             this.linkTemplate = 'https://bittrex.com/Market/Index?MarketName=BTC-';
@@ -84,7 +89,7 @@ export class PriceComponent implements OnInit {
     }
 
     playAlarm(high: boolean, low: boolean) {
-        if (!this.soundEnabled) {
+        if (!this.soundEnabled || this.tempMute) {
             return;
         }
         if (high) {
@@ -95,11 +100,16 @@ export class PriceComponent implements OnInit {
     }
 
     openModal(content) {
+        this.tempMute = true;
+        this.audioHigh.pause();
+        this.audioLow.pause();
+
         this.priceService.getSettings(this.source).then((settings) => {
             if (settings) {
                 this.settings = settings;
 
                 this.modalService.open(content).result.then((save) => {
+                    this.tempMute = false;
                     if (save) {
                         this.priceService.saveSettings(this.source, this.settings);
                     }
