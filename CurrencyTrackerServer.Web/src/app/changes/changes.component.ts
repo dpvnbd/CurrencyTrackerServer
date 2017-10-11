@@ -47,7 +47,7 @@ export class ChangesComponent implements OnInit {
             const localChanges: Change[] = [];
             for (const change of changes) {
                 if (change.changeSource === this.source) {
-                    if (change.type === ChangeType.Info && this.settings.pingClient && this.soundEnabled) {
+                    if (change.type === ChangeType.Info && this.soundEnabled) {
                         this.audioPing.play();
                     } else {
                         localChanges.push(change);
