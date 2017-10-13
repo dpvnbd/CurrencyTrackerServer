@@ -14,21 +14,19 @@ namespace CurrencyTrackerServer.PriceService.Concrete
         private readonly IPriceSource _dataSource;
         private readonly ISettingsProvider<PriceSettings> _settingsProvider;
         public ChangeSource Source { get; protected set; }
-        public PriceSettings Settings { get; private set; }
+
+        public PriceSettings Settings => _settingsProvider.GetSettings(Source);
 
         public PriceMonitor(IPriceSource dataSource, ISettingsProvider<PriceSettings> settingsProvider)
         {
             _dataSource = dataSource;
             _settingsProvider = settingsProvider;
             Source = dataSource.Source;
-            Settings = _settingsProvider.GetSettings(Source);
         }
 
 
         public async Task<IEnumerable<Price>> GetPrices()
         {
-            Settings = _settingsProvider.GetSettings(Source);
-
             var prices = new List<Price>();
 
             var currencies = Settings.Prices.Select(p => p.Currency);

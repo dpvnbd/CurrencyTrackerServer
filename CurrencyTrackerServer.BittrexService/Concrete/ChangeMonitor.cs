@@ -17,7 +17,10 @@ namespace CurrencyTrackerServer.ChangeTrackerService.Concrete
     {
         private IDataSource<IEnumerable<CurrencyChangeApiData>> _dataSource;
         private readonly IRepositoryFactory _repoFactory;
-        public ChangeSettings Settings { get; }
+        private readonly ISettingsProvider<ChangeSettings> _settingsProvider;
+
+        public ChangeSettings Settings => _settingsProvider.GetSettings(Source);
+
         public ChangeSource Source { get; }
 
         public ChangeMonitor(IDataSource<IEnumerable<CurrencyChangeApiData>> dataSource,
@@ -25,8 +28,8 @@ namespace CurrencyTrackerServer.ChangeTrackerService.Concrete
         {
             _dataSource = dataSource;
             this._repoFactory = repoFactory;
+            this._settingsProvider = settingsProvider;
             Source = dataSource.Source;
-            Settings = settingsProvider.GetSettings(Source);
         }
 
 
