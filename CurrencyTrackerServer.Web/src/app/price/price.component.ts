@@ -134,7 +134,20 @@ export class PriceComponent implements OnInit {
     addCurrencyToSettings() {
         if (this.addedCurrency.currency) {
             this.addedCurrency.currency = this.addedCurrency.currency.toUpperCase();
-            this.settings.prices.push(this.addedCurrency);
+
+            const addedCurrencyClone = {
+                currency: this.addedCurrency.currency,
+                high: this.addedCurrency.high,
+                low: this.addedCurrency.low,
+            };
+
+            for (const i in this.settings.prices) {
+                if (this.settings.prices[i].currency === this.addedCurrency.currency) {
+                    this.settings.prices.splice(parseInt(i, 10), 1, addedCurrencyClone);
+                    return;
+                }
+            }
+            this.settings.prices.push(addedCurrencyClone);
         }
     }
 

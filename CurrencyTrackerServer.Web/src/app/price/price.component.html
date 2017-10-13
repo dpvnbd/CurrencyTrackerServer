@@ -58,14 +58,6 @@ export interface PriceSettings {
           {{addedCurrency.message}}
         </div>
 
-
-        <div class="form-group row">
-          <label for="low" class="col-sm-6 col-form-label">Нижний порог</label>
-          <div class="col-sm-6">
-            <input type="number" name="low" id="low" class="form-control" step="0.00000001" [(ngModel)]="addedCurrency.low">
-          </div>
-        </div>
-
         <div class="form-group row">
           <label for="high" class="col-sm-6 col-form-label">Верхний порог</label>
           <div class="col-sm-6">
@@ -73,6 +65,12 @@ export interface PriceSettings {
           </div>
         </div>
 
+        <div class="form-group row">
+          <label for="low" class="col-sm-6 col-form-label">Нижний порог</label>
+          <div class="col-sm-6">
+            <input type="number" name="low" id="low" class="form-control" step="0.00000001" [(ngModel)]="addedCurrency.low">
+          </div>
+        </div>      
 
         <div class="form-group row">
           <div class="offset-sm-6">

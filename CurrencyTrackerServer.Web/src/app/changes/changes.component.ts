@@ -27,13 +27,13 @@ export class ChangesComponent implements OnInit {
     iconPath: string;
     soundEnabled = true;
 
-    audioPing: HTMLAudioElement;
+    // audioPing: HTMLAudioElement;
 
 
     constructor(private changesService: ChangesService, private modalService: NgbModal) { }
 
     ngOnInit() {
-        this.audioPing = new Audio('../../assets/sounds/ping.mp3');
+        // this.audioPing = new Audio('../../assets/sounds/ping.mp3');
 
         if (this.source === Source.Bittrex) {
             this.linkTemplate = 'https://bittrex.com/Market/Index?MarketName=BTC-';
@@ -48,7 +48,9 @@ export class ChangesComponent implements OnInit {
             for (const change of changes) {
                 if (change.changeSource === this.source) {
                     if (change.type === ChangeType.Info && this.soundEnabled) {
-                        this.audioPing.play();
+                        // this.audioPing.play();
+                        responsiveVoice.speak('working', 'Russian Female', {rate: 0.8});
+
                     } else {
                         localChanges.push(change);
                     }
