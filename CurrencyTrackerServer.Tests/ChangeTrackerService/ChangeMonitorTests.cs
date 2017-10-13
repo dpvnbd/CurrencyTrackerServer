@@ -279,5 +279,52 @@ namespace CurrencyTrackerServer.Tests.ChangeTrackerService
 
             Assert.AreEqual(1, history.Count);
         }
+
+        [TestMethod]
+        public async Task TestPriceDecreaseDetectedInMarginCurrencies()
+        {
+            //Arrange
+            var dataSourceMock = new Mock<IDataSource<IEnumerable<CurrencyChangeApiData>>>();
+            var marginDecreased = new CurrencyChangeApiData { Currency = "MD", CurrentBid = 10, PreviousDayBid = 100 };
+            var regularDecreased = new CurrencyChangeApiData { Currency = "RD", CurrentBid = 10, PreviousDayBid = 100 };
+            var marginIncrease = new CurrencyChangeApiData { Currency = "MI", CurrentBid = 200, PreviousDayBid = 100 };
+            var regularIncrease = new CurrencyChangeApiData { Currency = "RI", CurrentBid = 200, PreviousDayBid = 100 };
+            var marginNotChanged = new CurrencyChangeApiData { Currency = "MN", CurrentBid = 105, PreviousDayBid = 100 };
+            var regularNotChanged = new CurrencyChangeApiData { Currency = "RN", CurrentBid = 105, PreviousDayBid = 100 };
+
+            var apiData = new List<CurrencyChangeApiData>
+            {
+                marginDecreased, regularDecreased, marginIncrease, regularIncrease, marginNotChanged, regularNotChanged
+            };
+            dataSourceMock.Setup(m => m.GetData()).ReturnsAsync(apiData);
+
+
+
+            var settings = new ChangeSettings()
+            {
+                Percentage = 30,
+                MultipleChanges = false,
+                MarginCurrencies = new List<string>(new []{ "MD", "MI", "MN"}),
+                MarginPercentage = 30
+            };
+
+            var monitor =
+                new ChangeMonitor(dataSourceMock.Object, _repoFactory, new TestSettingsProvider(settings));
+
+            await monitor.GetChanges();
+
+
+            List<ChangeHistoryEntryEntity> history;
+
+            using (var historyRepo = _repoFactory.Create<ChangeHistoryEntryEntity>())
+            {
+                history = new List<ChangeHistoryEntryEntity>(historyRepo.GetAll());
+            }
+
+            Assert.AreEqual(3, history.Count);
+            Assert.IsTrue(history.Exists(h=> h.Currency == "MD"));
+            Assert.IsTrue(history.Exists(h=> h.Currency == "MI"));
+            Assert.IsTrue(history.Exists(h=> h.Currency == "RI"));
+        }
     }
 }

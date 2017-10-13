@@ -53,12 +53,14 @@ namespace CurrencyTrackerServer.ChangeTrackerService.Concrete
 
             foreach (var currency in currencies)
             {
+                var isMargin = false;
                 double percentage = Settings.Percentage;
 
                 if (Settings.MarginCurrencies != null &&
                     Settings.MarginCurrencies.Contains(currency.Currency, StringComparer.OrdinalIgnoreCase))
                 {
                     percentage = Settings.MarginPercentage;
+                    isMargin = true;
                 }
 
                 var threshold = 0d;
@@ -73,11 +75,17 @@ namespace CurrencyTrackerServer.ChangeTrackerService.Concrete
                     lastChange = state.LastChangeTime;
                 }
 
-
-                if (currency.PercentChanged < threshold + percentage)
+                if (!isMargin && currency.PercentChanged < threshold + percentage)
                 {
                     continue;
                 }
+
+                if (isMargin && currency.PercentChanged < threshold + percentage &&
+                                currency.PercentChanged > threshold - percentage)
+                {
+                    continue;
+                }
+
                 var change = new Change
                 {
                     Currency = currency.Currency,
@@ -188,8 +196,6 @@ namespace CurrencyTrackerServer.ChangeTrackerService.Concrete
             }
 
             await ClearHistory(TimeSpan.Zero, true);
-
-
         }
 
         public async Task ClearHistory(TimeSpan olderThan, bool logDeletion = false)
