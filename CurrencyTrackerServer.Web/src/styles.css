@@ -15,3 +15,8 @@
 .recently-changed {
   background: rgba(50, 205, 50, 0.23)
 }
+
+.popover{
+  /* max-width: 100% !important; Max Width of the popover (depending on the container!) */
+  min-width: 20em !important;
+}

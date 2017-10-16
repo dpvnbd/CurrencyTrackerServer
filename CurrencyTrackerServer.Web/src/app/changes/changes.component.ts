@@ -17,6 +17,7 @@ export class ChangesComponent implements OnInit {
 
     @ViewChild('bottom') bottom: ElementRef;
     changes: Change[] = [];
+    lastError: Change;
     settings: ChangeSettings;
     message: string;
     private skipSpeech = true;
@@ -47,12 +48,14 @@ export class ChangesComponent implements OnInit {
             const localChanges: Change[] = [];
             for (const change of changes) {
                 if (change.changeSource === this.source) {
-                    if (change.type === ChangeType.Info && this.soundEnabled) {
-                        // this.audioPing.play();
-                        responsiveVoice.speak('working', 'Russian Female', {rate: 0.8});
-
-                    } else {
+                    if (change.type === ChangeType.Currency) {
                         localChanges.push(change);
+                    } else if (change.type === ChangeType.Info && this.soundEnabled) {
+                        // this.audioPing.play();
+                        responsiveVoice.speak('working', 'Russian Female', { rate: 0.8 });
+                    } else if (change.type === ChangeType.Error) {
+                        this.lastError = change;
+                        console.log(change.message);
                     }
                 }
             }

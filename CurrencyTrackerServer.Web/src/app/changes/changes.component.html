@@ -24,13 +24,12 @@
           <div class="col-sm-6">
             <div class="form-check">
               <label class="form-check-label">
-                    <input class="form-check-input" name="soundEnabled"
-                     type="checkbox" [(ngModel)]="soundEnabled">
-                  </label>
+                <input class="form-check-input" name="soundEnabled" type="checkbox" [(ngModel)]="soundEnabled">
+              </label>
             </div>
           </div>
         </div>
-        
+
         <hr/>
 
         <div class="form-group row">
@@ -38,9 +37,8 @@
           <div class="col-sm-6">
             <div class="form-check">
               <label class="form-check-label">
-                    <input class="form-check-input" name="pingEnabled"
-                     type="checkbox" [(ngModel)]="settings.pingClient">
-                  </label>
+                <input class="form-check-input" name="pingEnabled" type="checkbox" [(ngModel)]="settings.pingClient">
+              </label>
             </div>
           </div>
         </div>
@@ -81,8 +79,7 @@
           <div class="col-sm-6">
             <div class="form-check">
               <label class="form-check-label">
-                <input class="form-check-input" name="multipleChanges"
-                 type="checkbox" [(ngModel)]="settings.multipleChanges">
+                <input class="form-check-input" name="multipleChanges" type="checkbox" [(ngModel)]="settings.multipleChanges">
               </label>
             </div>
           </div>
@@ -114,8 +111,8 @@
               <li *ngFor="let currency of settings.marginCurrencies; index as i;">
                 {{currency}}
                 <button class="close" type="button" (click)="removeMargin(i)">
-                        <span aria-hidden="true">&times;</span>
-                     </button>
+                  <span aria-hidden="true">&times;</span>
+                </button>
               </li>
             </div>
           </div>
@@ -125,7 +122,7 @@
               <div class="input-group">
                 <input type="text" name="newCurrency" class="form-control" id="newCurrency" [(ngModel)]="newCurrency">
                 <button type="button" class="btn btn-primary input-group-addon" (click)="addCurrencyToMargins()">
-                      <i class="fa fa-plus fa-lg"></i> 
+                  <i class="fa fa-plus fa-lg"></i>
                 </button>
               </div>
             </div>
@@ -145,6 +142,11 @@
   </div>
 </ng-template>
 
+<ng-template #errorContent>
+  <div *ngIf="lastError">
+    {{lastError.time | date:'HH:mm:ss'}} - {{lastError.message}}
+  </div>
+</ng-template>
 
 
 <div class="changes">
@@ -159,13 +161,17 @@
         </div>
         <div class="col-6 col-md-4">
           <span class="pull-right">
+            <a *ngIf="lastError" placement="bottom" [ngbPopover]="errorContent"
+             href="javascript:void(0)" title="Ошибка">
+              <i class="fa fa-exclamation-circle fa-lg"></i>
+            </a>
             <a href="javascript:void(0)" (click)="openModal(content)" title="Настройки">
-              <i class="fa fa-cog fa-lg"></i> 
+              <i class="fa fa-cog fa-lg"></i>
             </a>
-        <a href="javascript:void(0)" (click)="reset()" title="Сброс">
-              <i class="fa fa-trash fa-lg"></i> 
+            <a href="javascript:void(0)" (click)="reset()" title="Сброс">
+              <i class="fa fa-trash fa-lg"></i>
             </a>
-        </span>
+          </span>
         </div>
       </div>
     </div>
