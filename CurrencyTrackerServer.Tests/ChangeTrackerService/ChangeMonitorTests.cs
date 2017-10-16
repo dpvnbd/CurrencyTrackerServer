@@ -83,7 +83,7 @@ namespace CurrencyTrackerServer.Tests.ChangeTrackerService
         {
             //Arrange
             var dataSourceMock = new Mock<IDataSource<IEnumerable<CurrencyChangeApiData>>>();
-            var apiChange = new CurrencyChangeApiData {Currency = "BTC", CurrentBid = 100, PreviousDayBid = 50};
+            var apiChange = new CurrencyChangeApiData { Currency = "BTC", CurrentBid = 100, PreviousDayBid = 50 };
             var apiData = new List<CurrencyChangeApiData>
             {
                 apiChange,
@@ -149,7 +149,7 @@ namespace CurrencyTrackerServer.Tests.ChangeTrackerService
         {
             //Arrange
             var dataSourceMock = new Mock<IDataSource<IEnumerable<CurrencyChangeApiData>>>();
-            var apiChange = new CurrencyChangeApiData {Currency = "BTC", CurrentBid = 100, PreviousDayBid = 50};
+            var apiChange = new CurrencyChangeApiData { Currency = "BTC", CurrentBid = 100, PreviousDayBid = 50 };
             var apiData = new List<CurrencyChangeApiData>
             {
                 apiChange,
@@ -241,9 +241,9 @@ namespace CurrencyTrackerServer.Tests.ChangeTrackerService
         {
             //Arrange
             var dataSourceMock = new Mock<IDataSource<IEnumerable<CurrencyChangeApiData>>>();
-            var apiChange = new CurrencyChangeApiData {Currency = "MUSIC", CurrentBid = 105, PreviousDayBid = 100};
-            var apiChange1 = new CurrencyChangeApiData {Currency = "MUSIC", CurrentBid = 108, PreviousDayBid = 100};
-            var apiChange2 = new CurrencyChangeApiData {Currency = "MUSIC", CurrentBid = 112, PreviousDayBid = 100};
+            var apiChange = new CurrencyChangeApiData { Currency = "MUSIC", CurrentBid = 105, PreviousDayBid = 100 };
+            var apiChange1 = new CurrencyChangeApiData { Currency = "MUSIC", CurrentBid = 108, PreviousDayBid = 100 };
+            var apiChange2 = new CurrencyChangeApiData { Currency = "MUSIC", CurrentBid = 112, PreviousDayBid = 100 };
             var apiData = new List<CurrencyChangeApiData>
             {
                 apiChange,
@@ -269,9 +269,9 @@ namespace CurrencyTrackerServer.Tests.ChangeTrackerService
 
             apiData[0] = apiChange2;
             await monitor.GetChanges();
-            
+
             List<ChangeHistoryEntryEntity> history;
-            
+
             using (var historyRepo = _repoFactory.Create<ChangeHistoryEntryEntity>())
             {
                 history = new List<ChangeHistoryEntryEntity>(historyRepo.GetAll());
@@ -304,7 +304,7 @@ namespace CurrencyTrackerServer.Tests.ChangeTrackerService
             {
                 Percentage = 30,
                 MultipleChanges = false,
-                MarginCurrencies = new List<string>(new []{ "MD", "MI", "MN"}),
+                MarginCurrencies = new List<string>(new[] { "MD", "MI", "MN" }),
                 MarginPercentage = 30
             };
 
@@ -322,9 +322,50 @@ namespace CurrencyTrackerServer.Tests.ChangeTrackerService
             }
 
             Assert.AreEqual(3, history.Count);
-            Assert.IsTrue(history.Exists(h=> h.Currency == "MD"));
-            Assert.IsTrue(history.Exists(h=> h.Currency == "MI"));
-            Assert.IsTrue(history.Exists(h=> h.Currency == "RI"));
+            Assert.IsTrue(history.Exists(h => h.Currency == "MD"));
+            Assert.IsTrue(history.Exists(h => h.Currency == "MI"));
+            Assert.IsTrue(history.Exists(h => h.Currency == "RI"));
+        }
+
+        [TestMethod]
+        public async Task TestDontSignalTwoMarginChangesInDifferentDirections()
+        {
+            //Arrange
+            var dataSourceMock = new Mock<IDataSource<IEnumerable<CurrencyChangeApiData>>>();
+            var apiChange = new CurrencyChangeApiData { Currency = "BTC", CurrentBid = 200, PreviousDayBid = 100 };
+            var apiChange1 = new CurrencyChangeApiData { Currency = "BTC", CurrentBid = 10, PreviousDayBid = 100 };
+            var apiData = new List<CurrencyChangeApiData>
+            {
+                apiChange,
+            };
+            dataSourceMock.Setup(m => m.GetData()).ReturnsAsync(apiData);
+
+            var settings = new ChangeSettings()
+            {
+                Percentage = 5,
+                MultipleChangesSpanMinutes = 20,
+                MultipleChanges = true,
+                MarginPercentage = 5,
+                MarginCurrencies = new List<string> { "BTC" }
+            };
+
+            var monitor =
+                new ChangeMonitor(dataSourceMock.Object, _repoFactory, new TestSettingsProvider(settings));
+
+            //Act
+            await monitor.GetChanges();
+
+            apiData[0] = apiChange1;
+
+            await monitor.GetChanges();
+
+            List<ChangeHistoryEntryEntity> history;
+            using (var historyRepo = _repoFactory.Create<ChangeHistoryEntryEntity>())
+            {
+                history = new List<ChangeHistoryEntryEntity>(historyRepo.GetAll());
+            }
+
+            Assert.AreEqual(0, history.Count);
         }
     }
 }

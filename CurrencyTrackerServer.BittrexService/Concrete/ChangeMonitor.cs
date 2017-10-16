@@ -104,6 +104,19 @@ namespace CurrencyTrackerServer.ChangeTrackerService.Concrete
                     continue;
                 }
 
+                if (isMargin && Settings.MultipleChanges)
+                {
+                    int thresholdSign = Math.Sign(threshold);
+                    int changeSign = Math.Sign(currency.PercentChanged);
+                    
+                    if (thresholdSign != changeSign)
+                    {
+                        change.Threshold *= changeSign;
+                        await SaveState(change);
+                        continue;
+                    }
+                }
+
                 changes.Add(change);
             }
             await SaveHistory(changes);
@@ -172,14 +185,14 @@ namespace CurrencyTrackerServer.ChangeTrackerService.Concrete
             }
 
             return entities.Select(entity => new Change
-                {
-                    Currency = entity.Currency,
-                    Message = entity.Message,
-                    Percentage = entity.Percentage,
-                    Time = entity.Time,
-                    Type = entity.Type,
-                    ChangeSource = entity.ChangeSource
-                })
+            {
+                Currency = entity.Currency,
+                Message = entity.Message,
+                Percentage = entity.Percentage,
+                Time = entity.Time,
+                Type = entity.Type,
+                ChangeSource = entity.ChangeSource
+            })
                 .ToList();
         }
 
