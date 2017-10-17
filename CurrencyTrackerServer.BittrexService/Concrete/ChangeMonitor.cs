@@ -67,7 +67,8 @@ namespace CurrencyTrackerServer.ChangeTrackerService.Concrete
                 var lastChange = DateTime.MinValue;
 
                 var state = states.FirstOrDefault(s =>
-                    s.Currency == currency.Currency && s.ChangeSource == currency.ChangeSource);
+                    string.Equals(s.Currency, currency.Currency, StringComparison.OrdinalIgnoreCase) &&
+                    s.ChangeSource == currency.ChangeSource);
 
                 if (state != null)
                 {
@@ -80,10 +81,18 @@ namespace CurrencyTrackerServer.ChangeTrackerService.Concrete
                     continue;
                 }
 
-                if (isMargin && currency.PercentChanged < threshold + percentage &&
-                                currency.PercentChanged > threshold - percentage)
+                if (isMargin)
                 {
-                    continue;
+                    if (threshold > 0 && currency.PercentChanged < threshold + percentage)
+                    {
+                        continue;
+                    }else if (threshold < 0 && currency.PercentChanged > threshold - percentage)
+                    {
+                        continue;;
+                    }else if (threshold == 0 && Math.Abs(currency.PercentChanged) < percentage)
+                    {
+                        continue;
+                    }
                 }
 
                 var change = new Change
@@ -108,11 +117,9 @@ namespace CurrencyTrackerServer.ChangeTrackerService.Concrete
                 {
                     int thresholdSign = Math.Sign(threshold);
                     int changeSign = Math.Sign(currency.PercentChanged);
-                    
+
                     if (thresholdSign != changeSign)
                     {
-                        change.Threshold *= changeSign;
-                        await SaveState(change);
                         continue;
                     }
                 }
@@ -185,14 +192,14 @@ namespace CurrencyTrackerServer.ChangeTrackerService.Concrete
             }
 
             return entities.Select(entity => new Change
-            {
-                Currency = entity.Currency,
-                Message = entity.Message,
-                Percentage = entity.Percentage,
-                Time = entity.Time,
-                Type = entity.Type,
-                ChangeSource = entity.ChangeSource
-            })
+                {
+                    Currency = entity.Currency,
+                    Message = entity.Message,
+                    Percentage = entity.Percentage,
+                    Time = entity.Time,
+                    Type = entity.Type,
+                    ChangeSource = entity.ChangeSource
+                })
                 .ToList();
         }
 

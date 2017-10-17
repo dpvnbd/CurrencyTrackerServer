@@ -34,8 +34,14 @@ export class PriceComponent implements OnInit {
     constructor(private priceService: PriceService, private modalService: NgbModal) { }
 
     ngOnInit() {
-        this.audioHigh = new Audio('../../assets/sounds/high.wav');
-        this.audioLow = new Audio('../../assets/sounds/low.wav');
+        this.audioHigh = new Audio();
+        this.audioLow = new Audio();
+
+        this.audioLow.src = '../../assets/sounds/low.wav';
+        this.audioHigh.src = '../../assets/sounds/high.wav';
+
+        this.audioLow.load();
+        this.audioHigh.load();
 
         this.audioHigh.loop = true;
         this.audioLow.loop = true;
