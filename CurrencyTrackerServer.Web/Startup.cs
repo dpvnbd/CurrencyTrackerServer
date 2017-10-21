@@ -23,6 +23,7 @@ using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using CurrencyTrackerServer.ReminderService;
 
 namespace CurrencyTrackerServer.Web
 {
@@ -103,6 +104,16 @@ namespace CurrencyTrackerServer.Web
       services.AddSingleton<NotificationsMessageHandler<Price>>(priceHandler);
       services.AddSingleton<INotifier<Price>>(priceHandler);
       #endregion
+
+      #region Reminder
+      var reminderConnectionManager = provider.GetRequiredService<WebSocketConnectionManager>();
+      var reminderHandler = new NotificationsMessageHandler<Reminder>(reminderConnectionManager);
+      services.AddSingleton<NotificationsMessageHandler<Reminder>>(reminderHandler);
+      services.AddSingleton<INotifier<Reminder>>(reminderHandler);
+
+      services.AddSingleton<ReminderTimerWorker>();
+
+      #endregion
     }
 
     // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -121,6 +132,9 @@ namespace CurrencyTrackerServer.Web
 
       app.MapWebSocketManager("/priceNotifications",
         serviceProvider.GetRequiredService<NotificationsMessageHandler<Price>>());
+
+      app.MapWebSocketManager("/reminderNotifications",
+        serviceProvider.GetRequiredService<NotificationsMessageHandler<Reminder>>());
 
       app.Use(async (context, next) =>
       {

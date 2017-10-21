@@ -4,6 +4,7 @@
     <TargetFramework>netcoreapp1.1</TargetFramework>
     <TypeScriptCompileBlocked>true</TypeScriptCompileBlocked>
     <TypeScriptToolsVersion>2.3</TypeScriptToolsVersion>
+    <PackageTargetFallback>portable-net45+win8</PackageTargetFallback>
 
   </PropertyGroup>
 
@@ -34,6 +35,13 @@
     <ProjectReference Include="..\CurrencyTrackerServer.BittrexService\CurrencyTrackerServer.ChangeTrackerService.csproj" />
     <ProjectReference Include="..\CurrencyTrackerServer.Infrastructure\CurrencyTrackerServer.Infrastructure.csproj" />
     <ProjectReference Include="..\CurrencyTrackerServer.PriceService\CurrencyTrackerServer.PriceService.csproj" />
+    <ProjectReference Include="..\CurrencyTrackerServer.ReminderService\CurrencyTrackerServer.ReminderService.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Update="changeSettings.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
   </ItemGroup>
 
   <Target Name="Build Angular" Condition="'$(Configuration)'=='Release'" BeforeTargets="Build">
