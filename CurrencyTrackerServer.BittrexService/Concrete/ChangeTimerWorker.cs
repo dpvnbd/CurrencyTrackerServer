@@ -20,7 +20,6 @@ namespace CurrencyTrackerServer.ChangeTrackerService.Concrete
             _notifier = notifier;
         }
 
-        private int _cyclesPassed = 0;
 
         protected override async Task DoWork()
         {
@@ -47,22 +46,6 @@ namespace CurrencyTrackerServer.ChangeTrackerService.Concrete
             {
                 Period = Monitor.Settings.PeriodSeconds * 1000;
             }
-
-            if (Monitor.Settings.PingClient)
-            {
-                _cyclesPassed++;
-
-                if (_cyclesPassed > Monitor.Settings.PingPeriodCycles)
-                {
-                    _cyclesPassed = 0;
-                    await _notifier.SendNotificationMessage((new Change
-                    {
-                        ChangeSource = Monitor.Source,
-                        Type = ChangeType.Info
-                    }));
-                }
-            }
-
         }
     }
 }

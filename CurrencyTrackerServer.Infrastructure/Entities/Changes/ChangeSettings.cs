@@ -26,10 +26,5 @@ namespace CurrencyTrackerServer.Infrastructure.Entities.Changes
 
         public double MarginPercentage { get; set; } = 0.5;
         public List<string> MarginCurrencies;
-
-        public bool PingClient { get; set; } = true;
-
-        [Range(3, int.MaxValue)]
-        public int PingPeriodCycles { get; set; } = 100;
     }
 }

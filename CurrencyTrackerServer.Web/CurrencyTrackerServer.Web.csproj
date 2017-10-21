@@ -36,6 +36,12 @@
     <ProjectReference Include="..\CurrencyTrackerServer.PriceService\CurrencyTrackerServer.PriceService.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Content Update="changeSettings.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+
   <Target Name="Build Angular" Condition="'$(Configuration)'=='Release'" BeforeTargets="Build">
     <Message Text="* * * * * * Building Angular App * * * * * *" Importance="high" />
     <Exec Command="ng build -prod -aot" />
