@@ -1,7 +1,14 @@
 /* You can add global styles to this file, and also import other style files */
 
-.app-block {
-  height: calc(50vh - 40px);
+.changes-block-height {
+  height: calc(50vh - 33px);  
+}
+
+.price-block-height {
+  height: calc(40vh - 33px);  
+}
+
+.scroll-block{
   overflow-y: scroll;
   padding: 0;
 }

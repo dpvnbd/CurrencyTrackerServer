@@ -10,22 +10,19 @@ import { $WebSocket } from 'angular2-websocket/angular2-websocket';
 // services
 import { ChangesService } from './changes/changes.service';
 import { PriceService } from './price/price.service';
+import { ReminderService } from './reminder/reminder.service';
 
 import { AppComponent } from './app.component';
 import { ChangesComponent } from './changes/changes.component';
 import { PriceComponent } from './price/price.component';
-
-
-
-
-
-
+import { ReminderComponent } from './reminder/reminder.component';
 
 @NgModule({
   declarations: [
     AppComponent,
     ChangesComponent,
-    PriceComponent
+    PriceComponent,
+    ReminderComponent
   ],
   imports: [
     BrowserModule,
@@ -33,7 +30,7 @@ import { PriceComponent } from './price/price.component';
     HttpClientModule,
     NgbModule.forRoot()
   ],
-  providers: [ChangesService, PriceService],
+  providers: [ChangesService, PriceService, ReminderService],
   bootstrap: [AppComponent]
 })
 export class AppModule { }
