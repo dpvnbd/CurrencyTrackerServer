@@ -26,9 +26,8 @@ export interface PriceSettings {
           <div class="col-sm-6">
             <div class="form-check">
               <label class="form-check-label">
-                    <input class="form-check-input" name="soundEnabled"
-                     type="checkbox" [(ngModel)]="soundEnabled">
-                  </label>
+                <input class="form-check-input" name="soundEnabled" type="checkbox" [(ngModel)]="soundEnabled">
+              </label>
             </div>
           </div>
         </div>
@@ -50,7 +49,7 @@ export interface PriceSettings {
           </div>
 
           <button class="col-sm-2 btn btn-primary" (click)="getPrice()">
-              Цена
+            Цена
           </button>
         </div>
 
@@ -70,21 +69,25 @@ export interface PriceSettings {
           <div class="col-sm-6">
             <input type="number" name="low" id="low" class="form-control" step="0.00000001" [(ngModel)]="addedCurrency.low">
           </div>
-        </div>      
+        </div>
 
         <div class="form-group row">
           <div class="offset-sm-6">
             <button class="btn btn-primary" (click)="addCurrencyToSettings()">
               Добавить
-          </button>
+            </button>
           </div>
         </div>
 
         <table class="table">
           <tbody>
             <th class="text-center">Валюта</th>
-            <th class="text-center"><i class="fa fa-arrow-down"></i></th>
-            <th class="text-center"><i class="fa fa-arrow-up"></i></th>
+            <th class="text-center">
+              <i class="fa fa-arrow-down"></i>
+            </th>
+            <th class="text-center">
+              <i class="fa fa-arrow-up"></i>
+            </th>
             <th class="text-center"></th>
 
             <tr *ngFor="let price of settings.prices; index as i;" [ngClass]="{'recently-changed': price.recentlyChanged}">
@@ -99,8 +102,8 @@ export interface PriceSettings {
               </td>
               <td class="text-center">
                 <button class="close" type="button" (click)="removeCurrencyFromSettings(i)">
-                      <span aria-hidden="true">&times;</span>
-                   </button>
+                  <span aria-hidden="true">&times;</span>
+                </button>
               </td>
             </tr>
           </tbody>
@@ -115,6 +118,12 @@ export interface PriceSettings {
 </ng-template>
 
 
+<ng-template #errorContent>
+  <div *ngIf="lastError">
+    {{lastError.time | date:'HH:mm:ss'}} - {{lastError.message}}
+  </div>
+</ng-template>
+
 
 <div class="price">
   <div class="card">
@@ -128,9 +137,13 @@ export interface PriceSettings {
         </div>
         <div class="col-6 col-md-4">
           <span class="pull-right">
-              <a href="javascript:void(0)" (click)="openModal(content)" title="Настройки">
-                <i class="fa fa-cog fa-lg"></i> 
-              </a>
+            <a *ngIf="lastError" placement="bottom" [ngbPopover]="errorContent" href="javascript:void(0)" title="Ошибка">
+              <i class="fa fa-exclamation-circle fa-lg"></i>
+            </a>
+
+            <a href="javascript:void(0)" (click)="openModal(content)" title="Настройки">
+              <i class="fa fa-cog fa-lg"></i>
+            </a>
           </span>
         </div>
       </div>
@@ -138,9 +151,13 @@ export interface PriceSettings {
     <div class="card-block scroll-block price-block-height">
       <table class="table table-hover">
         <th class="py-1 text-center">Валюта</th>
-        <th class="py-1 text-center"><i class="fa fa-arrow-down"></i></th>
+        <th class="py-1 text-center">
+          <i class="fa fa-arrow-down"></i>
+        </th>
         <th class="py-1 text-center">Цена</th>
-        <th class="py-1 text-center"><i class="fa fa-arrow-up"></i></th>
+        <th class="py-1 text-center">
+          <i class="fa fa-arrow-up"></i>
+        </th>
         <tr *ngFor="let price of prices" [ngClass]="{'recently-changed': price.recentlyChanged,
          'priceLow': price.last <= price.low, 'priceHigh': price.last >= price.high }">
           <td class="py-1 text-center">

@@ -1,6 +1,6 @@
 import { Injectable, isDevMode } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Source } from '../shared';
+import { Source, ChangeType } from '../shared';
 import { Subject } from 'rxjs/Subject';
 import { $WebSocket } from 'angular2-websocket/angular2-websocket';
 
@@ -11,6 +11,8 @@ export interface Price {
     low?: number;
 
     source?: Source;
+    type?: ChangeType;
+    time?: string;
     message?: string;
     recentlyChanged?: boolean;
 }
