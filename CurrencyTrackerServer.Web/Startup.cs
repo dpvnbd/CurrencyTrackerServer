@@ -15,6 +15,7 @@ using CurrencyTrackerServer.PriceService.Concrete.Bittrex;
 using CurrencyTrackerServer.PriceService.Concrete.Poloniex;
 using CurrencyTrackerServer.Web.Infrastructure;
 using CurrencyTrackerServer.Web.Infrastructure.Concrete;
+using Microsoft.AspNetCore;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
@@ -24,24 +25,27 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using CurrencyTrackerServer.ReminderService;
+using Microsoft.EntityFrameworkCore.Design;
 
 namespace CurrencyTrackerServer.Web
 {
   public class Startup
   {
     private IHostingEnvironment _env;
-    public IConfigurationRoot Configuration { get; }
+    public IConfiguration Configuration { get; }
 
-    public Startup(IHostingEnvironment env)
+    public Startup(IHostingEnvironment env, IConfiguration configuration)
     {
+      Configuration = configuration;
+
       _env = env;
 
-      var builder = new ConfigurationBuilder()
-        .SetBasePath(env.ContentRootPath)
-        .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
-        .AddJsonFile($"appsettings.{env.EnvironmentName}.json", optional: true)
-        .AddEnvironmentVariables();
-      Configuration = builder.Build();
+      //var builder = new ConfigurationBuilder()
+      //  .SetBasePath(env.ContentRootPath)
+      //  .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
+      //  .AddJsonFile($"appsettings.{env.EnvironmentName}.json", optional: true)
+      //  .AddEnvironmentVariables();
+      //Configuration = builder.Build();
     }
 
     // This method gets called by the runtime. Use this method to add services to the container.
@@ -59,9 +63,7 @@ namespace CurrencyTrackerServer.Web
       services.AddDbContext<ChangeTrackerContext>(options => options
         .UseSqlServer(Configuration.GetConnectionString("ChangesDb")), ServiceLifetime.Transient);
 
-      services.AddSingleton<IDbContextFactory<DbContext>, DbFactory>();
-      services.AddSingleton<DbContextFactoryOptions>(s =>
-        new DbContextFactoryOptions() {ContentRootPath = _env.ContentRootPath, EnvironmentName = _env.EnvironmentName});
+      services.AddSingleton<IDesignTimeDbContextFactory<DbContext>, DbFactory>();
       services.AddSingleton<IRepositoryFactory, RepositoryFactory>();
 
       #endregion
