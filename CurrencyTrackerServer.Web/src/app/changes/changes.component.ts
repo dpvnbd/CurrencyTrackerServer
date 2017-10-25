@@ -1,8 +1,8 @@
 import { Component, OnInit, AfterViewChecked, Input, ElementRef, ViewChild } from '@angular/core';
-import { ChangesService, Change, ChangeSettings, ChangeType } from './changes.service';
+import { ChangesService, Change, ChangeSettings } from './changes.service';
 import { DatePipe, DecimalPipe } from '@angular/common';
 import { NgbModal, ModalDismissReasons } from '@ng-bootstrap/ng-bootstrap';
-import { Source } from '../shared';
+import { Source, ChangeType } from '../shared';
 
 @Component({
     selector: 'app-changes',

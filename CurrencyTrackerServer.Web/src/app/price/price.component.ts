@@ -1,7 +1,7 @@
 import { Component, OnInit, ViewChild, Input, ElementRef } from '@angular/core';
-import { Source } from '../shared';
+import { Source, ChangeType } from '../shared';
 import { PriceService, Price, PriceSettings } from './price.service';
-import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
+import { NgbModal, ModalDismissReasons } from '@ng-bootstrap/ng-bootstrap';
 
 
 @Component({
@@ -18,6 +18,7 @@ export class PriceComponent implements OnInit {
 
     prices: Price[] = [];
     settings: PriceSettings;
+    lastError: Price;
 
     addedCurrency: Price = {};
 
@@ -60,7 +61,12 @@ export class PriceComponent implements OnInit {
 
             for (const price of prices) {
                 if (price.source === this.source) {
-                    localPrices.push(price);
+                    if (price.type === ChangeType.Error) {
+                        price.time = Date.now().toString();
+                        this.lastError = price;
+                    } else if (price.currency && price.last) {
+                        localPrices.push(price);
+                    }
                 }
             }
             if (localPrices[0] && localPrices[0].source === this.source) {

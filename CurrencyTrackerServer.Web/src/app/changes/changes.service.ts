@@ -7,13 +7,7 @@ import { isDevMode } from '@angular/core';
 import { Observable } from 'rxjs/Observable';
 import { $WebSocket } from 'angular2-websocket/angular2-websocket';
 import { HttpClient } from '@angular/common/http';
-import { Source } from '../shared';
-
-
-
-export enum ChangeType {
-  Currency, Error, Info
-}
+import { Source, ChangeType } from '../shared';
 
 export interface Change {
   currency?: string;
