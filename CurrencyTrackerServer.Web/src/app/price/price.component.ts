@@ -64,7 +64,7 @@ export class PriceComponent implements OnInit {
                     if (price.type === ChangeType.Error) {
                         price.time = Date.now().toString();
                         this.lastError = price;
-                    } else {
+                    } else if (price.currency && price.last) {
                         localPrices.push(price);
                     }
                 }

@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using CurrencyTrackerServer.Infrastructure.Abstract;
 using CurrencyTrackerServer.Infrastructure.Abstract.Price;
+using CurrencyTrackerServer.Infrastructure.Entities;
 using CurrencyTrackerServer.Infrastructure.Entities.Changes;
 using CurrencyTrackerServer.Infrastructure.Entities.Price;
 
@@ -37,7 +38,8 @@ namespace CurrencyTrackerServer.PriceService.Concrete
                 var errorMessage = new Price
                 {
                     Message = e.Message,
-                    Source = Monitor.Source
+                    Source = Monitor.Source,
+                    Type = ChangeType.Error
                 };
 
                 await _notifier.SendNotificationMessage(errorMessage);
