@@ -23,9 +23,9 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
 using CurrencyTrackerServer.ReminderService;
 using Microsoft.EntityFrameworkCore.Design;
+using Serilog;
 
 namespace CurrencyTrackerServer.Web
 {
@@ -119,8 +119,8 @@ namespace CurrencyTrackerServer.Web
     }
 
     // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-    public void Configure(IApplicationBuilder app, IHostingEnvironment env, ILoggerFactory loggerFactory,
-      IServiceProvider serviceProvider)
+    public void Configure(IApplicationBuilder app, IHostingEnvironment env,
+      IServiceProvider serviceProvider, IApplicationLifetime applicationLifetime)
     {
       var webSocketOptions = new WebSocketOptions()
       {
@@ -153,13 +153,23 @@ namespace CurrencyTrackerServer.Web
       app.UseDefaultFiles();
       app.UseStaticFiles();
 
-
-      loggerFactory.AddConsole();
-
       if (env.IsDevelopment())
       {
         app.UseDeveloperExceptionPage();
       }
+
+      applicationLifetime.ApplicationStarted.Register(AppStarting);
+      applicationLifetime.ApplicationStopping.Register(AppStopping);
+    }
+
+    private void AppStopping()
+    {
+        Log.Warning("Stopping App");
+    }
+
+    private void AppStarting()
+    {
+        Log.Warning("Starting App");
     }
   }
 }
