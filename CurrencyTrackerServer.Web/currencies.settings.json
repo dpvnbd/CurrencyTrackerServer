@@ -1,1 +1,1 @@
-{"Bittrex":{"PeriodSeconds":3,"Prices":[]},"Poloniex":{"PeriodSeconds":3,"Prices":[]}}
+{"Bittrex":{"PeriodSeconds":3,"Prices":[{"Source":1,"Type":0,"Currency":"LTC","Last":0.0096111,"High":0.011,"Low":0.00949,"Message":null}]},"Poloniex":{"PeriodSeconds":3,"Prices":[]},"None":{"PeriodSeconds":3,"Prices":[]}}

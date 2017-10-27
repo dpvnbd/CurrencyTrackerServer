@@ -16,9 +16,9 @@ namespace CurrencyTrackerServer.Web.Infrastructure.Abstract
       WebSocketConnectionManager = webSocketConnectionManager;
     }
 
-    public virtual async Task OnConnected(WebSocket socket)
+    public virtual async Task<string> OnConnected(WebSocket socket)
     {
-      await Task.Run(() => WebSocketConnectionManager.AddSocket(socket));
+      return await Task.Run(() => WebSocketConnectionManager.AddSocket(socket));
     }
 
     public virtual async Task OnDisconnected(WebSocket socket)

@@ -2,7 +2,14 @@ import { Injectable, isDevMode } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Source, ChangeType } from '../shared';
 import { Subject } from 'rxjs/Subject';
-import { $WebSocket } from 'angular2-websocket/angular2-websocket';
+import 'rxjs/add/operator/retryWhen';
+import 'rxjs/add/operator/delay';
+import 'rxjs/add/operator/share';
+
+
+import { QueueingSubject } from 'queueing-subject';
+import websocketConnect from 'rxjs-websockets';
+import { Observable } from 'rxjs/Observable';
 
 export interface Price {
     currency?: string;
@@ -25,22 +32,37 @@ export interface PriceSettings {
 @Injectable()
 export class PriceService {
     public prices: Subject<Price[]> = new Subject<Price[]>();
+    public input = new QueueingSubject<string>();
 
+    private messages: Observable<string>;
     public subject: Subject<any>;
-    private ws: $WebSocket;
 
     url: string = 'ws://' + window.location.host + '/priceNotifications';
     constructor(private http: HttpClient) {
         if (isDevMode()) {
             this.url = 'ws://localhost:5000/priceNotifications';
         }
-        this.ws = new $WebSocket(this.url);
 
+        this.connectSocket();
+        this.mapSocketToSubject();
+    }
 
-        this.subject = <Subject<Price[]>>this.ws.getDataStream().map((response: MessageEvent): Price[] => {
-            const data = JSON.parse(response.data);
-            return data;
-        });
+    private mapSocketToSubject() {
+        this.subject = <Subject<Price[]>>this.messages
+            .retryWhen(errors => errors.delay(30000))
+            .map((message: string): Price[] => {
+                const data = JSON.parse(message);
+                return data;
+            });
+    }
+
+    private connectSocket() {
+        try {
+            this.messages = websocketConnect(this.url, this.input).messages.share();
+        } catch (e) {
+            console.log(e);
+            return;
+        }
     }
 
     public getSettings(source: Source) {
@@ -70,6 +92,11 @@ export class PriceService {
 
     public saveSettings(source: Source, settings: PriceSettings) {
         return this.http.post('/api/price/settings/' + source, settings, { responseType: 'text' }).map(data => data).toPromise();
+    }
+
+    public start(source: Source) {
+        return this.http.post('/api/price/settings/' + source, { responseType: 'text' })
+            .map(data => data).toPromise();
     }
 
 }

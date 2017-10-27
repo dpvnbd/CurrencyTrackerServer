@@ -5,7 +5,6 @@ import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 
 import { FormsModule } from '@angular/forms';
 import { HttpClientModule } from '@angular/common/http';
-import { $WebSocket } from 'angular2-websocket/angular2-websocket';
 
 // services
 import { ChangesService } from './changes/changes.service';

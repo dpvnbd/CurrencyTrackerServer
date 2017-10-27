@@ -56,7 +56,6 @@ namespace CurrencyTrackerServer.Web
       services.AddWebSocketManager();
 
       var provider = services.BuildServiceProvider();
-      var changesConnectionManager = provider.GetRequiredService<WebSocketConnectionManager>();
 
       #region Persistence DI
 
@@ -70,7 +69,7 @@ namespace CurrencyTrackerServer.Web
 
 
       #region Websockets & notifications DI
-
+      var changesConnectionManager = provider.GetRequiredService<WebSocketConnectionManager>();
       var changeHandler = new NotificationsMessageHandler<Change>(changesConnectionManager);
       services.AddSingleton<NotificationsMessageHandler<Change>>(changeHandler);
       services.AddSingleton<INotifier<Change>>(changeHandler);
