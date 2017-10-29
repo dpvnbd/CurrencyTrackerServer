@@ -33,7 +33,7 @@
         <div class="form-group row">
           <label for="percentage" class="col-sm-6 col-form-label">Изменение, %</label>
           <div class="col-sm-6">
-            <input type="number" name="percentage" class="form-control" id="percentage" [(ngModel)]="settings.percentage">
+            <input type="number" step="0.01" name="percentage" class="form-control" id="percentage" [(ngModel)]="settings.percentage">
           </div>
         </div>
 
