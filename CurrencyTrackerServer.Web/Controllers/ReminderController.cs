@@ -6,10 +6,13 @@ using CurrencyTrackerServer.ChangeTrackerService.Concrete.ProviderSpecific.Polon
 using CurrencyTrackerServer.PriceService.Concrete.Bittrex;
 using CurrencyTrackerServer.PriceService.Concrete.Poloniex;
 using CurrencyTrackerServer.ReminderService;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace CurrencyTrackerServer.Web.Controllers
 {
+  [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
   [Route("api/[controller]")]
   public class ReminderController : Controller
   {

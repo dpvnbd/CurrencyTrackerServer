@@ -58,7 +58,7 @@ export class PriceService {
 
     private connectSocket() {
         try {
-            this.messages = websocketConnect(this.url, this.input).messages.share();
+            this.messages = websocketConnect(this.url, this.input).messages;
         } catch (e) {
             console.log(e);
             return;

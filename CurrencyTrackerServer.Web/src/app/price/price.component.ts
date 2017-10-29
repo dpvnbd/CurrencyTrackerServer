@@ -124,6 +124,7 @@ export class PriceComponent implements OnInit {
                     this.tempMute = false;
                     if (save) {
                         this.priceService.saveSettings(this.source, this.settings);
+                        this.prices = this.settings.prices;
                     }
                 });
             }

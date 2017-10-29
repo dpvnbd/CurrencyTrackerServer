@@ -10,9 +10,9 @@ namespace CurrencyTrackerServer.ChangeTrackerService.Concrete.Data
 {
     public class RepositoryFactory : IRepositoryFactory
     {
-        public IDesignTimeDbContextFactory<DbContext> ContextFactory { get; }
+        public IDesignTimeDbContextFactory<ChangeTrackerContext> ContextFactory { get; }
 
-        public RepositoryFactory(IDesignTimeDbContextFactory<DbContext> contextFactory)
+        public RepositoryFactory(IDesignTimeDbContextFactory<ChangeTrackerContext> contextFactory)
         {
             this.ContextFactory = contextFactory;
         }

@@ -2,13 +2,16 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Text;
 using System.Threading.Tasks;
 using CurrencyTrackerServer.ChangeTrackerService.Concrete.Data;
 using CurrencyTrackerServer.ChangeTrackerService.Concrete.ProviderSpecific.Bittrex;
 using CurrencyTrackerServer.ChangeTrackerService.Concrete.ProviderSpecific.Poloniex;
 using CurrencyTrackerServer.ChangeTrackerService.Entities;
 using CurrencyTrackerServer.Infrastructure.Abstract;
+using CurrencyTrackerServer.Infrastructure.Concrete.Identity;
 using CurrencyTrackerServer.Infrastructure.Entities.Changes;
+using CurrencyTrackerServer.Infrastructure.Entities.Identity;
 using CurrencyTrackerServer.Infrastructure.Entities.Price;
 using CurrencyTrackerServer.PriceService.Concrete;
 using CurrencyTrackerServer.PriceService.Concrete.Bittrex;
@@ -24,51 +27,88 @@ using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using CurrencyTrackerServer.ReminderService;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore.Design;
+using Microsoft.IdentityModel.Tokens;
 using Serilog;
 
 namespace CurrencyTrackerServer.Web
 {
   public class Startup
   {
-    private IHostingEnvironment _env;
     public IConfiguration Configuration { get; }
 
-    public Startup(IHostingEnvironment env, IConfiguration configuration)
+    public Startup(IHostingEnvironment env)
     {
-      Configuration = configuration;
+      var builder = new ConfigurationBuilder();
 
-      _env = env;
+      if (env.IsDevelopment())
+      {
+        
+        builder.AddUserSecrets<Startup>();
+      }
 
-      //var builder = new ConfigurationBuilder()
-      //  .SetBasePath(env.ContentRootPath)
-      //  .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
-      //  .AddJsonFile($"appsettings.{env.EnvironmentName}.json", optional: true)
-      //  .AddEnvironmentVariables();
-      //Configuration = builder.Build();
+      Configuration = builder.Build();
     }
 
     // This method gets called by the runtime. Use this method to add services to the container.
     // For more information on how to configure your application, visit https://go.microsoft.com/fwlink/?LinkID=398940
     public void ConfigureServices(IServiceCollection services)
     {
+      services.AddIdentity<ApplicationUser, IdentityRole>(options =>
+        {
+          // Password settings
+          options.Password.RequireDigit = false;
+          options.Password.RequiredLength = 4;
+          options.Password.RequireNonAlphanumeric = false;
+          options.Password.RequireUppercase = false;
+          options.Password.RequireLowercase = false;
+          options.Password.RequiredUniqueChars = 1;
+        })
+        .AddEntityFrameworkStores<ApplicationDbContext>()
+        .AddDefaultTokenProviders();
+
+
+      services.AddAuthentication()
+        .AddJwtBearer(cfg =>
+        {
+          cfg.RequireHttpsMetadata = false;
+          cfg.SaveToken = true;
+
+          cfg.TokenValidationParameters = new TokenValidationParameters()
+          {
+            ValidIssuer = Configuration["TrackerTokens:Issuer"],
+            ValidAudience = Configuration["TrackerTokens:Issuer"],
+            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(Configuration["TrackerTokens:Key"]))
+          };
+        });
+
+
       services.AddMvc();
       services.AddWebSocketManager();
 
       var provider = services.BuildServiceProvider();
+
+      #region Identity
+
+      services.AddDbContext<ApplicationDbContext>(options =>
+        options.UseSqlServer(Configuration.GetConnectionString("ChangesDb")));
+
+      #endregion
 
       #region Persistence DI
 
       services.AddDbContext<ChangeTrackerContext>(options => options
         .UseSqlServer(Configuration.GetConnectionString("ChangesDb")), ServiceLifetime.Transient);
 
-      services.AddSingleton<IDesignTimeDbContextFactory<DbContext>, DbFactory>();
+      services.AddSingleton<IDesignTimeDbContextFactory<ApplicationDbContext>, IdentityDbFactory>();
+      services.AddSingleton<IDesignTimeDbContextFactory<ChangeTrackerContext>, DbFactory>();
       services.AddSingleton<IRepositoryFactory, RepositoryFactory>();
 
       #endregion
 
-
       #region Websockets & notifications DI
+
       var changesConnectionManager = provider.GetRequiredService<WebSocketConnectionManager>();
       var changeHandler = new NotificationsMessageHandler<Change>(changesConnectionManager);
       services.AddSingleton<NotificationsMessageHandler<Change>>(changeHandler);
@@ -104,9 +144,11 @@ namespace CurrencyTrackerServer.Web
       var priceHandler = new NotificationsMessageHandler<Price>(priceConnectionManager);
       services.AddSingleton<NotificationsMessageHandler<Price>>(priceHandler);
       services.AddSingleton<INotifier<Price>>(priceHandler);
+
       #endregion
 
       #region Reminder
+
       var reminderConnectionManager = provider.GetRequiredService<WebSocketConnectionManager>();
       var reminderHandler = new NotificationsMessageHandler<Reminder>(reminderConnectionManager);
       services.AddSingleton<NotificationsMessageHandler<Reminder>>(reminderHandler);
@@ -136,7 +178,7 @@ namespace CurrencyTrackerServer.Web
 
       app.MapWebSocketManager("/reminderNotifications",
         serviceProvider.GetRequiredService<NotificationsMessageHandler<Reminder>>());
-
+      
       app.Use(async (context, next) =>
       {
         await next();
@@ -148,9 +190,11 @@ namespace CurrencyTrackerServer.Web
           await next();
         }
       });
+      app.UseAuthentication();
       app.UseMvcWithDefaultRoute();
       app.UseDefaultFiles();
       app.UseStaticFiles();
+
 
       if (env.IsDevelopment())
       {
@@ -163,12 +207,12 @@ namespace CurrencyTrackerServer.Web
 
     private void AppStopping()
     {
-        Log.Warning("Stopping App");
+      Log.Warning("Stopping App");
     }
 
     private void AppStarting()
     {
-        Log.Warning("Starting App");
+      Log.Warning("Starting App");
     }
   }
 }

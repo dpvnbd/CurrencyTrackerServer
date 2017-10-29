@@ -8,10 +8,7 @@ namespace CurrencyTrackerServer.ChangeTrackerService.Concrete.Data
         public DbSet<CurrencyStateEntity> States { get; set; }
         public DbSet<ChangeHistoryEntryEntity> History { get; set; }
 
-        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-        {
-            base.OnConfiguring(optionsBuilder);
-        }
+        
 
         public ChangeTrackerContext(DbContextOptions options) : base(options)
         {

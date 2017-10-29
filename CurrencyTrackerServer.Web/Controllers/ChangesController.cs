@@ -8,12 +8,15 @@ using CurrencyTrackerServer.ChangeTrackerService.Entities;
 using CurrencyTrackerServer.Infrastructure.Abstract;
 using CurrencyTrackerServer.Infrastructure.Entities;
 using CurrencyTrackerServer.Infrastructure.Entities.Changes;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
 namespace CurrencyTrackerServer.Web.Controllers
 {
+  [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
   [Route("api/[controller]")]
   public class ChangesController : Controller
   {
