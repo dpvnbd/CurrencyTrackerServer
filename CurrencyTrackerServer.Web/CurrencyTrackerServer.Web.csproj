@@ -5,7 +5,6 @@
     <TypeScriptCompileBlocked>true</TypeScriptCompileBlocked>
     <TypeScriptToolsVersion>2.3</TypeScriptToolsVersion>
 		<AssetTargetFallback>portable-net45+win8</AssetTargetFallback>
-		<UserSecretsId>30b66d80-2afe-4da2-98a3-1044ee418d6e</UserSecretsId>
 
   </PropertyGroup>
 
@@ -24,7 +23,6 @@
     <PackageReference Include="Microsoft.AspNetCore.Mvc" Version="2.0.0" />
     <PackageReference Include="Microsoft.AspNetCore.StaticFiles" Version="2.0.0" />
     <PackageReference Include="Microsoft.AspNetCore.WebSockets" Version="2.0.0" />
-    <PackageReference Include="Microsoft.Extensions.Configuration.UserSecrets" Version="2.0.0" />
     <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="2.0.0" />
     <PackageReference Include="Serilog.AspNetCore" Version="2.1.0" />
     <PackageReference Include="Serilog.Sinks.Console" Version="3.1.1" />
@@ -42,13 +40,14 @@
     <ProjectReference Include="..\CurrencyTrackerServer.ReminderService\CurrencyTrackerServer.ReminderService.csproj" />
   </ItemGroup>
 
-	<ItemGroup>
-		<DotNetCliToolReference Include="Microsoft.Extensions.SecretManager.Tools" Version="2.0.0" />
-	</ItemGroup>
+
 
   <ItemGroup>
+    <Content Update="appsettings.Development.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
     <Content Update="appsettings.json">
-      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Update="changeSettings.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>

@@ -30,6 +30,8 @@ namespace CurrencyTrackerServer.Web.Controllers
       _bChange = bChange;
       _pPrice = pPrice;
       _bPrice = bPrice;
+
+      
     }
 
     [HttpPost("ping")]

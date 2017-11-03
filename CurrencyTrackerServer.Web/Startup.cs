@@ -38,17 +38,9 @@ namespace CurrencyTrackerServer.Web
   {
     public IConfiguration Configuration { get; }
 
-    public Startup(IHostingEnvironment env)
+    public Startup(IConfiguration config)
     {
-      var builder = new ConfigurationBuilder();
-
-      if (env.IsDevelopment())
-      {
-        
-        builder.AddUserSecrets<Startup>();
-      }
-
-      Configuration = builder.Build();
+      Configuration = config;
     }
 
     // This method gets called by the runtime. Use this method to add services to the container.
@@ -178,7 +170,7 @@ namespace CurrencyTrackerServer.Web
 
       app.MapWebSocketManager("/reminderNotifications",
         serviceProvider.GetRequiredService<NotificationsMessageHandler<Reminder>>());
-      
+
       app.Use(async (context, next) =>
       {
         await next();
