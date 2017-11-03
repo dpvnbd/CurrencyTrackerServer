@@ -2,19 +2,11 @@ import { Router, RouterLink } from '@angular/router';
 import { AuthService } from '../auth/auth.service';
 import { AuthAlertService } from '../auth/alert.service';
 import {
-    NgModule,
     Component,
-    Pipe,
     OnInit
 } from '@angular/core';
-import {
-    ReactiveFormsModule,
-    FormsModule,
-    FormGroup,
-    FormControl,
-    Validators,
-    FormBuilder
-} from '@angular/forms';
+import { FormControl, FormGroup, Validators } from '@angular/forms';
+
 import { BrowserModule } from '@angular/platform-browser';
 import { platformBrowserDynamic } from '@angular/platform-browser-dynamic';
 

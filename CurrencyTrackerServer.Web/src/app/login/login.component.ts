@@ -4,21 +4,13 @@ import { AuthAlertService, } from '../auth/alert.service';
 import { AuthService } from '../auth/auth.service';
 
 import {
-    NgModule,
     Component,
-    Pipe,
     OnInit
 } from '@angular/core';
+import { FormControl, FormGroup, Validators } from '@angular/forms';
+
 import { BrowserModule } from '@angular/platform-browser';
 import { platformBrowserDynamic } from '@angular/platform-browser-dynamic';
-import {
-    ReactiveFormsModule,
-    FormsModule,
-    FormGroup,
-    FormControl,
-    Validators,
-    FormBuilder
-} from '@angular/forms';
 
 @Component({
     moduleId: module.id,
