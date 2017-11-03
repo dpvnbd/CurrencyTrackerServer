@@ -1,7 +1,12 @@
 import { Injectable, isDevMode } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Subject } from 'rxjs/Subject';
-import { $WebSocket } from 'angular2-websocket/angular2-websocket';
+import 'rxjs/add/operator/retryWhen';
+import 'rxjs/add/operator/delay';
+import { QueueingSubject } from 'queueing-subject';
+import websocketConnect from 'rxjs-websockets';
+import { Observable } from 'rxjs/Rx';
+import { Subscription } from 'rxjs/Subscription';
 
 export interface ReminderSettings {
     period: number;
@@ -14,7 +19,8 @@ export interface ReminderNotification {
 @Injectable()
 export class ReminderService {
     public subject: Subject<any>;
-    private ws: $WebSocket;
+    public input = new QueueingSubject<string>();
+    private messages: Observable<string>;
 
     url: string = 'ws://' + window.location.host + '/reminderNotifications';
 
@@ -23,13 +29,31 @@ export class ReminderService {
             this.url = 'ws://localhost:5000/reminderNotifications';
         }
 
-        this.ws = new $WebSocket(this.url);
+        this.connectSocket();
+        this.mapSocketToSubject();
 
-        this.subject = <Subject<ReminderNotification>>this.ws.getDataStream()
-            .map((response: MessageEvent): ReminderNotification => {
-                const data = JSON.parse(response.data);
+        const timer = Observable.timer(10000, 60 * 1000);
+        timer.subscribe(t => {
+            this.ping();
+        });
+    }
+
+    private mapSocketToSubject() {
+        this.subject = <Subject<ReminderNotification>>this.messages
+            .retryWhen(errors => errors.delay(30000))
+            .map((message: string): ReminderNotification => {
+                const data = JSON.parse(message);
                 return data;
             });
+    }
+
+    private connectSocket() {
+        try {
+            this.messages = websocketConnect(this.url, this.input).messages.share();
+        } catch (e) {
+            console.log(e);
+            return;
+        }
     }
 
     public getSettings() {
@@ -46,6 +70,11 @@ export class ReminderService {
 
     public start() {
         return this.httpClient.post('/api/reminder/start', { responseType: 'text' })
+            .map(data => data).toPromise();
+    }
+
+    public ping() {
+        return this.httpClient.post('/api/reminder/ping', { responseType: 'text' })
             .map(data => data).toPromise();
     }
 }

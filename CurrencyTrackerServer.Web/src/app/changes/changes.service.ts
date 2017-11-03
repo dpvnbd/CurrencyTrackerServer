@@ -2,12 +2,16 @@ import { Injectable, Inject } from '@angular/core';
 import { Subject } from 'rxjs/Subject';
 import 'rxjs/add/operator/map';
 import 'rxjs/add/operator/toPromise';
+import 'rxjs/add/operator/retryWhen';
+import 'rxjs/add/operator/delay';
 
 import { isDevMode } from '@angular/core';
-import { Observable } from 'rxjs/Observable';
-import { $WebSocket } from 'angular2-websocket/angular2-websocket';
+import { Observable } from 'rxjs/Rx';
 import { HttpClient } from '@angular/common/http';
 import { Source, ChangeType } from '../shared';
+
+import { QueueingSubject } from 'queueing-subject';
+import websocketConnect from 'rxjs-websockets';
 
 export interface Change {
   currency?: string;
@@ -33,10 +37,9 @@ export interface ChangeSettings {
 @Injectable()
 export class ChangesService {
 
-  public changes: Subject<Change[]> = new Subject<Change[]>();
-
+  public input = new QueueingSubject<string>();
   public subject: Subject<any>;
-  private ws: $WebSocket;
+  private messages: Observable<string>;
 
   url: string = 'ws://' + window.location.host + '/changeNotifications';
 
@@ -45,13 +48,27 @@ export class ChangesService {
       this.url = 'ws://localhost:5000/changeNotifications';
     }
 
-    this.ws = new $WebSocket(this.url);
+    this.connectSocket();
+    this.mapSocketToSubject();
 
+  }
 
-    this.subject = <Subject<Change[]>>this.ws.getDataStream().map((response: MessageEvent): Change[] => {
-      const data = JSON.parse(response.data);
-      return data;
-    });
+  private mapSocketToSubject() {
+    this.subject = <Subject<Change[]>>this.messages
+      .retryWhen(errors => errors.delay(30000))
+      .map((message: string): Change[] => {
+        const data = JSON.parse(message);
+        return data;
+      });
+  }
+
+  private connectSocket() {
+    try {
+      this.messages = websocketConnect(this.url, this.input).messages.share();
+    } catch (e) {
+      console.log(e);
+      return;
+    }
   }
 
   public getSettings(source: Source) {

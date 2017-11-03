@@ -12,8 +12,8 @@ namespace CurrencyTrackerServer.Infrastructure.Entities.Changes
         public int PeriodSeconds { get; set; } = 3;
 
         [Required]
-        [Range(1, int.MaxValue, ErrorMessage = "Минимум 1%")]
-        public int Percentage { get; set; } = 3;
+        [Range(0.1, double.MaxValue)]
+        public double Percentage { get; set; } = 3;
 
         [Required]
         [Range(0.1, Double.MaxValue)]

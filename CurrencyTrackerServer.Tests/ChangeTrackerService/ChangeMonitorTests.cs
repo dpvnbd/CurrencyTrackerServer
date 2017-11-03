@@ -24,7 +24,7 @@ namespace CurrencyTrackerServer.Tests.ChangeTrackerService
         public static void Init(TestContext ctx)
         {
             var dbFactory = new TestDbContextFactory();
-            _repoFactory = new RepositoryFactory(dbFactory, null);
+            _repoFactory = new RepositoryFactory(dbFactory);
         }
 
         [TestInitialize]
