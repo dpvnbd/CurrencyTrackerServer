@@ -8,24 +8,23 @@ import 'rxjs/add/operator/delay';
 import { isDevMode } from '@angular/core';
 import { Observable } from 'rxjs/Rx';
 import { HttpClient } from '@angular/common/http';
-import { Source, ChangeType } from '../shared';
+import { UpdateSource, UpdateType } from '../shared';
 
 import { QueueingSubject } from 'queueing-subject';
-import websocketConnect from 'rxjs-websockets';
+import { ConnectionService, BaseChangeEntity } from '../connection/connection.service';
 
 export interface Change {
   currency?: string;
   time?: string;
   percentage?: number;
   threshold?: number;
-  type?: ChangeType;
-  changeSource?: Source;
+  type?: UpdateType;
+  source?: UpdateSource;
   message?: string;
   recentlyChanged?: boolean;
 }
 
 export interface ChangeSettings {
-  periodSeconds: number;
   percentage: number;
   resetHours: number;
   multipleChanges: boolean;
@@ -37,41 +36,25 @@ export interface ChangeSettings {
 @Injectable()
 export class ChangesService {
 
-  public input = new QueueingSubject<string>();
   public subject: Subject<any>;
   private messages: Observable<string>;
 
-  url: string = 'ws://' + window.location.host + '/changeNotifications';
 
-  constructor(private http: HttpClient) {
-    if (isDevMode()) {
-      this.url = 'ws://localhost:5000/changeNotifications';
-    }
+  constructor(private http: HttpClient, private connection: ConnectionService) {
 
-    this.connectSocket();
-    this.mapSocketToSubject();
+    this.mapSubject();
 
   }
 
-  private mapSocketToSubject() {
-    this.subject = <Subject<Change[]>>this.messages
-      .retryWhen(errors => errors.delay(30000))
-      .map((message: string): Change[] => {
-        const data = JSON.parse(message);
-        return data;
+  private mapSubject() {
+    this.subject = <Subject<Change[]>>this.connection.changes
+      .map((message: BaseChangeEntity[]): Change[] => {
+        return message;
       });
   }
 
-  private connectSocket() {
-    try {
-      this.messages = websocketConnect(this.url, this.input).messages.share();
-    } catch (e) {
-      console.log(e);
-      return;
-    }
-  }
 
-  public getSettings(source: Source) {
+  public getSettings(source: UpdateSource) {
     return this.http.get('/api/changes/settings/' + source).map(data => {
       const settings = data as ChangeSettings;
       if (!settings.marginCurrencies) {
@@ -81,15 +64,15 @@ export class ChangesService {
     }).toPromise();
   }
 
-  public saveSettings(source: Source, settings: ChangeSettings) {
+  public saveSettings(source: UpdateSource, settings: ChangeSettings) {
     return this.http.post('/api/changes/settings/' + source, settings, { responseType: 'text' }).map(data => data).toPromise();
   }
 
-  public getHistory(source: Source): any {
+  public getHistory(source: UpdateSource): any {
     return this.http.get('/api/changes/' + source).map(data => data as Change[]).toPromise();
   }
 
-  public reset(source: Source): any {
+  public reset(source: UpdateSource): any {
     return this.http.post('/api/changes/reset/' + source, null, { responseType: 'text' }).toPromise();
   }
 

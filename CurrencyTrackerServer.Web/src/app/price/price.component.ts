@@ -1,5 +1,5 @@
 import { Component, OnInit, ViewChild, Input, ElementRef } from '@angular/core';
-import { Source, ChangeType } from '../shared';
+import { UpdateSource, UpdateType } from '../shared';
 import { PriceService, Price, PriceSettings } from './price.service';
 import { NgbModal, ModalDismissReasons } from '@ng-bootstrap/ng-bootstrap';
 
@@ -12,7 +12,7 @@ import { NgbModal, ModalDismissReasons } from '@ng-bootstrap/ng-bootstrap';
 
 export class PriceComponent implements OnInit {
     @Input()
-    source: Source;
+    source: UpdateSource;
 
     @ViewChild('bottom') bottom: ElementRef;
 
@@ -20,7 +20,7 @@ export class PriceComponent implements OnInit {
     settings: PriceSettings;
     lastError: Price;
 
-    addedCurrency: Price = {};
+    addedCurrency: any = {};
 
     private skipSpeech = true;
     linkTemplate: string;
@@ -47,10 +47,10 @@ export class PriceComponent implements OnInit {
         this.audioHigh.loop = true;
         this.audioLow.loop = true;
 
-        if (this.source === Source.Bittrex) {
+        if (this.source === UpdateSource.Bittrex) {
             this.linkTemplate = 'https://bittrex.com/Market/Index?MarketName=BTC-';
             this.iconPath = '../../assets/images/bittrexIcon.png';
-        } else if (this.source = Source.Poloniex) {
+        } else if (this.source = UpdateSource.Poloniex) {
             this.linkTemplate = 'https://poloniex.com/exchange#btc_';
             this.iconPath = '../../assets/images/poloniexIcon.png';
         }
@@ -58,10 +58,9 @@ export class PriceComponent implements OnInit {
 
         this.priceService.subject.subscribe((prices: Price[]) => {
             const localPrices: Price[] = [];
-
             for (const price of prices) {
                 if (price.source === this.source) {
-                    if (price.type === ChangeType.Error) {
+                    if (price.type === UpdateType.Error) {
                         price.time = Date.now().toString();
                         this.lastError = price;
                     } else if (price.currency && price.last) {
@@ -75,9 +74,9 @@ export class PriceComponent implements OnInit {
             }
         });
 
-        this.priceService.getPrices(this.source).then((prices) => {
-            if (prices) {
-                this.prices = prices;
+        this.priceService.getSettings(this.source).then((settings) => {
+            if (settings && settings.prices) {
+                this.prices = settings.prices;
             }
         });
     }
@@ -138,7 +137,7 @@ export class PriceComponent implements OnInit {
 
         this.priceService.getPrice(this.source, this.addedCurrency.currency).then(
             (price) => {
-                this.addedCurrency.high = this.addedCurrency.low = price.last;
+                this.addedCurrency.high = this.addedCurrency.low = price.last.toFixed(8);
                 this.addedCurrency.message = price.message;
             }
         );

@@ -2,14 +2,19 @@
 using System.Collections.Generic;
 using System.Text;
 using CurrencyTrackerServer.Infrastructure.Abstract;
+using CurrencyTrackerServer.Infrastructure.Abstract.Data;
 using CurrencyTrackerServer.Infrastructure.Abstract.Price;
+using CurrencyTrackerServer.Infrastructure.Entities;
 using CurrencyTrackerServer.Infrastructure.Entities.Price;
 
 namespace CurrencyTrackerServer.PriceService.Concrete.Bittrex
 {
     public class BittrexPriceTimerWorker:PriceTimerWorker
     {
-        public BittrexPriceTimerWorker(INotifier<Price> notifier, BittrexPriceMonitor monitor) : base(notifier, monitor)
+        public override UpdateSource Source => UpdateSource.Bittrex;
+
+        public BittrexPriceTimerWorker(BittrexPriceDataSource dataSource, INotifier notifier,
+            ISettingsProvider settingsProvider) : base(dataSource, notifier, settingsProvider)
         {
         }
     }

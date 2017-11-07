@@ -35,6 +35,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\CurrencyTrackerServer.ChangeTrackerService\CurrencyTrackerServer.ChangeTrackerService.csproj" />
+    <ProjectReference Include="..\CurrencyTrackerServer.Data\CurrencyTrackerServer.Data.csproj" />
     <ProjectReference Include="..\CurrencyTrackerServer.Infrastructure\CurrencyTrackerServer.Infrastructure.csproj" />
     <ProjectReference Include="..\CurrencyTrackerServer.PriceService\CurrencyTrackerServer.PriceService.csproj" />
     <ProjectReference Include="..\CurrencyTrackerServer.ReminderService\CurrencyTrackerServer.ReminderService.csproj" />

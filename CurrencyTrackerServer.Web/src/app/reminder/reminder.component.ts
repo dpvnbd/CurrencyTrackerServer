@@ -16,7 +16,7 @@ export class ReminderComponent implements OnInit {
 
     ngOnInit() {
         this.reminderService.subject.subscribe((notification: ReminderNotification) => {
-            this.lastUpdate = notification[0].time;
+            this.lastUpdate = notification.time;
             if (this.soundEnabled) {
                 responsiveVoice.speak('working', 'Russian Female', { rate: 0.8 });
             }

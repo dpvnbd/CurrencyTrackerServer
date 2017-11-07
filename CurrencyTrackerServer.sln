@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
-VisualStudioVersion = 15.0.27004.2005
+VisualStudioVersion = 15.0.27004.2006
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CurrencyTrackerServer.Infrastructure", "CurrencyTrackerServer.Infrastructure\CurrencyTrackerServer.Infrastructure.csproj", "{30C490B5-0E99-459E-BEF8-C2053E9F0EEA}"
 EndProject
@@ -17,6 +17,8 @@ EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CurrencyTrackerServer.ReminderService", "CurrencyTrackerServer.ReminderService\CurrencyTrackerServer.ReminderService.csproj", "{7CC0F889-041A-4AFE-85E6-011B59D17E0E}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CurrencyTrackerServer.ChangeTrackerService", "CurrencyTrackerServer.ChangeTrackerService\CurrencyTrackerServer.ChangeTrackerService.csproj", "{6A870A6E-4F69-4311-B76C-12EB1052F362}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CurrencyTrackerServer.Data", "CurrencyTrackerServer.Data\CurrencyTrackerServer.Data.csproj", "{B4A284D5-F769-44DB-A402-91C916C05256}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -48,6 +50,10 @@ Global
 		{6A870A6E-4F69-4311-B76C-12EB1052F362}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{6A870A6E-4F69-4311-B76C-12EB1052F362}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{6A870A6E-4F69-4311-B76C-12EB1052F362}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B4A284D5-F769-44DB-A402-91C916C05256}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B4A284D5-F769-44DB-A402-91C916C05256}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B4A284D5-F769-44DB-A402-91C916C05256}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B4A284D5-F769-44DB-A402-91C916C05256}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

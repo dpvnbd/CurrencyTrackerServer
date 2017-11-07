@@ -3,70 +3,93 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using CurrencyTrackerServer.Infrastructure.Abstract;
+using CurrencyTrackerServer.Infrastructure.Abstract.Data;
 using CurrencyTrackerServer.Infrastructure.Abstract.Price;
+using CurrencyTrackerServer.Infrastructure.Abstract.Workers;
 using CurrencyTrackerServer.Infrastructure.Entities;
 using CurrencyTrackerServer.Infrastructure.Entities.Price;
 
 namespace CurrencyTrackerServer.PriceService.Concrete
 {
-  public class PriceMonitor : IPriceMonitor<Price>
+  public class PriceMonitor : IMonitor<IEnumerable<BaseChangeEntity>>
   {
-    private readonly IPriceSource _dataSource;
-    private readonly ISettingsProvider<PriceSettings> _settingsProvider;
-    public ChangeSource Source { get; protected set; }
+    private readonly ISettingsProvider _settingsProvider;
+    public virtual UpdateSource Source { get; protected set; }
+    public UpdateDestination Destination => UpdateDestination.Price;
+    public string UserId { get; }
+    public event EventHandler<IEnumerable<BaseChangeEntity>> Changed;
 
-    public PriceSettings Settings => _settingsProvider.GetSettings(Source);
+    public PriceSettings Settings => _settingsProvider.GetSettings<PriceSettings>(Source, Destination, UserId);
 
-    public PriceMonitor(IPriceSource dataSource, ISettingsProvider<PriceSettings> settingsProvider)
+    public PriceMonitor(IWorker<IEnumerable<ApiPrice>> priceWorker,
+      ISettingsProvider settingsProvider, string userId)
     {
-      _dataSource = dataSource;
       _settingsProvider = settingsProvider;
-      Source = dataSource.Source;
+      UserId = userId;
+      priceWorker.Updated += PriceWorkerOnUpdated;
+    }
+
+    private void PriceWorkerOnUpdated(object sender, IEnumerable<ApiPrice> apiPrices)
+    {
+      var changes = CheckChanges(apiPrices);
+      if (changes.Any())
+      {
+        var handler = Changed;
+        handler?.Invoke(this, changes);
+      }
     }
 
 
-    public async Task<IEnumerable<Price>> GetPrices()
+    public IEnumerable<Price> CheckChanges(IEnumerable<ApiPrice> apiPrices)
     {
       var prices = new List<Price>();
-
-      var currencies = Settings.Prices.Select(p => p.Currency);
-
-
+      var settings = Settings;
       try
       {
-        var apiPrices = await _dataSource.GetPrices(currencies);
         foreach (var apiPrice in apiPrices)
         {
-          var price = Settings.Prices.SingleOrDefault(c => c.Currency == apiPrice.Currency);
+          var price = settings.Prices.SingleOrDefault(c => c.Currency == apiPrice.Currency);
           if (price == null)
           {
             continue;
           }
           price.Last = apiPrice.Last;
           price.Source = apiPrice.Source;
-          price.Type = ChangeType.Currency;
+          price.Type = UpdateType.Currency;
           prices.Add(price);
         }
       }
       catch (Exception e)
       {
-        prices.Add(new Price {Type = ChangeType.Error, Source = Source, Message = e.Message});
+        prices.Add(new Price { Type = UpdateType.Error, Source = Source, Message = e.Message });
       }
       return prices;
     }
 
-    public async Task<Price> GetPrice(string currency)
+    private void SendEmailIfChanged(IEnumerable<Price> prices)
     {
-      try
+      if (prices == null || !prices.Any())
       {
-        var price = await _dataSource.GetPrices(new[] {currency});
-        if (price.First() == null) return null;
-        return new Price {Currency = currency, Last = price.First().Last, Source = price.First().Source};
+        return;
       }
-      catch (Exception)
+
+      var changedList = new List<Price>();
+
+      foreach (var price in prices)
       {
-        return new Price {Message = "Ошибка получения валюты " + currency};
+        if (price.Last > price.Low && price.Last < price.High)
+        {
+          continue;
+        }
+        changedList.Add(price);
       }
+
+      if (!changedList.Any())
+      {
+        return;
+      }
+
+
     }
   }
 }

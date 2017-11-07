@@ -33,14 +33,14 @@ export interface PriceSettings {
         </div>
         <hr/>
 
-        <div class="form-group row">
+        <!-- <div class="form-group row">
           <label for="period" class="col-sm-6 col-form-label">Период, сек</label>
           <div class="col-sm-6">
             <input type="number" name="period" class="form-control" id="period" [(ngModel)]="settings.periodSeconds">
           </div>
         </div>
 
-        <hr/>
+        <hr/> -->
 
         <div class="form-group row">
           <label for="currency" class="col-sm-6 col-form-label">Валюта</label>
@@ -95,7 +95,8 @@ export interface PriceSettings {
                 <a href="{{linkTemplate}}{{price.currency}}" target="_blank">{{price.currency}}</a>
               </td>
               <td>
-                <input type="number" name="low{{i}}" class="form-control" step="0.00000001" [(ngModel)]="price.low ">
+                <input type="number" name="low{{i}}" class="form-control" step="0.00000001"
+                 [(ngModel)]="price.low">
               </td>
               <td>
                 <input type="number" name="high{{i}}" class="form-control" step="0.00000001" [(ngModel)]="price.high ">

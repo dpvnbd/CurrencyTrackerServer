@@ -1,13 +1,17 @@
 using System;
 using System.ComponentModel.DataAnnotations;
+using System.Security.Claims;
 using System.Threading.Tasks;
-using CurrencyTrackerServer.ChangeTrackerService.Concrete.ProviderSpecific.Bittrex;
-using CurrencyTrackerServer.ChangeTrackerService.Concrete.ProviderSpecific.Poloniex;
+using CurrencyTrackerServer.ChangeTrackerService.Concrete.Bittrex;
+using CurrencyTrackerServer.ChangeTrackerService.Concrete.Poloniex;
+using CurrencyTrackerServer.Infrastructure.Entities.Data;
 using CurrencyTrackerServer.PriceService.Concrete.Bittrex;
 using CurrencyTrackerServer.PriceService.Concrete.Poloniex;
 using CurrencyTrackerServer.ReminderService;
+using CurrencyTrackerServer.Web.Infrastructure.Concrete.MultipleUsers;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 
 namespace CurrencyTrackerServer.Web.Controllers
@@ -21,27 +25,38 @@ namespace CurrencyTrackerServer.Web.Controllers
     private readonly BittrexTimerWorker _bChange;
     private readonly PoloniexPriceTimerWorker _pPrice;
     private readonly BittrexPriceTimerWorker _bPrice;
+    private readonly UserContainersManager _userContainersManager;
+    private readonly UserManager<ApplicationUser> _userManager;
 
     public ReminderController(ReminderTimerWorker reminder, PoloniexTimerWorker pChange, BittrexTimerWorker bChange,
-      PoloniexPriceTimerWorker pPrice, BittrexPriceTimerWorker bPrice)
+      PoloniexPriceTimerWorker pPrice, BittrexPriceTimerWorker bPrice, UserContainersManager userContainersManager,
+      UserManager<ApplicationUser> userManager)
     {
       _reminder = reminder;
       _pChange = pChange;
       _bChange = bChange;
       _pPrice = pPrice;
       _bPrice = bPrice;
-
-      
+      _userContainersManager = userContainersManager;
+      _userManager = userManager;
     }
 
     [HttpPost("ping")]
-    public IActionResult Ping()
+    public async Task<IActionResult> Ping()
     {
       _reminder.Start();
       _pChange.Start();
       _bChange.Start();
       _pPrice.Start();
       _bPrice.Start();
+
+      var user = await GetCurrentUser();
+      if (user == null)
+      {
+        return BadRequest();
+      }
+
+      await _userContainersManager.InitializeUserContainer(user.Id, _userManager);
       return Ok();
     }
 
@@ -77,6 +92,12 @@ namespace CurrencyTrackerServer.Web.Controllers
     {
       [Range(3, Int32.MaxValue)]
       public int Period { get; set; }
+    }
+
+    private async Task<ApplicationUser> GetCurrentUser()
+    {
+      var name = User.FindFirst(ClaimTypes.NameIdentifier).Value;
+      return await _userManager.FindByEmailAsync(name);
     }
   }
 }

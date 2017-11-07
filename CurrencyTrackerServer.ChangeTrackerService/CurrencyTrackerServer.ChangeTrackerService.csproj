@@ -19,7 +19,14 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\CurrencyTrackerServer.Data\CurrencyTrackerServer.Data.csproj" />
     <ProjectReference Include="..\CurrencyTrackerServer.Infrastructure\CurrencyTrackerServer.Infrastructure.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="appsettings.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
 
 </Project>

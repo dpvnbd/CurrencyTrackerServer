@@ -2,7 +2,7 @@ import { Component, OnInit, AfterViewChecked, Input, ElementRef, ViewChild } fro
 import { ChangesService, Change, ChangeSettings } from './changes.service';
 import { DatePipe, DecimalPipe } from '@angular/common';
 import { NgbModal, ModalDismissReasons } from '@ng-bootstrap/ng-bootstrap';
-import { Source, ChangeType } from '../shared';
+import { UpdateSource, UpdateType } from '../shared';
 
 @Component({
     selector: 'app-changes',
@@ -13,7 +13,7 @@ export class ChangesComponent implements OnInit {
 
 
     @Input()
-    source: Source;
+    source: UpdateSource;
 
     @ViewChild('bottom') bottom: ElementRef;
     changes: Change[] = [];
@@ -32,10 +32,10 @@ export class ChangesComponent implements OnInit {
 
     ngOnInit() {
 
-        if (this.source === Source.Bittrex) {
+        if (this.source === UpdateSource.Bittrex) {
             this.linkTemplate = 'https://bittrex.com/Market/Index?MarketName=BTC-';
             this.iconPath = '../../assets/images/bittrexIcon.png';
-        } else if (this.source = Source.Poloniex) {
+        } else if (this.source === UpdateSource.Poloniex) {
             this.linkTemplate = 'https://poloniex.com/exchange#btc_';
             this.iconPath = '../../assets/images/poloniexIcon.png';
         }
@@ -43,10 +43,10 @@ export class ChangesComponent implements OnInit {
         this.changesService.subject.subscribe((changes: Change[]) => {
             const localChanges: Change[] = [];
             for (const change of changes) {
-                if (change.changeSource === this.source) {
-                    if (change.type === ChangeType.Currency) {
+                if (change.source === this.source) {
+                    if (change.type === UpdateType.Currency) {
                         localChanges.push(change);
-                    } else if (change.type === ChangeType.Error) {
+                    } else if (change.type === UpdateType.Error) {
                         this.lastError = change;
                         console.log(change.message);
                     }
@@ -96,7 +96,7 @@ export class ChangesComponent implements OnInit {
         }
 
         for (const change of changes) {
-            if (change.changeSource === this.source) {
+            if (change.source === this.source) {
                 change.recentlyChanged = true;
                 this.changes.push(change);
             }

@@ -28,6 +28,7 @@ import { platformBrowserDynamic } from '@angular/platform-browser-dynamic';
 import { LoginComponent } from './login/login.component';
 import { HTTP_INTERCEPTORS } from '@angular/common/http';
 import { AuthInterceptor } from './auth/auth.interceptor';
+import { ConnectionService } from './connection/connection.service';
 
 const routes: Routes = [
   { path: '', component: HomeComponent },
@@ -69,6 +70,7 @@ const routes: Routes = [
       provide: ErrorHandler,
       useClass: AuthErrorHandler
     },
+    ConnectionService,
     ChangesService,
     PriceService,
     ReminderService,
