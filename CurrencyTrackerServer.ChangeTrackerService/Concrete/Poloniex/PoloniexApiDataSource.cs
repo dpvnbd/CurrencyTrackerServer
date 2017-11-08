@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Dynamic;
 using System.Globalization;
+using System.Linq;
 using System.Net.Http;
 using System.Threading.Tasks;
 using CurrencyTrackerServer.ChangeTrackerService.Entities;
@@ -16,6 +17,7 @@ namespace CurrencyTrackerServer.ChangeTrackerService.Concrete.Poloniex
     public class PoloniexApiDataSource : IDataSource<IEnumerable<CurrencyChangeApiData>>
     {
         const string _url = @"https://poloniex.com/public?command=returnTicker";
+        public UpdateSource Source => UpdateSource.Poloniex;
 
         public List<CurrencyChangeApiData> ParseResponse(string json)
         {
@@ -70,6 +72,32 @@ namespace CurrencyTrackerServer.ChangeTrackerService.Concrete.Poloniex
             return list;
         }
 
-        public UpdateSource Source => UpdateSource.Poloniex;
+        public async Task<IEnumerable<string>> GetCurrencies()
+        {
+            List<string> list;
+            try
+            {
+                string json;
+                using (var client = new HttpClient())
+                {
+                    var result = await client.GetAsync(_url);
+                    if (!result.IsSuccessStatusCode)
+                    {
+                        throw new Exception("Ошибка работы с API (Poloniex)");
+                    }
+                    json = await result.Content.ReadAsStringAsync();
+                }
+                var statesList = ParseResponse(json);
+
+                list = statesList.Select(s => s.Currency).ToList();
+            }
+            catch (Exception e)
+            {
+                throw new Exception("Ошибка загрузки значений (Poloniex); ", e);
+            }
+
+            return list;
+        }
+
     }
 }

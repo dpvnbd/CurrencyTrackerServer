@@ -24,6 +24,8 @@ export class ChangesComponent implements OnInit {
     modalCloseResult: string;
     newCurrency: string;
 
+    poloniexCurrencies: string[] = [];
+
     linkTemplate: string;
     iconPath: string;
     soundEnabled = true;
@@ -39,6 +41,18 @@ export class ChangesComponent implements OnInit {
             this.linkTemplate = 'https://poloniex.com/exchange#btc_';
             this.iconPath = '../../assets/images/poloniexIcon.png';
         }
+
+        if (this.source === UpdateSource.Bittrex) {
+            this.changesService.getPoloniexCurrencies().then((currencies) => {
+                if (currencies) {
+                    this.poloniexCurrencies = currencies;
+                }
+                this.reloadHistory();
+            });
+        } else {
+            this.reloadHistory();
+        }
+
 
         this.changesService.subject.subscribe((changes: Change[]) => {
             const localChanges: Change[] = [];
@@ -58,7 +72,6 @@ export class ChangesComponent implements OnInit {
             }
         });
 
-        this.reloadHistory();
     }
 
     openModal(content) {
@@ -98,6 +111,14 @@ export class ChangesComponent implements OnInit {
         for (const change of changes) {
             if (change.source === this.source) {
                 change.recentlyChanged = true;
+
+                if (this.source === UpdateSource.Bittrex) {
+                    const index = this.poloniexCurrencies.indexOf(change.currency);
+                    if (index >= 0) {
+                        change.isOnPoloniex = true;
+                    }
+                }
+
                 this.changes.push(change);
             }
         }

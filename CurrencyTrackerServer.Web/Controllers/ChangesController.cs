@@ -28,14 +28,17 @@ namespace CurrencyTrackerServer.Web.Controllers
     private readonly PoloniexTimerWorker _pWorker;
     private readonly ISettingsProvider _settingsProvider;
     private readonly UserManager<ApplicationUser> _userManager;
+    private readonly PoloniexApiDataSource _poloniexApiDataSource;
 
     public ChangesController(BittrexTimerWorker bWorker, PoloniexTimerWorker pWorker,
-      ISettingsProvider settingsProvider, UserManager<ApplicationUser> userManager)
+      ISettingsProvider settingsProvider, UserManager<ApplicationUser> userManager,
+      PoloniexApiDataSource poloniexApiDataSource)
     {
       _bWorker = bWorker;
       _pWorker = pWorker;
       _settingsProvider = settingsProvider;
       _userManager = userManager;
+      _poloniexApiDataSource = poloniexApiDataSource;
 
       _bWorker.Start();
       _pWorker.Start();
@@ -121,6 +124,13 @@ namespace CurrencyTrackerServer.Web.Controllers
       {
         return BadRequest(ModelState);
       }
+    }
+
+    [HttpGet("poloniexCurrencies")]
+    public async Task<IEnumerable<string>> GetPoloniexCurrencies()
+    {
+      var currencies = await _poloniexApiDataSource.GetCurrencies();
+      return currencies;
     }
 
     private async Task<ApplicationUser> GetCurrentUser()

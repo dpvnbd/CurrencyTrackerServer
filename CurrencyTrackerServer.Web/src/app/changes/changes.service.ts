@@ -22,6 +22,7 @@ export interface Change {
   source?: UpdateSource;
   message?: string;
   recentlyChanged?: boolean;
+  isOnPoloniex?: boolean;
 }
 
 export interface ChangeSettings {
@@ -41,9 +42,7 @@ export class ChangesService {
 
 
   constructor(private http: HttpClient, private connection: ConnectionService) {
-
     this.mapSubject();
-
   }
 
   private mapSubject() {
@@ -70,6 +69,10 @@ export class ChangesService {
 
   public getHistory(source: UpdateSource): any {
     return this.http.get('/api/changes/' + source).map(data => data as Change[]).toPromise();
+  }
+
+  public getPoloniexCurrencies(): any {
+    return this.http.get('/api/changes/poloniexCurrencies').map(data => data as string[]).toPromise();
   }
 
   public reset(source: UpdateSource): any {

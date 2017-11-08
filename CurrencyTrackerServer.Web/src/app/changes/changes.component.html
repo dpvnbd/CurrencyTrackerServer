@@ -140,8 +140,7 @@
         </div>
         <div class="col-6 col-md-4">
           <span class="pull-right">
-            <a *ngIf="lastError" placement="bottom" [ngbPopover]="errorContent"
-             href="javascript:void(0)" title="Ошибка">
+            <a *ngIf="lastError" placement="bottom" [ngbPopover]="errorContent" href="javascript:void(0)" title="Ошибка">
               <i class="fa fa-exclamation-circle fa-lg"></i>
             </a>
             <a href="javascript:void(0)" (click)="openModal(content)" title="Настройки">
@@ -167,6 +166,12 @@
             <td *ngIf="!change.currency" colspan="2" class="py-1"> {{change.message}}</td>
 
             <td class="py-1">{{change.time | date:'HH:mm:ss'}}</td>
+
+            <td *ngIf="source === 1" class="py-1">
+              <a *ngIf="change.isOnPoloniex" href="https://poloniex.com/exchange#btc_{{change.currency}}">
+                <img src="../../assets/images/poloniexIcon.png" class="block-icon float-left" />
+              </a>
+            </td>
           </tr>
         </tbody>
       </table>
