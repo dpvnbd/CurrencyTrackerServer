@@ -12,6 +12,7 @@ import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { BrowserModule } from '@angular/platform-browser';
 import { platformBrowserDynamic } from '@angular/platform-browser-dynamic';
 
+
 @Component({
     moduleId: module.id,
     templateUrl: 'login.component.html'
@@ -51,7 +52,11 @@ export class LoginComponent implements OnInit {
                 if (json.token) {
                     this.authenticationService.setToken(json.token);
                 }
-                this.router.navigate(['']);
+
+                // this.router.navigate(['']);
+
+                // reload main page so app initializes with logged in user
+                location.replace('');
             },
             error => {
                 this.alertService.error('Неправильное имя пользователя или пароль');

@@ -49,14 +49,14 @@ export class ConnectionService {
         this.changes = new Subject<BaseChangeEntity[]>();
         this.reminder = new Subject<BaseChangeEntity[]>();
 
-        this.connectSocket();
+        this.reconnectSocket();
     }
 
     private mapSocketToSubject() {
         this.messages
             .retryWhen(errors => {
-                 return errors.delay(30000) ;
-                })
+                return errors.delay(30000);
+            })
             .subscribe((message: string) => {
                 const data = JSON.parse(message);
                 switch (data[0].destination) {
@@ -75,11 +75,10 @@ export class ConnectionService {
             });
     }
 
-    private connectSocket() {
+    public reconnectSocket() {
         try {
             let token = '';
             this.getToken().then((data) => {
-                console.log(data.token);
                 token = data.token;
                 this.messages = websocketConnect(this.url + '?token=' + token, this.input).messages.share();
                 this.mapSocketToSubject();

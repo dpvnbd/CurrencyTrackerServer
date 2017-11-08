@@ -5,6 +5,7 @@
     <TypeScriptCompileBlocked>true</TypeScriptCompileBlocked>
     <TypeScriptToolsVersion>2.3</TypeScriptToolsVersion>
 		<AssetTargetFallback>portable-net45+win8</AssetTargetFallback>
+		<Configurations>Debug;Release;ReleaseNoAngular</Configurations>
 
   </PropertyGroup>
 

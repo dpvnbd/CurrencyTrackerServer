@@ -16,7 +16,7 @@ namespace CurrencyTrackerServer.Infrastructure.Abstract.Workers
     private object _lockObject = new object();
 
 
-    protected AbstractTimerWorker(int period = 10000)
+    protected AbstractTimerWorker(int period = 3000)
     {
       Period = period;
       _timer = new Timer(TimerTick, _timer, Timeout.Infinite, Timeout.Infinite);
