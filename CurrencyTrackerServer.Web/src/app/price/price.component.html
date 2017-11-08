@@ -13,8 +13,9 @@
     recentlyChanged?: boolean;
 }
 export interface PriceSettings {
-    periodSeconds: number;
     prices?: Price[];
+    sendNotifications?: boolean;
+    email?: string;
 }
   } -->
 
@@ -33,15 +34,34 @@ export interface PriceSettings {
         </div>
         <hr/>
 
+        <div class="form-group row">
+          <label class="col-sm-6">Послать уведомление</label>
+          <div class="col-sm-6">
+            <div class="form-check">
+              <label class="form-check-label">
+                <input class="form-check-input" name="sendNotifications"
+                 type="checkbox" [(ngModel)]="settings.sendNotifications">
+              </label>
+            </div>
+          </div>
+        </div>
+
+        <div class="form-group row">
+          <label for="period" class="col-sm-6 col-form-label">Email</label>
+          <div class="col-sm-6">
+            <input type="email" name="notificationsEmail" class="form-control"
+             id="notificationsEmail" [(ngModel)]="settings.email">
+          </div>
+        </div>
+
         <!-- <div class="form-group row">
           <label for="period" class="col-sm-6 col-form-label">Период, сек</label>
           <div class="col-sm-6">
             <input type="number" name="period" class="form-control" id="period" [(ngModel)]="settings.periodSeconds">
           </div>
-        </div>
+        </div> -->
 
-        <hr/> -->
-
+        <hr/>
         <div class="form-group row">
           <label for="currency" class="col-sm-6 col-form-label">Валюта</label>
           <div class="col-sm-4">
@@ -95,8 +115,7 @@ export interface PriceSettings {
                 <a href="{{linkTemplate}}{{price.currency}}" target="_blank">{{price.currency}}</a>
               </td>
               <td>
-                <input type="number" name="low{{i}}" class="form-control" step="0.00000001"
-                 [(ngModel)]="price.low">
+                <input type="number" name="low{{i}}" class="form-control" step="0.00000001" [(ngModel)]="price.low">
               </td>
               <td>
                 <input type="number" name="high{{i}}" class="form-control" step="0.00000001" [(ngModel)]="price.high ">

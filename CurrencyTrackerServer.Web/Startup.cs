@@ -6,6 +6,7 @@ using CurrencyTrackerServer.ChangeTrackerService.Concrete.Poloniex;
 using CurrencyTrackerServer.Data.Concrete;
 using CurrencyTrackerServer.Infrastructure.Abstract;
 using CurrencyTrackerServer.Infrastructure.Abstract.Data;
+using CurrencyTrackerServer.Infrastructure.Entities;
 using CurrencyTrackerServer.Infrastructure.Entities.Changes;
 using CurrencyTrackerServer.Infrastructure.Entities.Data;
 using CurrencyTrackerServer.Infrastructure.Entities.Price;
@@ -18,8 +19,10 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using CurrencyTrackerServer.ReminderService;
+using CurrencyTrackerServer.Web.Infrastructure.Concrete;
 using CurrencyTrackerServer.Web.Infrastructure.Concrete.MultipleUsers;
 using CurrencyTrackerServer.Web.Infrastructure.Websockets;
+using CurrencyTrackerServer.Web.Models;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore.Design;
 using Microsoft.IdentityModel.Tokens;
@@ -120,6 +123,9 @@ namespace CurrencyTrackerServer.Web
       #region Reminder
       services.AddSingleton<ReminderTimerWorker>();
       #endregion
+
+      services.Configure<SmtpSettings>(Configuration.GetSection("SmtpSettings"));
+      services.AddSingleton<IMessageNotifier, EmailNotifier>();
 
       services.AddSingleton<UserContainerFactory>();
       services.AddSingleton<UserContainersManager>();

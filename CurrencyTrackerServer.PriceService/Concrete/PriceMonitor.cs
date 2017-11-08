@@ -14,17 +14,22 @@ namespace CurrencyTrackerServer.PriceService.Concrete
   public class PriceMonitor : IMonitor<IEnumerable<BaseChangeEntity>>
   {
     private readonly ISettingsProvider _settingsProvider;
+    private readonly IMessageNotifier _messageNotifier;
     public virtual UpdateSource Source { get; protected set; }
     public UpdateDestination Destination => UpdateDestination.Price;
     public string UserId { get; }
     public event EventHandler<IEnumerable<BaseChangeEntity>> Changed;
 
-    public PriceSettings Settings => _settingsProvider.GetSettings<PriceSettings>(Source, Destination, UserId);
+    public PriceSettings GetSettings()
+    {
+      return _settingsProvider.GetSettings<PriceSettings>(Source, Destination, UserId);
+    }
 
     public PriceMonitor(IWorker<IEnumerable<ApiPrice>> priceWorker,
-      ISettingsProvider settingsProvider, string userId)
+      ISettingsProvider settingsProvider, IMessageNotifier messageNotifier, string userId)
     {
       _settingsProvider = settingsProvider;
+      _messageNotifier = messageNotifier;
       UserId = userId;
       priceWorker.Updated += PriceWorkerOnUpdated;
     }
@@ -36,6 +41,7 @@ namespace CurrencyTrackerServer.PriceService.Concrete
       {
         var handler = Changed;
         handler?.Invoke(this, changes);
+        SendEmailIfChanged(changes);
       }
     }
 
@@ -43,7 +49,7 @@ namespace CurrencyTrackerServer.PriceService.Concrete
     public IEnumerable<Price> CheckChanges(IEnumerable<ApiPrice> apiPrices)
     {
       var prices = new List<Price>();
-      var settings = Settings;
+      var settings = GetSettings();
       try
       {
         foreach (var apiPrice in apiPrices)
@@ -66,14 +72,21 @@ namespace CurrencyTrackerServer.PriceService.Concrete
       return prices;
     }
 
-    private void SendEmailIfChanged(IEnumerable<Price> prices)
+    private async void SendEmailIfChanged(IEnumerable<Price> prices)
     {
       if (prices == null || !prices.Any())
       {
         return;
       }
 
-      var changedList = new List<Price>();
+      var settings = GetSettings();
+
+      if (!settings.SendNotifications || string.IsNullOrWhiteSpace(settings.Email))
+      {
+        return;
+      }
+
+      var text = "";
 
       foreach (var price in prices)
       {
@@ -81,15 +94,18 @@ namespace CurrencyTrackerServer.PriceService.Concrete
         {
           continue;
         }
-        changedList.Add(price);
+        text += $"{price.Source}: {price.Currency}: {price.Last} ({price.Low}; {price.High})\n";
       }
 
-      if (!changedList.Any())
+      if (string.IsNullOrWhiteSpace(text))
       {
         return;
       }
 
+      var isSent = await _messageNotifier.SendMessage(settings.Email, text);
 
+      settings.SendNotifications = false;
+      _settingsProvider.SaveSettings(Source, Destination, UserId, settings);
     }
   }
 }

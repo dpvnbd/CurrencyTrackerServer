@@ -28,8 +28,6 @@ namespace CurrencyTrackerServer.Web.Infrastructure.Concrete.MultipleUsers
       PoloniexChangeMonitor = pChange;
       BittrexChangeMonitor = bChange;
 
-      bMonitor.Settings.Prices.Add(new Price { Currency = "ETH", Source = UpdateSource.Bittrex });
-
       Monitors = new List<IMonitor<IEnumerable<BaseChangeEntity>>> { BittrexPriceMonitor, PoloniexPriceMonitor,
        PoloniexChangeMonitor, BittrexChangeMonitor };
 

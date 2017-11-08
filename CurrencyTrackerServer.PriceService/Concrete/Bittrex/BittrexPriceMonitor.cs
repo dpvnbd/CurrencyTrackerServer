@@ -11,8 +11,9 @@ namespace CurrencyTrackerServer.PriceService.Concrete.Bittrex
 {
     public class BittrexPriceMonitor : PriceMonitor
     {
-        public BittrexPriceMonitor(BittrexPriceTimerWorker timerWorker, ISettingsProvider settingsProvider, string userId) : base(
-            timerWorker, settingsProvider, userId)
+        public BittrexPriceMonitor(BittrexPriceTimerWorker timerWorker, ISettingsProvider settingsProvider,
+            IMessageNotifier notifier, string userId) 
+            : base(timerWorker, settingsProvider, notifier, userId)
         {
         }
 
