@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using CurrencyTrackerServer.Infrastructure.Entities;
+using Serilog;
 
 namespace CurrencyTrackerServer.Infrastructure.Abstract.Workers
 {
@@ -47,8 +48,15 @@ namespace CurrencyTrackerServer.Infrastructure.Abstract.Workers
 
     private async void TimerTick(object state)
     {
-      await DoWork();
-
+      try
+      {
+        await DoWork();
+      }
+      catch (Exception e)
+      {
+        Log.Error(e, "Error while checking changes");
+      }
+      
       if (Started)
       {
         _timer.Change(Period, Timeout.Infinite);

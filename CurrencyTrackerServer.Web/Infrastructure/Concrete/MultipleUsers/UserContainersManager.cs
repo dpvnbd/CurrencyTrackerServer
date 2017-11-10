@@ -9,6 +9,7 @@ using CurrencyTrackerServer.Infrastructure.Entities;
 using CurrencyTrackerServer.Infrastructure.Entities.Data;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.DependencyInjection;
+using Serilog;
 
 namespace CurrencyTrackerServer.Web.Infrastructure.Concrete.MultipleUsers
 {
@@ -74,6 +75,7 @@ namespace CurrencyTrackerServer.Web.Infrastructure.Concrete.MultipleUsers
       container.UserToken = token;
       container.ChangedCallback += SendToUser;
 
+      Log.Debug("new user container " + userId);
       if (!UserContainers.TryAdd(userId, container))
       {
         return string.Empty;
@@ -90,9 +92,16 @@ namespace CurrencyTrackerServer.Web.Infrastructure.Concrete.MultipleUsers
       return token;
     }
 
-    public AbstractUserMonitorsContainer GetUserContainer(string userId)
+    public async Task<AbstractUserMonitorsContainer> GetUserContainer(string userId, UserManager<ApplicationUser> userManager)
     {
       var result = UserContainers.TryGetValue(userId, out var container);
+
+      if (!result || container == null)
+      {
+        await InitializeUserContainer(userId, userManager);
+        UserContainers.TryGetValue(userId, out container);
+      }
+
       return container;
     }
 

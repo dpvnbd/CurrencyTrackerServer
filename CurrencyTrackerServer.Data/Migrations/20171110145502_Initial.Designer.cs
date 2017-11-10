@@ -12,8 +12,8 @@ using System;
 namespace CurrencyTrackerServer.Data.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20171107154956_Settings")]
-    partial class Settings
+    [Migration("20171110145502_Initial")]
+    partial class Initial
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -95,6 +95,8 @@ namespace CurrencyTrackerServer.Data.Migrations
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd();
 
+                    b.Property<string>("UserId");
+
                     b.Property<string>("Currency");
 
                     b.Property<string>("Message");
@@ -107,7 +109,9 @@ namespace CurrencyTrackerServer.Data.Migrations
 
                     b.Property<int>("UpdateSource");
 
-                    b.HasKey("Id");
+                    b.HasKey("Id", "UserId");
+
+                    b.HasIndex("UserId");
 
                     b.ToTable("History");
                 });
@@ -118,13 +122,17 @@ namespace CurrencyTrackerServer.Data.Migrations
 
                     b.Property<int>("UpdateSource");
 
+                    b.Property<string>("UserId");
+
                     b.Property<DateTime>("Created");
 
                     b.Property<DateTime>("LastChangeTime");
 
                     b.Property<double>("Threshold");
 
-                    b.HasKey("Currency", "UpdateSource");
+                    b.HasKey("Currency", "UpdateSource", "UserId");
+
+                    b.HasIndex("UserId");
 
                     b.ToTable("States");
                 });
@@ -238,6 +246,22 @@ namespace CurrencyTrackerServer.Data.Migrations
                 });
 
             modelBuilder.Entity("CurrencyTrackerServer.Data.Entities.SettingsSerialized", b =>
+                {
+                    b.HasOne("CurrencyTrackerServer.Infrastructure.Entities.Data.ApplicationUser", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade);
+                });
+
+            modelBuilder.Entity("CurrencyTrackerServer.Infrastructure.Entities.Data.ChangeHistoryEntry", b =>
+                {
+                    b.HasOne("CurrencyTrackerServer.Infrastructure.Entities.Data.ApplicationUser", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade);
+                });
+
+            modelBuilder.Entity("CurrencyTrackerServer.Infrastructure.Entities.Data.CurrencyState", b =>
                 {
                     b.HasOne("CurrencyTrackerServer.Infrastructure.Entities.Data.ApplicationUser", "User")
                         .WithMany()

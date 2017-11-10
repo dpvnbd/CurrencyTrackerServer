@@ -1,4 +1,5 @@
-﻿using CurrencyTrackerServer.Data.Entities;
+﻿using System.ComponentModel.DataAnnotations.Schema;
+using CurrencyTrackerServer.Data.Entities;
 using CurrencyTrackerServer.Infrastructure.Entities.Data;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
@@ -22,12 +23,18 @@ namespace CurrencyTrackerServer.Data.Concrete
       base.OnModelCreating(builder);
 
       builder.Entity<CurrencyState>()
-        .HasKey(c => new { c.Currency, c.UpdateSource });
+        .HasKey(c => new { c.Currency, c.UpdateSource, c.UserId });
+
+      builder.Entity<ChangeHistoryEntry>(c =>
+      {
+        c.HasKey(e => new {e.Id, e.UserId});
+        c.Property(e => e.Id).ValueGeneratedOnAdd();
+      });
+        
 
 
       builder.Entity<SettingsSerialized>()
         .HasKey(c => new { c.UserId, c.Source, c.Destination });
-
 
     }
 

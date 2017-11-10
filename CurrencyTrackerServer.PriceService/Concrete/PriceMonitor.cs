@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
 using CurrencyTrackerServer.Infrastructure.Abstract;
@@ -8,6 +9,7 @@ using CurrencyTrackerServer.Infrastructure.Abstract.Price;
 using CurrencyTrackerServer.Infrastructure.Abstract.Workers;
 using CurrencyTrackerServer.Infrastructure.Entities;
 using CurrencyTrackerServer.Infrastructure.Entities.Price;
+using Microsoft.IdentityModel.Logging;
 
 namespace CurrencyTrackerServer.PriceService.Concrete
 {
@@ -19,6 +21,9 @@ namespace CurrencyTrackerServer.PriceService.Concrete
     public UpdateDestination Destination => UpdateDestination.Price;
     public string UserId { get; }
     public event EventHandler<IEnumerable<BaseChangeEntity>> Changed;
+
+    private object _lockObject = new object();
+    private bool _processing;
 
     public PriceSettings GetSettings()
     {
@@ -36,12 +41,41 @@ namespace CurrencyTrackerServer.PriceService.Concrete
 
     private void PriceWorkerOnUpdated(object sender, IEnumerable<ApiPrice> apiPrices)
     {
-      var changes = CheckChanges(apiPrices);
-      if (changes.Any())
+
+      if (_processing)
       {
-        var handler = Changed;
-        handler?.Invoke(this, changes);
-        SendEmailIfChanged(changes);
+        Console.WriteLine("Price monitor skipping");
+        return; // Skip a step if processing takes longer than timer period
+      }
+
+      lock (_lockObject)
+      {
+        if (!_processing)
+        {
+          _processing = true;
+        }
+        else
+        {
+          return;
+        }
+      }
+
+      try
+      {
+        var changes = CheckChanges(apiPrices);
+        if (changes.Any())
+        {
+          var handler = Changed;
+          handler?.Invoke(this, changes);
+          SendEmailIfChanged(changes);
+        }
+      }
+      finally
+      {
+        lock (_lockObject)
+        {
+          _processing = false;
+        }
       }
     }
 
@@ -103,7 +137,6 @@ namespace CurrencyTrackerServer.PriceService.Concrete
       }
 
       var isSent = await _messageNotifier.SendMessage(settings.Email, text);
-
       settings.SendNotifications = false;
       _settingsProvider.SaveSettings(Source, Destination, UserId, settings);
     }

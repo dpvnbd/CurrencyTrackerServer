@@ -1,12 +1,15 @@
 ﻿using System;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace CurrencyTrackerServer.Infrastructure.Entities.Data
 {
     public class CurrencyState
     {
         public string Currency { get; set; }
-
         public UpdateSource UpdateSource { get; set; }
+        public string UserId { get; set; }
+        [ForeignKey("UserId")]
+        public ApplicationUser User { get; set; }
 
         public DateTime LastChangeTime { get; set; }
         public DateTime Created { get; set; }

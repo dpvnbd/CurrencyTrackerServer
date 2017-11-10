@@ -93,10 +93,11 @@ namespace CurrencyTrackerServer.ChangeTrackerService.Concrete.Poloniex
             }
             catch (Exception e)
             {
-                throw new Exception("Ошибка загрузки значений (Poloniex); ", e);
+                Console.WriteLine("Error getting poloniex currencies " + e.Message);
+                list = new List<string>();
             }
-
             return list;
+
         }
 
     }

@@ -11,6 +11,7 @@ using CurrencyTrackerServer.Infrastructure.Abstract.Data;
 using CurrencyTrackerServer.Infrastructure.Entities;
 using CurrencyTrackerServer.Infrastructure.Entities.Changes;
 using CurrencyTrackerServer.Infrastructure.Entities.Data;
+using CurrencyTrackerServer.Web.Infrastructure.Concrete.MultipleUsers;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
@@ -29,44 +30,50 @@ namespace CurrencyTrackerServer.Web.Controllers
     private readonly ISettingsProvider _settingsProvider;
     private readonly UserManager<ApplicationUser> _userManager;
     private readonly PoloniexApiDataSource _poloniexApiDataSource;
+    private readonly UserContainersManager _userContainersManager;
 
     public ChangesController(BittrexTimerWorker bWorker, PoloniexTimerWorker pWorker,
       ISettingsProvider settingsProvider, UserManager<ApplicationUser> userManager,
-      PoloniexApiDataSource poloniexApiDataSource)
+      PoloniexApiDataSource poloniexApiDataSource, UserContainersManager userContainersManager)
     {
       _bWorker = bWorker;
       _pWorker = pWorker;
       _settingsProvider = settingsProvider;
       _userManager = userManager;
       _poloniexApiDataSource = poloniexApiDataSource;
+      _userContainersManager = userContainersManager;
 
       _bWorker.Start();
       _pWorker.Start();
     }
 
     [HttpGet("{source}")]
-    public IEnumerable<Change> GetAsync(UpdateSource source)
+    public async Task<IEnumerable<Change>> GetAsync(UpdateSource source)
     {
+      var container = await GetUserContainer();
+
       switch (source)
       {
         case UpdateSource.Bittrex:
-          return _bWorker.GetHistory();
+          return container.BittrexChangeMonitor.GetHistory();
         case UpdateSource.Poloniex:
-          return _pWorker.GetHistory();
+          return container.PoloniexChangeMonitor.GetHistory();
       }
-      return _bWorker.GetHistory(allHistory: true);
+      return Array.Empty<Change>();
     }
 
     [HttpPost("reset/{source}")]
     public async Task<IActionResult> Reset(UpdateSource source)
     {
+      var container = await GetUserContainer();
+
       switch (source)
       {
         case UpdateSource.Bittrex:
-          await _bWorker.ResetAll();
+          await container.BittrexChangeMonitor.ResetAll();
           break;
         case UpdateSource.Poloniex:
-          await _pWorker.ResetAll();
+          await container.PoloniexChangeMonitor.ResetAll();
           break;
       }
       return Ok();
@@ -131,6 +138,12 @@ namespace CurrencyTrackerServer.Web.Controllers
     {
       var currencies = await _poloniexApiDataSource.GetCurrencies();
       return currencies;
+    }
+
+    private async Task<UserMonitorsContainer> GetUserContainer()
+    {
+      var user = await GetCurrentUser();
+      return (UserMonitorsContainer)await _userContainersManager.GetUserContainer(user.Id, _userManager);
     }
 
     private async Task<ApplicationUser> GetCurrentUser()

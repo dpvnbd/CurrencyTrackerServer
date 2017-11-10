@@ -33,7 +33,6 @@ namespace CurrencyTrackerServer.ChangeTrackerService.Concrete
         {
             try
             {
-                await ResetStates(TimeSpan.FromHours(24));
                 var changes = await _dataSource.GetData();
                 if (changes.Any())
                     OnUpdated(changes);
@@ -57,91 +56,6 @@ namespace CurrencyTrackerServer.ChangeTrackerService.Concrete
                 Period = 3 * 1000;
             }
         }
-
-        public IEnumerable<Change> GetHistory(bool allHistory = false)
-        {
-            List<ChangeHistoryEntry> entities;
-            using (var repo = _repoFactory.Create<ChangeHistoryEntry>())
-            {
-                var enumerable = repo.GetAll().Where(c => !allHistory && c.UpdateSource == Source);
-                entities = new List<ChangeHistoryEntry>(enumerable.Skip(Math.Max(0, enumerable.Count() - 50)));
-            }
-
-            return entities.Select(entity => new Change
-            {
-                Currency = entity.Currency,
-                Message = entity.Message,
-                Percentage = entity.Percentage,
-                Time = entity.Time,
-                Type = entity.Type,
-                Source = entity.UpdateSource
-            })
-                .ToList();
-        }
-
-        public async Task ResetAll()
-        {
-            using (var repo = _repoFactory.Create<CurrencyState>())
-            {
-                var states = repo.GetAll().Where(s => s.UpdateSource == Source);
-                foreach (var entity in states)
-                {
-                    await repo.Delete(entity, false);
-                }
-                await repo.SaveChanges();
-            }
-
-            await ClearHistory(TimeSpan.Zero, true);
-        }
-
-        public async Task ClearHistory(TimeSpan olderThan, bool logDeletion = false)
-        {
-            var now = DateTime.Now;
-
-            using (var historyRepo = _repoFactory.Create<ChangeHistoryEntry>())
-            {
-                var entries = historyRepo.GetAll().Where(c => c.UpdateSource == Source);
-
-                foreach (var entry in entries)
-                {
-                    if (now > entry.Time + olderThan)
-                    {
-                        await historyRepo.Delete(entry, false);
-                    }
-                }
-
-                await historyRepo.SaveChanges();
-
-                if (logDeletion)
-                {
-                    var entry = new ChangeHistoryEntry
-                    {
-                        Type = UpdateType.Info,
-                        Message = "Сброс информации о валютах",
-                        Time = DateTime.Now,
-                        UpdateSource = Source
-                    };
-                    await historyRepo.Add(entry);
-                }
-            }
-        }
-
-        public async Task ResetStates(TimeSpan olderThan)
-        {
-            var now = DateTime.Now;
-
-            using (var stateRepo = _repoFactory.Create<CurrencyState>())
-            {
-                var states = stateRepo.GetAll().Where(c => c.UpdateSource == Source);
-                foreach (var state in states)
-                {
-                    if (now > state.Created + olderThan)
-                    {
-                        await stateRepo.Delete(state, false);
-                    }
-                }
-                await stateRepo.SaveChanges();
-            }
-        }
+        
     }
 }
