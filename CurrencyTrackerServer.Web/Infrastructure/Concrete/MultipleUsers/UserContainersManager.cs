@@ -17,15 +17,18 @@ namespace CurrencyTrackerServer.Web.Infrastructure.Concrete.MultipleUsers
   {
     private readonly INotifier _notifier;
     private readonly UserContainerFactory _containerFactory;
-    private ConcurrentDictionary<string, AbstractUserMonitorsContainer> UserContainers { get; set; }
-    private ConcurrentDictionary<string, List<string>> TokenConnections { get; set; }
+    private Dictionary<string, AbstractUserMonitorsContainer> UserContainers { get; set; }
+    private Dictionary<string, List<string>> TokenConnections { get; set; }
+
+    private object _lockObject = new object();
+
     public UserContainersManager(INotifier notifier, UserContainerFactory containerFactory)
     {
       _notifier = notifier;
       _containerFactory = containerFactory;
 
-      UserContainers = new ConcurrentDictionary<string, AbstractUserMonitorsContainer>();
-      TokenConnections = new ConcurrentDictionary<string, List<string>>();
+      UserContainers = new Dictionary<string, AbstractUserMonitorsContainer>();
+      TokenConnections = new Dictionary<string, List<string>>();
     }
 
     private async Task<string> GetOrCreateUserToken(string userId, UserManager<ApplicationUser> userManager)
@@ -60,36 +63,37 @@ namespace CurrencyTrackerServer.Web.Infrastructure.Concrete.MultipleUsers
     /// User manager is passed here because it can't be injected into this singleton class
     public async Task<string> InitializeUserContainer(string userId, UserManager<ApplicationUser> userManager)
     {
-      if (UserContainers.TryGetValue(userId, out var container) && container != null)
+      lock (_lockObject) //Prevent creating multiple containers for one user
       {
-        return container.UserToken;
-      }
+        if (UserContainers.TryGetValue(userId, out var container) && container != null)
+        {
+          return container.UserToken;
+        }
 
-      var token = await GetOrCreateUserToken(userId, userManager);
-      if (string.IsNullOrEmpty(token))
-      {
-        return string.Empty;
-      }
-
-      container = _containerFactory.Create(userId);
-      container.UserToken = token;
-      container.ChangedCallback += SendToUser;
-
-      Log.Debug("new user container " + userId);
-      if (!UserContainers.TryAdd(userId, container))
-      {
-        return string.Empty;
-      }
-
-      if (!TokenConnections.ContainsKey(token))
-      {
-        if (!TokenConnections.TryAdd(token, new List<string>()))
+        var token = GetOrCreateUserToken(userId, userManager).Result;
+        if (string.IsNullOrEmpty(token))
         {
           return string.Empty;
         }
+
+        container = _containerFactory.Create(userId);
+        container.UserToken = token;
+        container.ChangedCallback += SendToUser;
+
+        Log.Debug("new user container " + userId);
+        if (!UserContainers.TryAdd(userId, container))
+        {
+          container.Dispose();
+          return string.Empty;
+        }
+
+        if (!TokenConnections.ContainsKey(token))
+        {
+          TokenConnections[token] = new List<string>();
+        }
+        return token;
       }
 
-      return token;
     }
 
     public async Task<AbstractUserMonitorsContainer> GetUserContainer(string userId, UserManager<ApplicationUser> userManager)
@@ -119,7 +123,7 @@ namespace CurrencyTrackerServer.Web.Infrastructure.Concrete.MultipleUsers
       }
 
       var stillConnected = await _notifier.SendToConnections(connections, changes);
-      TokenConnections.AddOrUpdate(userToken, stillConnected, (s, list) => stillConnected);
+      TokenConnections[userToken] = stillConnected;
     }
 
     public void AddConnection(string userToken, string connection)
@@ -129,7 +133,7 @@ namespace CurrencyTrackerServer.Web.Infrastructure.Concrete.MultipleUsers
         TokenConnections.TryAdd(userToken, new List<string>());
       }
 
-      var connections = TokenConnections.GetValueOrDefault(userToken);
+      var connections = TokenConnections[userToken];
 
       if (connections.Contains(connection))
       {
@@ -137,7 +141,7 @@ namespace CurrencyTrackerServer.Web.Infrastructure.Concrete.MultipleUsers
       }
       connections.Add(connection);
 
-      TokenConnections.TryUpdate(userToken, connections, null);
+      TokenConnections[userToken] = connections;
     }
   }
 }

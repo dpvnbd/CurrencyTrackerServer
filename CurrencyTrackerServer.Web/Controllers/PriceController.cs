@@ -29,15 +29,17 @@ namespace CurrencyTrackerServer.Web.Controllers
     private readonly BittrexPriceTimerWorker _bWorker;
     private readonly PoloniexPriceTimerWorker _pWorker;
     private readonly UserManager<ApplicationUser> _userManager;
+    private readonly UserContainersManager _userContainersManager;
 
 
     public PriceController(ISettingsProvider settingsProvider, BittrexPriceTimerWorker bWorker,
-      PoloniexPriceTimerWorker pWorker, UserManager<ApplicationUser> userManager)
+      PoloniexPriceTimerWorker pWorker, UserManager<ApplicationUser> userManager, UserContainersManager userContainersManager)
     {
       _settingsProvider = settingsProvider;
       _bWorker = bWorker;
       _pWorker = pWorker;
       _userManager = userManager;
+      _userContainersManager = userContainersManager;
       _bWorker.Start();
       _pWorker.Start();
     }
@@ -100,13 +102,44 @@ namespace CurrencyTrackerServer.Web.Controllers
       if (ModelState.IsValid)
       {
         var user = await GetCurrentUser();
-        _settingsProvider.SaveSettings(source, UpdateDestination.Price, user.Id, settings);
+        await _settingsProvider.SaveSettings(source, UpdateDestination.Price, user.Id, settings);
         return Ok();
       }
       else
       {
         return BadRequest(ModelState);
       }
+    }
+
+    [HttpPost("notification/{source}/{isEnabled}")]
+    public async Task<IActionResult> SetNotification(UpdateSource source, bool isEnabled)
+    {
+      if (ModelState.IsValid)
+      {
+        var container = await GetUserContainer();
+        switch (source)
+        {
+          case UpdateSource.Bittrex:
+            container.BittrexPriceMonitor.SetNotification(isEnabled);
+            break;
+          case UpdateSource.Poloniex:
+            container.PoloniexPriceMonitor.SetNotification(isEnabled);
+            break;
+          default:
+            return BadRequest();
+        }
+        return Ok();
+      }
+      else
+      {
+        return BadRequest(ModelState);
+      }
+    }
+
+    private async Task<UserMonitorsContainer> GetUserContainer()
+    {
+      var user = await GetCurrentUser();
+      return (UserMonitorsContainer)await _userContainersManager.GetUserContainer(user.Id, _userManager);
     }
 
     private async Task<ApplicationUser> GetCurrentUser()

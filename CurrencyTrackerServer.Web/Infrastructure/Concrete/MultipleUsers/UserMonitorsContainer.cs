@@ -41,5 +41,21 @@ namespace CurrencyTrackerServer.Web.Infrastructure.Concrete.MultipleUsers
     {
       ChangedCallback?.Invoke(UserToken, changes);
     }
+
+    private void Dispose(bool disposing)
+    {
+      if (disposing)
+      {
+        PoloniexPriceMonitor?.Dispose();
+        BittrexPriceMonitor?.Dispose();
+        PoloniexChangeMonitor?.Dispose();
+        BittrexChangeMonitor?.Dispose();
+      }
+    }
+
+    public sealed override void Dispose()
+    {
+      Dispose(true);
+    }
   }
 }

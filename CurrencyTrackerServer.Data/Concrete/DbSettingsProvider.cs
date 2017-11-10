@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading.Tasks;
 using CurrencyTrackerServer.Data.Entities;
 using CurrencyTrackerServer.Infrastructure.Abstract.Data;
 using CurrencyTrackerServer.Infrastructure.Entities;
@@ -39,7 +40,7 @@ namespace CurrencyTrackerServer.Data.Concrete
             return settings;
         }
 
-        public async void SaveSettings<T>(UpdateSource source, UpdateDestination destination, string userId, T settings)
+        public async Task SaveSettings<T>(UpdateSource source, UpdateDestination destination, string userId, T settings)
         {
             
             using (var repo = _repoFactory.Create<SettingsSerialized>())

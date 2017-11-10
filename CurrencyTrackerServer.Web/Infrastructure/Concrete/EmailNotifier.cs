@@ -15,18 +15,13 @@ namespace CurrencyTrackerServer.Web.Infrastructure.Concrete
   public class EmailNotifier : IMessageNotifier
   {
     private readonly SmtpSettings _s;
-    private static int count = 0;
-    private static int ecount = 0;
     public EmailNotifier(IOptions<SmtpSettings> config)
     {
       _s = config.Value;
-      Log.Debug("creating notifier " + count++);
     }
 
     public async Task<bool> SendMessage(string address, string text)
     {
-      Log.Debug("someone sending message " + ecount++);
-
       var fromAddress = new MailAddress(_s.FromAddress, _s.FromName);
       var toAddress = new MailAddress(address, null);
       var subject = "CTS";

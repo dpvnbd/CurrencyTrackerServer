@@ -15,28 +15,46 @@ namespace CurrencyTrackerServer.PriceService.Concrete
 {
   public class PriceMonitor : IMonitor<IEnumerable<BaseChangeEntity>>
   {
+    private readonly IWorker<IEnumerable<ApiPrice>> _priceWorker;
     private readonly ISettingsProvider _settingsProvider;
     private readonly IMessageNotifier _messageNotifier;
     public virtual UpdateSource Source { get; protected set; }
     public UpdateDestination Destination => UpdateDestination.Price;
     public string UserId { get; }
     public event EventHandler<IEnumerable<BaseChangeEntity>> Changed;
-
     private object _lockObject = new object();
     private bool _processing;
+    private bool _sendNotification;
+    
 
-    public PriceSettings GetSettings()
-    {
-      return _settingsProvider.GetSettings<PriceSettings>(Source, Destination, UserId);
-    }
+    
 
     public PriceMonitor(IWorker<IEnumerable<ApiPrice>> priceWorker,
       ISettingsProvider settingsProvider, IMessageNotifier messageNotifier, string userId)
     {
+      _priceWorker = priceWorker;
       _settingsProvider = settingsProvider;
       _messageNotifier = messageNotifier;
       UserId = userId;
       priceWorker.Updated += PriceWorkerOnUpdated;
+
+      var settings = _settingsProvider.GetSettings<PriceSettings>(Source, Destination, userId);
+
+      SetNotification(settings.SendNotifications);
+    }
+
+    public async void SetNotification(bool value)
+    {
+      _sendNotification = value;
+      var settings = GetSettings();
+      settings.SendNotifications = value;
+      await _settingsProvider.SaveSettings(Source, Destination, UserId, settings);
+    }
+
+
+    public PriceSettings GetSettings()
+    {
+      return _settingsProvider.GetSettings<PriceSettings>(Source, Destination, UserId);
     }
 
     private void PriceWorkerOnUpdated(object sender, IEnumerable<ApiPrice> apiPrices)
@@ -44,7 +62,6 @@ namespace CurrencyTrackerServer.PriceService.Concrete
 
       if (_processing)
       {
-        Console.WriteLine("Price monitor skipping");
         return; // Skip a step if processing takes longer than timer period
       }
 
@@ -115,7 +132,7 @@ namespace CurrencyTrackerServer.PriceService.Concrete
 
       var settings = GetSettings();
 
-      if (!settings.SendNotifications || string.IsNullOrWhiteSpace(settings.Email))
+      if (!_sendNotification || string.IsNullOrWhiteSpace(settings.Email))
       {
         return;
       }
@@ -128,7 +145,7 @@ namespace CurrencyTrackerServer.PriceService.Concrete
         {
           continue;
         }
-        text += $"{price.Source}: {price.Currency}: {price.Last} ({price.Low}; {price.High})\n";
+        text += $"{price.Source}: {price.Currency}: {price.Last:F8} ({price.Low:F8}; {price.High:F8})\n";
       }
 
       if (string.IsNullOrWhiteSpace(text))
@@ -137,8 +154,14 @@ namespace CurrencyTrackerServer.PriceService.Concrete
       }
 
       var isSent = await _messageNotifier.SendMessage(settings.Email, text);
+      SetNotification(false);
       settings.SendNotifications = false;
-      _settingsProvider.SaveSettings(Source, Destination, UserId, settings);
+      await _settingsProvider.SaveSettings(Source, Destination, UserId, settings);
+    }
+
+    public void Dispose()
+    {
+      _priceWorker.Updated -= PriceWorkerOnUpdated;
     }
   }
 }

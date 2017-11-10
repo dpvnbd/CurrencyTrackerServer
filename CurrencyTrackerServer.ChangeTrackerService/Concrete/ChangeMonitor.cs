@@ -14,6 +14,7 @@ namespace CurrencyTrackerServer.ChangeTrackerService.Concrete
     public class ChangeMonitor : IMonitor<IEnumerable<BaseChangeEntity>>
 
     {
+        private readonly IWorker<IEnumerable<CurrencyChangeApiData>> _changeWorker;
         private readonly IRepositoryFactory _repoFactory;
         private readonly ISettingsProvider _settingsProvider;
 
@@ -31,19 +32,17 @@ namespace CurrencyTrackerServer.ChangeTrackerService.Concrete
         public ChangeMonitor(IWorker<IEnumerable<CurrencyChangeApiData>> changeWorker,
             IRepositoryFactory repoFactory, ISettingsProvider settingsProvider, string userId)
         {
+            _changeWorker = changeWorker;
             _repoFactory = repoFactory;
             _settingsProvider = settingsProvider;
             UserId = userId;
             changeWorker.Updated += ChangeWorkerOnUpdated;
         }
 
-
-
         private async void ChangeWorkerOnUpdated(object sender, IEnumerable<CurrencyChangeApiData> currencyChangeApiData)
         {
             if (_processing)
             {
-                Console.WriteLine("Price monitor skipping");
                 return; // Skip a step if processing takes longer than timer period
             }
 
@@ -325,5 +324,9 @@ namespace CurrencyTrackerServer.ChangeTrackerService.Concrete
             }
         }
 
+        public void Dispose()
+        {
+            _changeWorker.Updated -= ChangeWorkerOnUpdated;
+        }
     }
 }

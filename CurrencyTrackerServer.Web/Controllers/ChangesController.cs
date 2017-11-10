@@ -124,7 +124,7 @@ namespace CurrencyTrackerServer.Web.Controllers
       if (ModelState.IsValid)
       {
         var user = await GetCurrentUser();
-        _settingsProvider.SaveSettings(source, UpdateDestination.CurrencyChange, user.Id, settings);
+        await _settingsProvider.SaveSettings(source, UpdateDestination.CurrencyChange, user.Id, settings);
         return Ok();
       }
       else
