@@ -16,7 +16,7 @@ namespace CurrencyTrackerServer.Web
         .MinimumLevel.Override("Microsoft", LogEventLevel.Information)
         .Enrich.FromLogContext()
         .WriteTo.Console()
-        .WriteTo.File("log.txt", LogEventLevel.Warning, rollingInterval: RollingInterval.Day)
+        .WriteTo.File("logs/log.txt", LogEventLevel.Warning, rollingInterval: RollingInterval.Day)
         .CreateLogger();
 
       try
