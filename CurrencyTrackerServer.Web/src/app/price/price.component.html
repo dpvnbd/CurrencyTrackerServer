@@ -39,8 +39,7 @@ export interface PriceSettings {
           <div class="col-sm-6">
             <div class="form-check">
               <label class="form-check-label">
-                <input class="form-check-input" name="sendNotifications"
-                 type="checkbox" [(ngModel)]="settings.sendNotifications">
+                <input class="form-check-input" name="sendNotifications" type="checkbox" [(ngModel)]="settings.sendNotifications">
               </label>
             </div>
           </div>
@@ -49,8 +48,7 @@ export interface PriceSettings {
         <div class="form-group row">
           <label for="period" class="col-sm-6 col-form-label">Email</label>
           <div class="col-sm-6">
-            <input type="email" name="notificationsEmail" class="form-control"
-             id="notificationsEmail" [(ngModel)]="settings.email">
+            <input type="email" name="notificationsEmail" class="form-control" id="notificationsEmail" [(ngModel)]="settings.email">
           </div>
         </div>
 
@@ -152,15 +150,18 @@ export interface PriceSettings {
         <div class="col-6 col-md-2">
           <img src="{{iconPath}}" class="block-icon float-left" />
         </div>
-        <div class="hidden-sm-down col-md-6">Цена валют
-
+        <div class="hidden-sm-down col-md-4">
+          Цена валют
         </div>
-        <div class="col-6 col-md-4">
+        <div class="col-6 col-md-6">
           <span class="pull-right">
+            <label class="form-check-label my-0 mx-1">
+              <input class="form-check-input" name="notificationsEnabled"
+               type="checkbox" [(ngModel)]="sendNotification" (change)="notificationChange($event)"> Email
+            </label>
             <a *ngIf="lastError" placement="bottom" [ngbPopover]="errorContent" href="javascript:void(0)" title="Ошибка">
               <i class="fa fa-exclamation-circle fa-lg"></i>
             </a>
-
             <a href="javascript:void(0)" (click)="openModal(content)" title="Настройки">
               <i class="fa fa-cog fa-lg"></i>
             </a>

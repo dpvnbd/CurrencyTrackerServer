@@ -9,5 +9,9 @@ export enum UpdateDestination {
 }
 
 export enum UpdateType {
-    Currency, Error, Info
+    Currency, Error, Info, Special
+}
+
+export enum UpdateSpecial {
+    None, NotificationsEnabled, NotificationsDisabled
 }

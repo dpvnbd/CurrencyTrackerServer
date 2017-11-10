@@ -5,7 +5,7 @@ using Newtonsoft.Json;
 
 namespace CurrencyTrackerServer.Infrastructure.Entities
 {
-    public abstract class BaseChangeEntity
+    public class BaseChangeEntity
     {
 
 
@@ -18,6 +18,11 @@ namespace CurrencyTrackerServer.Infrastructure.Entities
         public UpdateType Type { get; set; }
         public UpdateSource Source { get; set; }
         public virtual UpdateDestination Destination { get; set; }
+
+        /// <summary>
+        /// Used for special notifications if Type == UpdateType.Special
+        /// </summary>
+        public UpdateSpecial Special { get; set; }
 
         [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
         public string Message { get; set; }

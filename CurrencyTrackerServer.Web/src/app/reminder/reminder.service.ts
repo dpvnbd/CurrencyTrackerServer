@@ -23,15 +23,9 @@ export class ReminderService {
     public input = new QueueingSubject<string>();
     private messages: Observable<string>;
 
-    url: string = 'ws://' + window.location.host + '/reminderNotifications';
 
     constructor(private httpClient: HttpClient, private connection: ConnectionService) {
-        if (isDevMode()) {
-            this.url = 'ws://localhost:5000/reminderNotifications';
-        }
-
-        // this.connectSocket();
-        this.mapSubject();
+       this.mapSubject();
 
         const timer = Observable.timer(10000, 60 * 1000);
         timer.subscribe(t => {

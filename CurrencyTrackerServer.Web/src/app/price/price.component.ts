@@ -1,5 +1,5 @@
 import { Component, OnInit, ViewChild, Input, ElementRef } from '@angular/core';
-import { UpdateSource, UpdateType } from '../shared';
+import { UpdateSource, UpdateType, UpdateSpecial } from '../shared';
 import { PriceService, Price, PriceSettings } from './price.service';
 import { NgbModal, ModalDismissReasons } from '@ng-bootstrap/ng-bootstrap';
 
@@ -18,6 +18,7 @@ export class PriceComponent implements OnInit {
 
     prices: Price[] = [];
     settings: PriceSettings;
+    sendNotification = false;
     lastError: Price;
 
     addedCurrency: any = {};
@@ -63,6 +64,12 @@ export class PriceComponent implements OnInit {
                     if (price.type === UpdateType.Error) {
                         price.time = Date.now().toString();
                         this.lastError = price;
+                    } else if (price.type === UpdateType.Special) {
+                        if (price.special === UpdateSpecial.NotificationsEnabled) {
+                            this.sendNotification = true;
+                        } else if (price.special === UpdateSpecial.NotificationsDisabled) {
+                            this.sendNotification = false;
+                        }
                     } else if (price.currency && price.last) {
                         localPrices.push(price);
                     }
@@ -77,6 +84,7 @@ export class PriceComponent implements OnInit {
         this.priceService.getSettings(this.source).then((settings) => {
             if (settings && settings.prices) {
                 this.prices = settings.prices;
+                this.sendNotification = settings.sendNotifications;
             }
         });
     }
@@ -118,12 +126,13 @@ export class PriceComponent implements OnInit {
         this.priceService.getSettings(this.source).then((settings) => {
             if (settings) {
                 this.settings = settings;
-
+                this.sendNotification = settings.sendNotifications;
                 this.modalService.open(content).result.then((save) => {
                     this.tempMute = false;
                     if (save) {
                         this.priceService.saveSettings(this.source, this.settings);
                         this.prices = this.settings.prices;
+                        this.sendNotification = this.settings.sendNotifications;
                     }
                 });
             }
@@ -167,4 +176,7 @@ export class PriceComponent implements OnInit {
         this.settings.prices.splice(i, 1);
     }
 
+    notificationChange(e) {
+        this.priceService.setNotification(this.source, e.target.checked);
+    }
 }

@@ -25,9 +25,9 @@ namespace CurrencyTrackerServer.PriceService.Concrete
     private object _lockObject = new object();
     private bool _processing;
     private bool _sendNotification;
-    
 
-    
+
+
 
     public PriceMonitor(IWorker<IEnumerable<ApiPrice>> priceWorker,
       ISettingsProvider settingsProvider, IMessageNotifier messageNotifier, string userId)
@@ -49,6 +49,17 @@ namespace CurrencyTrackerServer.PriceService.Concrete
       var settings = GetSettings();
       settings.SendNotifications = value;
       await _settingsProvider.SaveSettings(Source, Destination, UserId, settings);
+
+      var notification = new BaseChangeEntity
+      {
+        Source = Source,
+        Destination = Destination,
+        Type = UpdateType.Special,
+        Special = value ? UpdateSpecial.NotificationsEnabled : UpdateSpecial.NotificationsDisabled
+      };
+
+      var message = new[] { notification };
+      OnMessage(message);
     }
 
 
@@ -82,8 +93,7 @@ namespace CurrencyTrackerServer.PriceService.Concrete
         var changes = CheckChanges(apiPrices);
         if (changes.Any())
         {
-          var handler = Changed;
-          handler?.Invoke(this, changes);
+          OnMessage(changes);
           SendEmailIfChanged(changes);
         }
       }
@@ -157,6 +167,12 @@ namespace CurrencyTrackerServer.PriceService.Concrete
       SetNotification(false);
       settings.SendNotifications = false;
       await _settingsProvider.SaveSettings(Source, Destination, UserId, settings);
+    }
+
+    private void OnMessage(IEnumerable<BaseChangeEntity> message)
+    {
+      var handler = Changed;
+      handler?.Invoke(this, message);
     }
 
     public void Dispose()

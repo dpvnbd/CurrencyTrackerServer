@@ -1,6 +1,6 @@
 import { Injectable, isDevMode } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { UpdateSource, UpdateType } from '../shared';
+import { UpdateSource, UpdateType, UpdateSpecial } from '../shared';
 import { Subject } from 'rxjs/Subject';
 import 'rxjs/add/operator/retryWhen';
 import 'rxjs/add/operator/delay';
@@ -20,6 +20,7 @@ export interface Price {
 
     source?: UpdateSource;
     type?: UpdateType;
+    special?: UpdateSpecial;
     time?: string;
     message?: string;
     recentlyChanged?: boolean;
@@ -39,13 +40,7 @@ export class PriceService {
     private messages: Observable<string>;
     public subject: Subject<any>;
 
-    url: string = 'ws://' + window.location.host + '/priceNotifications';
     constructor(private http: HttpClient, private connection: ConnectionService) {
-        if (isDevMode()) {
-            this.url = 'ws://localhost:5000/priceNotifications';
-        }
-
-        // this.connectSocket();
         this.mapSubject();
     }
 
@@ -76,5 +71,9 @@ export class PriceService {
 
     public saveSettings(source: UpdateSource, settings: PriceSettings) {
         return this.http.post('/api/price/settings/' + source, settings, { responseType: 'text' }).map(data => data).toPromise();
+    }
+
+    public setNotification(source: UpdateSource, enabled: boolean) {
+        return this.http.post('/api/price/notification/' + source + '/' + enabled, {}).toPromise();
     }
 }
