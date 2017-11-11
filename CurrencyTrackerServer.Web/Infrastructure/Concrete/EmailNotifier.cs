@@ -50,8 +50,7 @@ namespace CurrencyTrackerServer.Web.Infrastructure.Concrete
         }
         catch (Exception e)
         {
-          Log.Error(e, "");
-          return false;
+          throw;
         }
       }
 

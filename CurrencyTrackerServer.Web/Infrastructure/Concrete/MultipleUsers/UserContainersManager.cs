@@ -65,8 +65,11 @@ namespace CurrencyTrackerServer.Web.Infrastructure.Concrete.MultipleUsers
     {
       lock (_lockObject) //Prevent creating multiple containers for one user
       {
-        if (UserContainers.TryGetValue(userId, out var container) && container != null)
+        if (UserContainers.ContainsKey(userId))
         {
+          var container = UserContainers[userId];
+
+          if(container != null)
           return container.UserToken;
         }
 
@@ -76,14 +79,14 @@ namespace CurrencyTrackerServer.Web.Infrastructure.Concrete.MultipleUsers
           return string.Empty;
         }
 
-        container = _containerFactory.Create(userId);
-        container.UserToken = token;
-        container.ChangedCallback += SendToUser;
+        var newContainer = _containerFactory.Create(userId);
+        newContainer.UserToken = token;
+        newContainer.ChangedCallback += SendToUser;
 
-        Log.Debug("new user container " + userId);
-        if (!UserContainers.TryAdd(userId, container))
+        Log.Warning("new user container " + userId);
+        if (!UserContainers.TryAdd(userId, newContainer))
         {
-          container.Dispose();
+          newContainer.Dispose();
           return string.Empty;
         }
 

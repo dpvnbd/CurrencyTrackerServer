@@ -10,6 +10,7 @@ using CurrencyTrackerServer.Infrastructure.Abstract.Workers;
 using CurrencyTrackerServer.Infrastructure.Entities;
 using CurrencyTrackerServer.Infrastructure.Entities.Price;
 using Microsoft.IdentityModel.Logging;
+using Serilog;
 
 namespace CurrencyTrackerServer.PriceService.Concrete
 {
@@ -40,7 +41,9 @@ namespace CurrencyTrackerServer.PriceService.Concrete
 
       var settings = _settingsProvider.GetSettings<PriceSettings>(Source, Destination, userId);
 
-      SetNotification(settings.SendNotifications);
+      _sendNotification = settings.SendNotifications;
+
+      Log.Warning($"Creating monitor {userId} {Source.ToString()} {Destination}");
     }
 
     public async void SetNotification(bool value)
@@ -93,6 +96,7 @@ namespace CurrencyTrackerServer.PriceService.Concrete
         var changes = CheckChanges(apiPrices);
         if (changes.Any())
         {
+          
           OnMessage(changes);
           SendEmailIfChanged(changes);
         }
@@ -129,6 +133,7 @@ namespace CurrencyTrackerServer.PriceService.Concrete
       catch (Exception e)
       {
         prices.Add(new Price { Type = UpdateType.Error, Source = Source, Message = e.Message });
+        throw;
       }
       return prices;
     }
@@ -140,9 +145,14 @@ namespace CurrencyTrackerServer.PriceService.Concrete
         return;
       }
 
+      if (!_sendNotification)
+      {
+        return;
+      }
+
       var settings = GetSettings();
 
-      if (!_sendNotification || string.IsNullOrWhiteSpace(settings.Email))
+      if (string.IsNullOrWhiteSpace(settings.Email))
       {
         return;
       }
