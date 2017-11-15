@@ -8,6 +8,6 @@ namespace CurrencyTrackerServer.NoticesService.Entities
     {
         public string ConsumerKey { get; set; }
         public string ConsumerSecret { get; set; }
-        public long UserIdToWatch { get; set; }
+        public string UsernameToWatch { get; set; }
     }
 }

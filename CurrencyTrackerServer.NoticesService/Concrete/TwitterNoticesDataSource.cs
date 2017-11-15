@@ -33,7 +33,7 @@ namespace CurrencyTrackerServer.NoticesService.Concrete
         {
             try
             {
-                var tweets = await _appOnly.Statuses.UserTimelineAsync(user_id: _settings.Value.UserIdToWatch, count: 10,
+                var tweets = await _appOnly.Statuses.UserTimelineAsync(screen_name: _settings.Value.UsernameToWatch, count: 10,
                         exclude_replies: true);
                 return tweets.Select(t => new Notice { Time = t.CreatedAt, Message = t.Text,
                     Source = Source, Destination = UpdateDestination.Notices});

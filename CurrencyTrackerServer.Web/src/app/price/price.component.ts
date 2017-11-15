@@ -2,7 +2,6 @@ import { Component, OnInit, ViewChild, Input, ElementRef } from '@angular/core';
 import { UpdateSource, UpdateType, UpdateSpecial } from '../shared';
 import { PriceService, Price, PriceSettings } from './price.service';
 import { NgbModal, ModalDismissReasons } from '@ng-bootstrap/ng-bootstrap';
-import { delay } from 'q';
 
 
 @Component({
@@ -50,10 +49,8 @@ export class PriceComponent implements OnInit {
         this.initAudio();
 
         this.playAlarm(true, true);
-        delay(3000).then(() => {
-            this.audioHigh.pause();
-            this.audioLow.pause();
-        });
+        this.audioHigh.pause();
+        this.audioLow.pause();
 
         this.priceService.subject.subscribe((prices: Price[]) => {
             const localPrices: Price[] = [];
@@ -128,21 +125,10 @@ export class PriceComponent implements OnInit {
             return;
         }
         if (high) {
-            this.audioHigh.play().then(() => {
-                this.soundNotPlayed = false;
-            }).catch((reason) => {
-                console.log(reason);
-                this.soundNotPlayed = true;
-                this.initAudio();
-            });
+            this.audioHigh.play();
         } else if (low) {
-            this.audioLow.play().then(() => {
-                this.soundNotPlayed = false;
-            }).catch((reason) => {
-                console.log(reason);
-                this.soundNotPlayed = true;
-                this.initAudio();
-            });
+            this.audioLow.play();
+
         }
     }
 

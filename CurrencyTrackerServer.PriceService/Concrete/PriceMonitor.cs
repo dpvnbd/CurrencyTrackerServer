@@ -42,8 +42,6 @@ namespace CurrencyTrackerServer.PriceService.Concrete
       var settings = _settingsProvider.GetSettings<PriceSettings>(Source, Destination, userId);
 
       _sendNotification = settings.SendNotifications;
-
-      Log.Warning($"Creating monitor {userId} {Source.ToString()} {Destination}");
     }
 
     public async void SetNotification(bool value)

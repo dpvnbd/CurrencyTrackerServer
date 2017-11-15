@@ -5,7 +5,7 @@ export enum UpdateSource {
 }
 
 export enum UpdateDestination {
-    None, CurrencyChange, Price, Reminder, News
+    None, CurrencyChange, Price, Reminder, Notice
 }
 
 export enum UpdateType {

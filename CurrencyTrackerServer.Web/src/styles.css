@@ -1,14 +1,22 @@
 /* You can add global styles to this file, and also import other style files */
 
 .changes-block-height {
-  height: calc(50vh - 33px);  
+  height: calc(50vh - 33px);
 }
 
 .price-block-height {
-  height: calc(40vh - 33px);  
+  height: calc(40vh - 33px);
 }
 
-.scroll-block{
+.notices-block-height {
+  height: calc(50vh - 33px);
+}
+
+.app-block {
+  padding: 0;
+}
+
+.scroll-block {
   overflow-y: scroll;
   padding: 0;
 }
@@ -23,7 +31,7 @@
   background: rgba(50, 205, 50, 0.23)
 }
 
-.popover{
+.popover {
   /* max-width: 100% !important; Max Width of the popover (depending on the container!) */
   min-width: 20em !important;
 }

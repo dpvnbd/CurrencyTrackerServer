@@ -34,7 +34,7 @@ namespace CurrencyTrackerServer.NoticesService.Abstract
                     }
                     catch (Exception e1)
                     {
-                        Log.Warning(e1, "Notices error ");
+                       Log.Debug(e1, "Notices error");
                     }
                 }
 

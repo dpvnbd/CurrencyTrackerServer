@@ -42,7 +42,7 @@ namespace CurrencyTrackerServer.NoticesService.Abstract
                 ).AsEnumerable();
 
                 var distinct = notices.Distinct(_comparer.Equals);
-                var newNotices = distinct.Except(saved, _comparer);
+                var newNotices = distinct.Except(saved, _comparer).ToList();
 
                 if (newNotices.Any())
                 {
@@ -66,8 +66,15 @@ namespace CurrencyTrackerServer.NoticesService.Abstract
         {
             using (var repo = _repoFactory.Create<NoticeEntity>())
             {
-                var notices = repo.GetAll().OrderBy(n => n.Time).TakeLast(5).ToList();
-                return notices.Select((e) =>
+                var notices = repo.GetAll().OrderBy(n=> n.Time);
+
+                var toDelete = notices.Take(Math.Max(0, notices.Count() - 10));
+                foreach (var entry in toDelete)
+                {
+                    repo.Delete(entry, false);
+                }
+
+                return notices.ToList().Select((e) =>
                     new Notice
                     {
                         Message = e.Message,

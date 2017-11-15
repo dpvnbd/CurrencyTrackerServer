@@ -29,6 +29,8 @@ import { LoginComponent } from './login/login.component';
 import { HTTP_INTERCEPTORS } from '@angular/common/http';
 import { AuthInterceptor } from './auth/auth.interceptor';
 import { ConnectionService } from './connection/connection.service';
+import { NoticesComponent } from './notices/notices.component';
+import { NoticesService } from './notices/notices.service';
 
 const routes: Routes = [
   { path: '', component: HomeComponent },
@@ -45,7 +47,8 @@ const routes: Routes = [
     ChangesComponent,
     PriceComponent,
     ReminderComponent,
-    AlertComponent
+    AlertComponent,
+    NoticesComponent
   ],
   imports: [
     BrowserModule,
@@ -75,7 +78,8 @@ const routes: Routes = [
     PriceService,
     ReminderService,
     AuthService,
-    AuthAlertService
+    AuthAlertService,
+    NoticesService
   ],
   bootstrap: [AppComponent]
 })

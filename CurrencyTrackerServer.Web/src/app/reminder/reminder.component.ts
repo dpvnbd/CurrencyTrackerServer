@@ -12,7 +12,9 @@ export class ReminderComponent implements OnInit {
     settings: ReminderSettings;
     soundEnabled = true;
     lastUpdate: string;
-    constructor(private reminderService: ReminderService, private modalService: NgbModal,
+    constructor(private reminderService: ReminderService, private modalService: NgbModal) {
+
+    }
 
     ngOnInit() {
         this.reminderService.subject.subscribe((notification: ReminderNotification) => {
