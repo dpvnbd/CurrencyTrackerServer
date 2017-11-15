@@ -2,6 +2,7 @@ import { Component, OnInit, ViewChild, Input, ElementRef } from '@angular/core';
 import { UpdateSource, UpdateType, UpdateSpecial } from '../shared';
 import { PriceService, Price, PriceSettings } from './price.service';
 import { NgbModal, ModalDismissReasons } from '@ng-bootstrap/ng-bootstrap';
+import { delay } from 'q';
 
 
 @Component({
@@ -27,7 +28,7 @@ export class PriceComponent implements OnInit {
     linkTemplate: string;
     iconPath: string;
     soundEnabled = true;
-
+    soundNotPlayed = false;
     tempMute = false;
 
     audioHigh: HTMLAudioElement;
@@ -36,17 +37,7 @@ export class PriceComponent implements OnInit {
     constructor(private priceService: PriceService, private modalService: NgbModal) { }
 
     ngOnInit() {
-        this.audioHigh = new Audio();
-        this.audioLow = new Audio();
 
-        this.audioLow.src = '../../assets/sounds/low.wav';
-        this.audioHigh.src = '../../assets/sounds/high.wav';
-
-        this.audioLow.load();
-        this.audioHigh.load();
-
-        this.audioHigh.loop = true;
-        this.audioLow.loop = true;
 
         if (this.source === UpdateSource.Bittrex) {
             this.linkTemplate = 'https://bittrex.com/Market/Index?MarketName=BTC-';
@@ -56,6 +47,13 @@ export class PriceComponent implements OnInit {
             this.iconPath = '../../assets/images/poloniexIcon.png';
         }
 
+        this.initAudio();
+
+        this.playAlarm(true, true);
+        delay(3000).then(() => {
+            this.audioHigh.pause();
+            this.audioLow.pause();
+        });
 
         this.priceService.subject.subscribe((prices: Price[]) => {
             const localPrices: Price[] = [];
@@ -89,6 +87,24 @@ export class PriceComponent implements OnInit {
         });
     }
 
+    initAudio() {
+        try {
+            this.audioHigh = new Audio();
+            this.audioLow = new Audio();
+
+            this.audioLow.src = '../../assets/sounds/low.wav';
+            this.audioHigh.src = '../../assets/sounds/high.wav';
+
+            this.audioLow.load();
+            this.audioHigh.load();
+
+            this.audioHigh.loop = true;
+            this.audioLow.loop = true;
+        } catch (e) {
+            this.soundNotPlayed = true;
+        }
+    }
+
     checkPriceBounds() {
         let changed = false;
         let low = false;
@@ -112,9 +128,21 @@ export class PriceComponent implements OnInit {
             return;
         }
         if (high) {
-            this.audioHigh.play();
+            this.audioHigh.play().then(() => {
+                this.soundNotPlayed = false;
+            }).catch((reason) => {
+                console.log(reason);
+                this.soundNotPlayed = true;
+                this.initAudio();
+            });
         } else if (low) {
-            this.audioLow.play();
+            this.audioLow.play().then(() => {
+                this.soundNotPlayed = false;
+            }).catch((reason) => {
+                console.log(reason);
+                this.soundNotPlayed = true;
+                this.initAudio();
+            });
         }
     }
 
