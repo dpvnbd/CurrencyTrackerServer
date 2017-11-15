@@ -10,6 +10,6 @@ namespace CurrencyTrackerServer.Infrastructure.Entities
         CurrencyChange,
         Price,
         Reminder,
-        News
+        Notices
     }
 }

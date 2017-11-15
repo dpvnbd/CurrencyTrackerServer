@@ -7,13 +7,11 @@ namespace CurrencyTrackerServer.Infrastructure.Entities
 {
     public class BaseChangeEntity
     {
-
-
         [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
         public string Currency { get; set; }
 
         [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
-        public DateTime? Time { get; set; }
+        public DateTimeOffset? Time { get; set; }
 
         public UpdateType Type { get; set; }
         public UpdateSource Source { get; set; }

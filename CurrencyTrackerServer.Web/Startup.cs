@@ -10,6 +10,8 @@ using CurrencyTrackerServer.Infrastructure.Entities;
 using CurrencyTrackerServer.Infrastructure.Entities.Changes;
 using CurrencyTrackerServer.Infrastructure.Entities.Data;
 using CurrencyTrackerServer.Infrastructure.Entities.Price;
+using CurrencyTrackerServer.NoticesService.Concrete;
+using CurrencyTrackerServer.NoticesService.Entities;
 using CurrencyTrackerServer.PriceService.Concrete;
 using CurrencyTrackerServer.PriceService.Concrete.Bittrex;
 using CurrencyTrackerServer.PriceService.Concrete.Poloniex;
@@ -126,7 +128,14 @@ namespace CurrencyTrackerServer.Web
       #endregion
 
       services.Configure<SmtpSettings>(Configuration.GetSection("SmtpSettings"));
+      services.Configure<TwitterSettings>(Configuration.GetSection("TwitterKeys"));
+
       services.AddSingleton<IMessageNotifier, EmailNotifier>();
+
+      services.AddSingleton<DefaultNoticesTimerWorker>();
+      services.AddSingleton<PoloniexTwitterNoticesDataSource>();
+      services.AddSingleton<PoloniexSiteNoticesDataSource>();
+      services.AddSingleton<PoloniexNoticesMonitor>();
 
       services.AddSingleton<UserContainerFactory>();
       services.AddSingleton<UserContainersManager>();

@@ -110,7 +110,7 @@ namespace CurrencyTrackerServer.ChangeTrackerService.Concrete
                 }
 
                 var threshold = 0d;
-                var lastChange = DateTime.MinValue;
+                var lastChange = DateTimeOffset.MinValue;
 
                 var state = states.FirstOrDefault(s =>
                     string.Equals(s.Currency, currency.Currency, StringComparison.OrdinalIgnoreCase) &&

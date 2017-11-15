@@ -11,8 +11,8 @@ namespace CurrencyTrackerServer.Infrastructure.Entities.Data
         [ForeignKey("UserId")]
         public ApplicationUser User { get; set; }
 
-        public DateTime LastChangeTime { get; set; }
-        public DateTime Created { get; set; }
+        public DateTimeOffset LastChangeTime { get; set; }
+        public DateTimeOffset Created { get; set; }
         public double Threshold { get; set; }
         
         public static double CalculateThreshold(double incrementPercentage, double percentChange)

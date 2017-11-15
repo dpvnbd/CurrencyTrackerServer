@@ -12,7 +12,7 @@ namespace CurrencyTrackerServer.Infrastructure.Entities.Data
         
         public ApplicationUser User { get; set; }
         public string Currency { get; set; }
-        public DateTime Time { get; set; }
+        public DateTimeOffset Time { get; set; }
         public double Percentage { get; set; }
         public UpdateType Type { get; set; }
         public string Message { get; set; }

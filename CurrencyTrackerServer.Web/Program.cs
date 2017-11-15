@@ -32,6 +32,7 @@ namespace CurrencyTrackerServer.Web
       }
       finally
       {
+        Log.Warning("Host is shut down");
         Log.CloseAndFlush();
       }
     }

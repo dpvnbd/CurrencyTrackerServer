@@ -12,6 +12,7 @@ namespace CurrencyTrackerServer.Data.Concrete
     public DbSet<CurrencyState> States { get; set; }
     public DbSet<ChangeHistoryEntry> History { get; set; }
     public DbSet<SettingsSerialized> UserSettings { get; set; }
+    public DbSet<NoticeEntity> Notices { get; set; }
 
 
     public AppDbContext(DbContextOptions options) : base(options)
@@ -30,14 +31,16 @@ namespace CurrencyTrackerServer.Data.Concrete
         c.HasKey(e => new {e.Id, e.UserId});
         c.Property(e => e.Id).ValueGeneratedOnAdd();
       });
-        
-
 
       builder.Entity<SettingsSerialized>()
         .HasKey(c => new { c.UserId, c.Source, c.Destination });
 
+      builder.Entity<NoticeEntity>(n =>
+      {
+        n.HasKey(e => new { e.Id, e.Source });
+        n.Property(e => e.Id).ValueGeneratedOnAdd();
+      });
+
     }
-
-
   }
 }

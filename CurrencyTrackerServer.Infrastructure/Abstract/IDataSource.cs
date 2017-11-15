@@ -1,7 +1,7 @@
 ﻿using System.Threading.Tasks;
 using CurrencyTrackerServer.Infrastructure.Entities;
 
-namespace CurrencyTrackerServer.Infrastructure.Abstract.Data
+namespace CurrencyTrackerServer.Infrastructure.Abstract
 {
     public interface IDataSource<T>
     {

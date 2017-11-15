@@ -35,6 +35,8 @@ export class ConnectionService {
     public prices: Subject<BaseChangeEntity[]>;
     public changes: Subject<BaseChangeEntity[]>;
     public reminder: Subject<BaseChangeEntity[]>;
+    public connectionStatus: Subject<number>;
+    private connectionStatusInternal: Observable<number>;
 
     public subject: Subject<any>;
     private messages: Observable<string>;
@@ -48,14 +50,14 @@ export class ConnectionService {
         this.prices = new Subject<BaseChangeEntity[]>();
         this.changes = new Subject<BaseChangeEntity[]>();
         this.reminder = new Subject<BaseChangeEntity[]>();
-
+        this.connectionStatus = new Subject<number>();
         this.reconnectSocket();
     }
 
     private mapSocketToSubject() {
         this.messages
             .retryWhen(errors => {
-                return errors.delay(30000);
+                return errors.delay(3000);
             })
             .subscribe((message: string) => {
                 const data = JSON.parse(message);
@@ -73,6 +75,10 @@ export class ConnectionService {
                         break;
                 }
             });
+
+        this.connectionStatusInternal.subscribe((n) => {
+            this.connectionStatus.next(n);
+        });
     }
 
     public reconnectSocket() {
@@ -80,6 +86,10 @@ export class ConnectionService {
             let token = '';
             this.getToken().then((data) => {
                 token = data.token;
+                const { messages, connectionStatus } = websocketConnect(this.url + '?token=' + token,
+                    this.input);
+                this.messages = messages.share();
+                this.connectionStatusInternal = connectionStatus.share();
                 this.messages = websocketConnect(this.url + '?token=' + token, this.input).messages.share();
                 this.mapSocketToSubject();
             });
