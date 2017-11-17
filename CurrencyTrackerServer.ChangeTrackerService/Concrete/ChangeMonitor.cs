@@ -232,7 +232,7 @@ namespace CurrencyTrackerServer.ChangeTrackerService.Concrete
             }
         }
 
-        public IEnumerable<Change> GetHistory()
+        public async  Task<IEnumerable<Change>> GetHistory()
         {
             IEnumerable<ChangeHistoryEntry> entities;
             using (var repo = _repoFactory.Create<ChangeHistoryEntry>())
@@ -243,8 +243,9 @@ namespace CurrencyTrackerServer.ChangeTrackerService.Concrete
                 var toDelete = history.Take(Math.Max(0, history.Count() - 50));
                 foreach (var entry in toDelete)
                 {
-                    repo.Delete(entry, false);
+                    await repo.Delete(entry, false);
                 }
+                await repo.SaveChanges();
             }
 
             return entities.Select(entity => new Change

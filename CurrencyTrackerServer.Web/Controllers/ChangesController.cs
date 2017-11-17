@@ -55,9 +55,9 @@ namespace CurrencyTrackerServer.Web.Controllers
       switch (source)
       {
         case UpdateSource.Bittrex:
-          return container.BittrexChangeMonitor.GetHistory();
+          return await container.BittrexChangeMonitor.GetHistory();
         case UpdateSource.Poloniex:
-          return container.PoloniexChangeMonitor.GetHistory();
+          return await container.PoloniexChangeMonitor.GetHistory();
       }
       return Array.Empty<Change>();
     }
