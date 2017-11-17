@@ -1,31 +1,31 @@
 <div class="container block-container">
   <div class="row">
-
-    <div class="col-6 col-md-4 px-1">
+    <div class="col-md-6 px-1">
       <app-changes [source]="1"></app-changes>
     </div>
 
-    <div class="col-6 col-md-4 px-1">
+    <div class="col-md-6 px-1">
       <app-changes [source]="2"></app-changes>
-    </div>
-
-    <div class="col-hidden col-md-4 px-1">
-      <app-notices></app-notices>
     </div>
 
   </div>
 
   <div class="row">
-    <div class="col-6 col-md-4 px-1">
+    <div class="col-md-6 p-1">
       <app-price [source]="1"></app-price>
     </div>
-    <div class="col-6 col-md-4 px-1">
+    <div class="col-md-6 p-1">
       <app-price [source]="2"></app-price>
     </div>
+  </div>
 
-    <div class="col-hidden col-md-4 px-1">
-      <app-reminder></app-reminder>
+  <div class="row">
+    <div class="col-md-7 px-1">
+      <app-notices></app-notices>
     </div>
 
+    <div class="col-md-5 px-1">
+      <app-reminder></app-reminder>
+    </div>
   </div>
 </div>

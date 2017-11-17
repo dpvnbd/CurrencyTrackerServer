@@ -35,7 +35,8 @@ import { NoticesService } from './notices/notices.service';
 const routes: Routes = [
   { path: '', component: HomeComponent },
   { path: 'register', component: RegisterComponent },
-  { path: 'login', component: LoginComponent }
+  { path: 'login', component: LoginComponent },
+  { path: 'logout', component: LoginComponent }
 ];
 
 @NgModule({
