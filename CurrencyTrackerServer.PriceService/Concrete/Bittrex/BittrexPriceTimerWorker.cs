@@ -6,6 +6,7 @@ using CurrencyTrackerServer.Infrastructure.Abstract.Data;
 using CurrencyTrackerServer.Infrastructure.Abstract.Price;
 using CurrencyTrackerServer.Infrastructure.Entities;
 using CurrencyTrackerServer.Infrastructure.Entities.Price;
+using Microsoft.Extensions.Options;
 
 namespace CurrencyTrackerServer.PriceService.Concrete.Bittrex
 {
@@ -14,7 +15,7 @@ namespace CurrencyTrackerServer.PriceService.Concrete.Bittrex
         public override UpdateSource Source => UpdateSource.Bittrex;
 
         public BittrexPriceTimerWorker(BittrexPriceDataSource dataSource, INotifier notifier,
-            ISettingsProvider settingsProvider) : base(dataSource, notifier, settingsProvider)
+            ISettingsProvider settingsProvider, IOptions<AppSettings> config) : base(dataSource, notifier, settingsProvider, config)
         {
         }
     }

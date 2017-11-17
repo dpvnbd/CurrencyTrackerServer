@@ -2,6 +2,7 @@ import { Component, OnInit, ElementRef, ViewChild } from '@angular/core';
 import { DatePipe } from '@angular/common';
 import { UpdateSource, UpdateType } from '../shared';
 import { Notice, NoticesService } from './notices.service';
+import { Howl } from 'howler';
 
 @Component({
     selector: 'app-notices',
@@ -14,7 +15,8 @@ export class NoticesComponent implements OnInit {
     lastError: Notice;
     soundEnabled = true;
 
-    audio: HTMLAudioElement;
+    audio: Howl;
+    audioPlaying = false;
 
     constructor(private noticesService: NoticesService) { }
 
@@ -61,15 +63,16 @@ export class NoticesComponent implements OnInit {
 
 
     playAlarm() {
-        if (!this.soundEnabled) {
+        if (!this.soundEnabled || this.audio.playing()) {
             return;
         }
         this.audio.play();
+        this.audioPlaying = true;
     }
 
     stopAlarm() {
-        this.audio.pause();
-
+        this.audio.stop();
+        this.audioPlaying = false;
         for (const notice of this.notices) {
             notice.recentlyChanged = false;
         }
@@ -77,11 +80,10 @@ export class NoticesComponent implements OnInit {
 
 
     initAudio() {
-
-        this.audio = new Audio();
-        this.audio.src = '../../assets/sounds/notice.mp3';
-        this.audio.load();
-        this.audio.loop = true;
+        this.audio = new Howl({
+            src: ['../../assets/sounds/notice.mp3'],
+            loop: true
+        });
     }
 
     scrollToBottom() {

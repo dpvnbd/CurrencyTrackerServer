@@ -6,13 +6,14 @@ using CurrencyTrackerServer.Infrastructure.Abstract.Data;
 using CurrencyTrackerServer.Infrastructure.Abstract.Price;
 using CurrencyTrackerServer.Infrastructure.Entities;
 using CurrencyTrackerServer.Infrastructure.Entities.Price;
+using Microsoft.Extensions.Options;
 
 namespace CurrencyTrackerServer.PriceService.Concrete.Poloniex
 {
     public class PoloniexPriceTimerWorker : PriceTimerWorker
     {
         public PoloniexPriceTimerWorker(PoloniexPriceDataSource source,
-            INotifier notifier, ISettingsProvider settings) : base(source, notifier, settings)
+            INotifier notifier, ISettingsProvider settings, IOptions<AppSettings> config) : base(source, notifier, settings, config)
         {
         }
 

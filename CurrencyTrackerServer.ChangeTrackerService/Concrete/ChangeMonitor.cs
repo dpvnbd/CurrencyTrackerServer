@@ -60,7 +60,7 @@ namespace CurrencyTrackerServer.ChangeTrackerService.Concrete
 
             try
             {
-                await ResetStates(TimeSpan.FromHours(24)); // TODO - get from settings
+                await ResetStates(TimeSpan.FromHours(Settings.ResetHours));
 
                 var changes = await CheckChanges(currencyChangeApiData);
                 if (changes.Any())

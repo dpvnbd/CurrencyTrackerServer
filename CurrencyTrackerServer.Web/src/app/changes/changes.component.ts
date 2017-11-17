@@ -18,6 +18,7 @@ export class ChangesComponent implements OnInit {
     @ViewChild('bottom') bottom: ElementRef;
     changes: Change[] = [];
     lastError: Change;
+    lastUpdate: any;
     settings: ChangeSettings;
     message: string;
     private skipSpeech = true;
@@ -60,6 +61,8 @@ export class ChangesComponent implements OnInit {
                 if (change.source === this.source) {
                     if (change.type === UpdateType.Currency) {
                         localChanges.push(change);
+                    } else if (change.type === UpdateType.Info) {
+                        this.lastUpdate = change.time;
                     } else if (change.type === UpdateType.Error) {
                         this.lastError = change;
                         console.log(change.message);
@@ -69,6 +72,7 @@ export class ChangesComponent implements OnInit {
             if (localChanges.length > 0) {
                 this.addChanges(localChanges);
                 this.speakChanges(localChanges);
+                this.lastUpdate = Date.now();
             }
         });
 

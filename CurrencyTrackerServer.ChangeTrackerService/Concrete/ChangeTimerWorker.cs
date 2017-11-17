@@ -9,6 +9,7 @@ using CurrencyTrackerServer.Infrastructure.Abstract.Workers;
 using CurrencyTrackerServer.Infrastructure.Entities;
 using CurrencyTrackerServer.Infrastructure.Entities.Changes;
 using CurrencyTrackerServer.Infrastructure.Entities.Data;
+using Microsoft.Extensions.Options;
 
 namespace CurrencyTrackerServer.ChangeTrackerService.Concrete
 {
@@ -19,14 +20,21 @@ namespace CurrencyTrackerServer.ChangeTrackerService.Concrete
         private readonly ISettingsProvider _settingsProvider;
         private readonly IRepositoryFactory _repoFactory;
 
+        private readonly int _updateClientsCyclePeriod; 
+        private int _currentCycle;
+
+
         public ChangeTimerWorker(IDataSource<IEnumerable<CurrencyChangeApiData>> dataSource, INotifier notifier,
-                ISettingsProvider settingsProvider, IRepositoryFactory repoFactory)
+                ISettingsProvider settingsProvider, IRepositoryFactory repoFactory, IOptions<AppSettings> config)
         {
             _dataSource = dataSource;
             _notifier = notifier;
             _settingsProvider = settingsProvider;
             _repoFactory = repoFactory;
+            Period = config.Value.ChangeWorkerPeriodSeconds * 1000;
+            _updateClientsCyclePeriod = config.Value.ChangeWorkerUpdateCycle;
         }
+
 
 
         protected override async Task DoWork()
@@ -34,6 +42,7 @@ namespace CurrencyTrackerServer.ChangeTrackerService.Concrete
             try
             {
                 var changes = await _dataSource.GetData();
+                _currentCycle++;
                 if (changes.Any())
                     OnUpdated(changes);
             }
@@ -51,11 +60,21 @@ namespace CurrencyTrackerServer.ChangeTrackerService.Concrete
             }
             finally
             {
-                // TODO get period settings from config
-                //Period = _settingsProvider.GetSettings(Source).PeriodSeconds * 1000;
-                Period = 3 * 1000;
+                if (_currentCycle >= _updateClientsCyclePeriod)
+                {
+                    var update = new BaseChangeEntity
+                    {
+                        Destination = UpdateDestination.CurrencyChange,
+                        Source = Source,
+                        Type = UpdateType.Info,
+                        Time = DateTimeOffset.Now
+                    };
+
+                    await _notifier.SendToAll(new[] { update });
+                    _currentCycle = 0;
+                }
             }
         }
-        
+
     }
 }

@@ -10,6 +10,7 @@ using CurrencyTrackerServer.Infrastructure.Abstract.Workers;
 using CurrencyTrackerServer.Infrastructure.Entities;
 using CurrencyTrackerServer.Infrastructure.Entities.Changes;
 using CurrencyTrackerServer.Infrastructure.Entities.Price;
+using Microsoft.Extensions.Options;
 
 namespace CurrencyTrackerServer.PriceService.Concrete
 {
@@ -19,10 +20,11 @@ namespace CurrencyTrackerServer.PriceService.Concrete
         private readonly INotifier _notifier;
 
         public PriceTimerWorker(IPriceSource dataSource, INotifier notifier,
-            ISettingsProvider settingsProvider)
+            ISettingsProvider settingsProvider, IOptions<AppSettings> config)
         {
             _dataSource = dataSource;
             _notifier = notifier;
+            Period = config.Value.PriceWorkerPeriodSeconds * 1000;
         }
 
         protected override async Task DoWork()
@@ -45,11 +47,6 @@ namespace CurrencyTrackerServer.PriceService.Concrete
                 };
 
                 await _notifier.SendToAll(new[] { errorMessage });
-            }
-            finally
-            {
-                //TODO - Load period from config
-                Period = 3 * 1000;
             }
         }
 

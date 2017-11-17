@@ -5,14 +5,15 @@ using CurrencyTrackerServer.Infrastructure.Abstract;
 using CurrencyTrackerServer.Infrastructure.Entities;
 using CurrencyTrackerServer.Infrastructure.Entities.Notices;
 using CurrencyTrackerServer.NoticesService.Abstract;
+using Microsoft.Extensions.Options;
 
 namespace CurrencyTrackerServer.NoticesService.Concrete
 {
     public class DefaultNoticesTimerWorker : NoticesTimerWorker
     {
         public DefaultNoticesTimerWorker(PoloniexTwitterNoticesDataSource twitterNotices,
-            PoloniexSiteNoticesDataSource siteNotices)
-            : base(new IDataSource<IEnumerable<Notice>>[] { twitterNotices, siteNotices })
+            PoloniexSiteNoticesDataSource siteNotices, IOptions<AppSettings> config)
+            : base(new IDataSource<IEnumerable<Notice>>[] { twitterNotices, siteNotices }, config)
         {
             
         }

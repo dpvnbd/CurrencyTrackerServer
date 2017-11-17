@@ -25,6 +25,7 @@
     "bootstrap": "^4.0.0-alpha.6",
     "core-js": "^2.4.1",
     "font-awesome": "^4.7.0",
+    "howler": "^2.0.5",
     "jwt-decode": "^2.2.0",
     "queueing-subject": "^0.1.1",
     "rxjs": "^5.4.2",

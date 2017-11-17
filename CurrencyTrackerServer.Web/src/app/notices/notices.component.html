@@ -4,7 +4,7 @@
         <i class="fa  fa-newspaper-o fa-lg"></i>
       Новости
       <span class="pull-right">
-        <a href="javascript:void(0)" *ngIf="!audio.paused" (click)="stopAlarm()" title="Новость просмотрена">
+        <a href="javascript:void(0)" *ngIf="audioPlaying" (click)="stopAlarm()" title="Новость просмотрена">
           <i class="fa fa-lg fa-check-square" aria-hidden="true"></i>
         </a>
         <label class="form-check-label my-0">

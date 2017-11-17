@@ -129,6 +129,7 @@ namespace CurrencyTrackerServer.Web
 
       services.Configure<SmtpSettings>(Configuration.GetSection("SmtpSettings"));
       services.Configure<TwitterSettings>(Configuration.GetSection("TwitterKeys"));
+      services.Configure<AppSettings>(Configuration.GetSection("AppSettings"));
 
       services.AddSingleton<IMessageNotifier, EmailNotifier>();
 

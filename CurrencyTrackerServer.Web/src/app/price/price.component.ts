@@ -2,7 +2,7 @@ import { Component, OnInit, ViewChild, Input, ElementRef } from '@angular/core';
 import { UpdateSource, UpdateType, UpdateSpecial } from '../shared';
 import { PriceService, Price, PriceSettings } from './price.service';
 import { NgbModal, ModalDismissReasons } from '@ng-bootstrap/ng-bootstrap';
-
+import { Howl } from 'howler';
 
 @Component({
     selector: 'app-price',
@@ -27,16 +27,15 @@ export class PriceComponent implements OnInit {
     linkTemplate: string;
     iconPath: string;
     soundEnabled = true;
-    soundNotPlayed = false;
+    soundNotLoaded = false;
     tempMute = false;
 
-    audioHigh: HTMLAudioElement;
-    audioLow: HTMLAudioElement;
+    audioHigh: Howl;
+    audioLow: Howl;
 
     constructor(private priceService: PriceService, private modalService: NgbModal) { }
 
     ngOnInit() {
-
 
         if (this.source === UpdateSource.Bittrex) {
             this.linkTemplate = 'https://bittrex.com/Market/Index?MarketName=BTC-';
@@ -47,10 +46,6 @@ export class PriceComponent implements OnInit {
         }
 
         this.initAudio();
-
-        this.playAlarm(true, true);
-        this.audioHigh.pause();
-        this.audioLow.pause();
 
         this.priceService.subject.subscribe((prices: Price[]) => {
             const localPrices: Price[] = [];
@@ -85,21 +80,22 @@ export class PriceComponent implements OnInit {
     }
 
     initAudio() {
-        try {
-            this.audioHigh = new Audio();
-            this.audioLow = new Audio();
+        const self = this;
+        this.audioLow = new Howl({
+            src: ['../../assets/sounds/low.wav'],
+            loop: true,
+            onloaderror: function (error) {
+                self.soundNotLoaded = true;
+            }
+        });
 
-            this.audioLow.src = '../../assets/sounds/low.wav';
-            this.audioHigh.src = '../../assets/sounds/high.wav';
-
-            this.audioLow.load();
-            this.audioHigh.load();
-
-            this.audioHigh.loop = true;
-            this.audioLow.loop = true;
-        } catch (e) {
-            this.soundNotPlayed = true;
-        }
+        this.audioHigh = new Howl({
+            src: ['../../assets/sounds/high.wav'],
+            loop: true,
+            onloaderror: function (error) {
+                this.soundNotLoaded = true;
+            }
+        });
     }
 
     checkPriceBounds() {
@@ -124,9 +120,10 @@ export class PriceComponent implements OnInit {
         if (!this.soundEnabled || this.tempMute) {
             return;
         }
-        if (high) {
+        if (high && !this.audioHigh.playing()) {
             this.audioHigh.play();
-        } else if (low) {
+        }
+        if (low && !this.audioLow.playing()) {
             this.audioLow.play();
 
         }
@@ -134,8 +131,8 @@ export class PriceComponent implements OnInit {
 
     openModal(content) {
         this.tempMute = true;
-        this.audioHigh.pause();
-        this.audioLow.pause();
+        this.audioHigh.stop();
+        this.audioLow.stop();
 
         this.priceService.getSettings(this.source).then((settings) => {
             if (settings) {

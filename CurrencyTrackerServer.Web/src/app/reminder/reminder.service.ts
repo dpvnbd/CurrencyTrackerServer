@@ -27,7 +27,7 @@ export class ReminderService {
     constructor(private httpClient: HttpClient, private connection: ConnectionService) {
        this.mapSubject();
 
-        const timer = Observable.timer(10000, 60 * 1000);
+        const timer = Observable.timer(10000, 30 * 1000);
         timer.subscribe(t => {
             this.ping();
         });

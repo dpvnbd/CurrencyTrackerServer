@@ -135,8 +135,12 @@
         <div class="col-6 col-md-2">
           <img src="{{iconPath}}" class="block-icon float-left" />
         </div>
-        <div class="hidden-sm-down col-md-6">Изменения
-
+        <div class="hidden-sm-down col-md-6">
+          Изменения
+          <label class="my-0 mx-1 pull-right" *ngIf="lastUpdate">
+            <i class="fa fa-clock-o fa-lg"></i>
+            <span >{{lastUpdate | date:'HH:mm:ss'}}</span>
+          </label>
         </div>
         <div class="col-6 col-md-4">
           <span class="pull-right">
