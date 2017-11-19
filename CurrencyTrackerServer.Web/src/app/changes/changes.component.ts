@@ -100,14 +100,14 @@ export class ChangesComponent implements OnInit {
         this.changesService.getHistory(this.source).then(
             (history) => {
                 if (history) {
-                    this.addChanges(history);
+                    this.addChanges(history, false);
                 }
                 this.message = null;
             }
         );
     }
 
-    addChanges(changes: Change[]) {
+    addChanges(changes: Change[], markAsNew = true) {
         for (const oldChange of this.changes) {
             oldChange.recentlyChanged = false;
         }
