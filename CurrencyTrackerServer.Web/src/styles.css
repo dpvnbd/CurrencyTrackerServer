@@ -1,15 +1,19 @@
 /* You can add global styles to this file, and also import other style files */
 
 .changes-block-height {
-  height: calc(39vh - 2.75rem);
+  height: calc(48vh - 2.75rem);
 }
 
 .price-block-height {
-  height: calc(30vh - 2.75rem);
+  height: calc(40vh - 2.75rem);
+}
+
+.reduced-price-block-height {
+  height: calc(40vh - 2.75rem - 2.5em);
 }
 
 .notices-block-height {
-  height: calc(30vh - 2.75rem);
+  height: calc(10vh);
 }
 
 .app-block {

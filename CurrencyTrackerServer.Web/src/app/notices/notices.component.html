@@ -1,30 +1,47 @@
 <div class="changes">
-  <div class="card">
-    <div class="card-header py-1">
-        <i class="fa  fa-newspaper-o fa-lg"></i>
-      Новости
-      <span class="pull-right">
-        <a href="javascript:void(0)" *ngIf="audioPlaying" (click)="stopAlarm()" title="Новость просмотрена">
-          <i class="fa fa-lg fa-check-square" aria-hidden="true"></i>
-        </a>
-        <label class="form-check-label my-0">
-          <input class="form-check-input" name="soundEnabled" type="checkbox" [(ngModel)]="soundEnabled"> Звук
-        </label>
-      </span>
+  <table class="">
+    <tr>
+      <td class="align-top">
+        <div class="card">
+          <div class="card-block notices-block-height p-1">
+            <span>
+              <i class="fa  fa-newspaper-o fa-lg"></i>
+            </span>
 
-    </div>
-    <div class="card-block scroll-block notices-block-height">
-      <table class="table table-hover">
-        <tbody>
-          <tr *ngFor="let notice of notices" [ngClass]="{'recently-changed': notice.recentlyChanged}">
-            <td class="p-1">
-              <p class="my-0 px-1 py-1">{{notice.message}}</p>
-              <small>{{notice.time | date:'dd/MM HH:mm:ss'}}</small>
-            </td>
-          </tr>
-        </tbody>
-      </table>
-      <div #bottom></div>
-    </div>
-  </div>
+            <span class="">
+              <label class="form-check-label my-0">
+                <input class="form-check-input" name="soundEnabled" type="checkbox" [(ngModel)]="soundEnabled">
+                <label>
+                  <i class="fa   fa-volume-up"></i>
+                </label>
+              </label>
+            </span>
+
+            <span>
+              <a href="javascript:void(0)" *ngIf="audioPlaying" (click)="stopAlarm()" title="Новость просмотрена">
+                <i class="fa fa-lg fa-check-square" aria-hidden="true"></i>
+              </a>
+            </span>
+          </div>
+        </div>
+      </td>
+      <td>
+        <div class="card">
+          <div class="card-block scroll-block notices-block-height">
+            <table class="table table-hover mb-0">
+              <tbody>
+                <tr *ngFor="let notice of notices" [ngClass]="{'recently-changed': notice.recentlyChanged}">
+                  <td class="py-0">
+                    <small>{{notice.time | date:'dd/MM HH:mm:ss'}}</small>
+                    <span class="my-0 px-1 py-1">{{notice.message}}</span>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+            <div #bottom></div>
+          </div>
+        </div>
+      </td>
+    </tr>
+  </table>
 </div>
