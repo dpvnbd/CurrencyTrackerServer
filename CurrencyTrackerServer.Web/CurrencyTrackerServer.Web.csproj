@@ -5,6 +5,8 @@
     <TypeScriptCompileBlocked>true</TypeScriptCompileBlocked>
     <TypeScriptToolsVersion>2.3</TypeScriptToolsVersion>
 		<AssetTargetFallback>portable-net45+win8</AssetTargetFallback>
+		<Configurations>Debug;Release;ReleaseNoAngular</Configurations>
+		<UserSecretsId>bc715cdb-13dc-46d2-b162-64b23592ccea</UserSecretsId>
 
   </PropertyGroup>
 
@@ -23,6 +25,7 @@
     <PackageReference Include="Microsoft.AspNetCore.Mvc" Version="2.0.0" />
     <PackageReference Include="Microsoft.AspNetCore.StaticFiles" Version="2.0.0" />
     <PackageReference Include="Microsoft.AspNetCore.WebSockets" Version="2.0.0" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.UserSecrets" Version="2.0.0" />
     <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="2.0.0" />
     <PackageReference Include="Serilog.AspNetCore" Version="2.1.0" />
     <PackageReference Include="Serilog.Sinks.Console" Version="3.1.1" />
@@ -31,11 +34,14 @@
 
   <ItemGroup>
     <DotNetCliToolReference Include="Microsoft.DotNet.Watcher.Tools" Version="1.0.0" />
+    <DotNetCliToolReference Include="Microsoft.Extensions.SecretManager.Tools" Version="2.0.0" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\CurrencyTrackerServer.ChangeTrackerService\CurrencyTrackerServer.ChangeTrackerService.csproj" />
+    <ProjectReference Include="..\CurrencyTrackerServer.Data\CurrencyTrackerServer.Data.csproj" />
     <ProjectReference Include="..\CurrencyTrackerServer.Infrastructure\CurrencyTrackerServer.Infrastructure.csproj" />
+    <ProjectReference Include="..\CurrencyTrackerServer.NoticesService\CurrencyTrackerServer.NoticesService.csproj" />
     <ProjectReference Include="..\CurrencyTrackerServer.PriceService\CurrencyTrackerServer.PriceService.csproj" />
     <ProjectReference Include="..\CurrencyTrackerServer.ReminderService\CurrencyTrackerServer.ReminderService.csproj" />
   </ItemGroup>
@@ -48,9 +54,6 @@
     </Content>
     <Content Update="appsettings.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Update="changeSettings.json">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
   </ItemGroup>
 

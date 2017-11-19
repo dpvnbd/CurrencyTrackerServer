@@ -1,8 +1,8 @@
 import { Component, OnInit, ViewChild, Input, ElementRef } from '@angular/core';
-import { Source, ChangeType } from '../shared';
+import { UpdateSource, UpdateType, UpdateSpecial } from '../shared';
 import { PriceService, Price, PriceSettings } from './price.service';
 import { NgbModal, ModalDismissReasons } from '@ng-bootstrap/ng-bootstrap';
-
+import { Howl } from 'howler';
 
 @Component({
     selector: 'app-price',
@@ -12,58 +12,54 @@ import { NgbModal, ModalDismissReasons } from '@ng-bootstrap/ng-bootstrap';
 
 export class PriceComponent implements OnInit {
     @Input()
-    source: Source;
+    source: UpdateSource;
 
     @ViewChild('bottom') bottom: ElementRef;
 
     prices: Price[] = [];
     settings: PriceSettings;
+    sendNotification = false;
     lastError: Price;
 
-    addedCurrency: Price = {};
+    addedCurrency: any = {};
 
     private skipSpeech = true;
     linkTemplate: string;
     iconPath: string;
     soundEnabled = true;
-
+    soundNotLoaded = false;
     tempMute = false;
 
-    audioHigh: HTMLAudioElement;
-    audioLow: HTMLAudioElement;
+    audioHigh: Howl;
+    audioLow: Howl;
 
     constructor(private priceService: PriceService, private modalService: NgbModal) { }
 
     ngOnInit() {
-        this.audioHigh = new Audio();
-        this.audioLow = new Audio();
 
-        this.audioLow.src = '../../assets/sounds/low.wav';
-        this.audioHigh.src = '../../assets/sounds/high.wav';
-
-        this.audioLow.load();
-        this.audioHigh.load();
-
-        this.audioHigh.loop = true;
-        this.audioLow.loop = true;
-
-        if (this.source === Source.Bittrex) {
+        if (this.source === UpdateSource.Bittrex) {
             this.linkTemplate = 'https://bittrex.com/Market/Index?MarketName=BTC-';
             this.iconPath = '../../assets/images/bittrexIcon.png';
-        } else if (this.source = Source.Poloniex) {
+        } else if (this.source = UpdateSource.Poloniex) {
             this.linkTemplate = 'https://poloniex.com/exchange#btc_';
             this.iconPath = '../../assets/images/poloniexIcon.png';
         }
 
+        this.initAudio();
 
         this.priceService.subject.subscribe((prices: Price[]) => {
             const localPrices: Price[] = [];
-
             for (const price of prices) {
                 if (price.source === this.source) {
-                    if (price.type === ChangeType.Error) {
+                    if (price.type === UpdateType.Error) {
                         price.time = Date.now().toString();
                         this.lastError = price;
+                    } else if (price.type === UpdateType.Special) {
+                        if (price.special === UpdateSpecial.NotificationsEnabled) {
+                            this.sendNotification = true;
+                        } else if (price.special === UpdateSpecial.NotificationsDisabled) {
+                            this.sendNotification = false;
+                        }
                     } else if (price.currency && price.last) {
                         localPrices.push(price);
                     }
@@ -75,9 +71,29 @@ export class PriceComponent implements OnInit {
             }
         });
 
-        this.priceService.getPrices(this.source).then((prices) => {
-            if (prices) {
-                this.prices = prices;
+        this.priceService.getSettings(this.source).then((settings) => {
+            if (settings && settings.prices) {
+                this.prices = settings.prices;
+                this.sendNotification = settings.sendNotifications;
+            }
+        });
+    }
+
+    initAudio() {
+        const self = this;
+        this.audioLow = new Howl({
+            src: ['../../assets/sounds/low.wav'],
+            loop: true,
+            onloaderror: function (error) {
+                self.soundNotLoaded = true;
+            }
+        });
+
+        this.audioHigh = new Howl({
+            src: ['../../assets/sounds/high.wav'],
+            loop: true,
+            onloaderror: function (error) {
+                this.soundNotLoaded = true;
             }
         });
     }
@@ -104,27 +120,30 @@ export class PriceComponent implements OnInit {
         if (!this.soundEnabled || this.tempMute) {
             return;
         }
-        if (high) {
+        if (high && !this.audioHigh.playing()) {
             this.audioHigh.play();
-        } else if (low) {
+        }
+        if (low && !this.audioLow.playing()) {
             this.audioLow.play();
+
         }
     }
 
     openModal(content) {
         this.tempMute = true;
-        this.audioHigh.pause();
-        this.audioLow.pause();
+        this.audioHigh.stop();
+        this.audioLow.stop();
 
         this.priceService.getSettings(this.source).then((settings) => {
             if (settings) {
                 this.settings = settings;
-
+                this.sendNotification = settings.sendNotifications;
                 this.modalService.open(content).result.then((save) => {
                     this.tempMute = false;
                     if (save) {
                         this.priceService.saveSettings(this.source, this.settings);
                         this.prices = this.settings.prices;
+                        this.sendNotification = this.settings.sendNotifications;
                     }
                 });
             }
@@ -138,7 +157,7 @@ export class PriceComponent implements OnInit {
 
         this.priceService.getPrice(this.source, this.addedCurrency.currency).then(
             (price) => {
-                this.addedCurrency.high = this.addedCurrency.low = price.last;
+                this.addedCurrency.high = this.addedCurrency.low = price.last.toFixed(8);
                 this.addedCurrency.message = price.message;
             }
         );
@@ -168,4 +187,7 @@ export class PriceComponent implements OnInit {
         this.settings.prices.splice(i, 1);
     }
 
+    notificationChange(e) {
+        this.priceService.setNotification(this.source, e.target.checked);
+    }
 }

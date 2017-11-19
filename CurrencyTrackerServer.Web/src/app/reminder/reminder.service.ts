@@ -7,13 +7,14 @@ import { QueueingSubject } from 'queueing-subject';
 import websocketConnect from 'rxjs-websockets';
 import { Observable } from 'rxjs/Rx';
 import { Subscription } from 'rxjs/Subscription';
+import { ConnectionService, BaseChangeEntity } from '../connection/connection.service';
 
 export interface ReminderSettings {
     period: number;
 }
 
 export interface ReminderNotification {
-    time: string;
+    time?: string;
 }
 
 @Injectable()
@@ -22,39 +23,23 @@ export class ReminderService {
     public input = new QueueingSubject<string>();
     private messages: Observable<string>;
 
-    url: string = 'ws://' + window.location.host + '/reminderNotifications';
 
-    constructor(private httpClient: HttpClient) {
-        if (isDevMode()) {
-            this.url = 'ws://localhost:5000/reminderNotifications';
-        }
+    constructor(private httpClient: HttpClient, private connection: ConnectionService) {
+       this.mapSubject();
 
-        this.connectSocket();
-        this.mapSocketToSubject();
-
-        const timer = Observable.timer(10000, 60 * 1000);
+        const timer = Observable.timer(10000, 30 * 1000);
         timer.subscribe(t => {
             this.ping();
         });
     }
 
-    private mapSocketToSubject() {
-        this.subject = <Subject<ReminderNotification>>this.messages
-            .retryWhen(errors => errors.delay(30000))
-            .map((message: string): ReminderNotification => {
-                const data = JSON.parse(message);
-                return data;
+    private mapSubject() {
+        this.subject = <Subject<ReminderNotification>>this.connection.reminder
+            .map((message: BaseChangeEntity[]): ReminderNotification => {
+                return message[0];
             });
     }
 
-    private connectSocket() {
-        try {
-            this.messages = websocketConnect(this.url, this.input).messages.share();
-        } catch (e) {
-            console.log(e);
-            return;
-        }
-    }
 
     public getSettings() {
         return this.httpClient.get('/api/reminder/period').map(data => {

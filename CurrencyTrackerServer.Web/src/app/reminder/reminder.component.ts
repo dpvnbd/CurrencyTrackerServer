@@ -12,11 +12,13 @@ export class ReminderComponent implements OnInit {
     settings: ReminderSettings;
     soundEnabled = true;
     lastUpdate: string;
-    constructor(private reminderService: ReminderService, private modalService: NgbModal) { }
+    constructor(private reminderService: ReminderService, private modalService: NgbModal) {
+
+    }
 
     ngOnInit() {
         this.reminderService.subject.subscribe((notification: ReminderNotification) => {
-            this.lastUpdate = notification[0].time;
+            this.lastUpdate = notification.time;
             if (this.soundEnabled) {
                 responsiveVoice.speak('working', 'Russian Female', { rate: 0.8 });
             }

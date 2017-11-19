@@ -16,11 +16,11 @@ namespace CurrencyTrackerServer.PriceService.Concrete.Poloniex
 {
     public class PoloniexPriceDataSource : IPriceSource
     {
-        public ChangeSource Source => ChangeSource.Poloniex;
+        public UpdateSource Source => UpdateSource.Poloniex;
 
         private readonly string _url = @"https://poloniex.com/public?command=returnTicker";
 
-        public async Task<IEnumerable<ApiPrice>> GetPrices(IEnumerable<string> currencies)
+        public async Task<IEnumerable<ApiPrice>> GetPrices()
         {
             var prices = new List<ApiPrice>();
 
@@ -38,16 +38,7 @@ namespace CurrencyTrackerServer.PriceService.Concrete.Poloniex
                 }
                 var ticker = ParseResponse(json);
 
-                return currencies.Select(c =>
-                {
-                    var returnedPrice = new ApiPrice {Currency = c, Source = Source, Last = -1};
-                    ApiPrice price;
-                    if ((price = ticker.FirstOrDefault(t => string.Equals(t.Currency, c, StringComparison.OrdinalIgnoreCase))) != null)
-                    {
-                        returnedPrice.Last = price.Last;
-                    }
-                    return returnedPrice;
-                });
+                return ticker;
             }
             catch (Exception e)
             {
@@ -61,7 +52,7 @@ namespace CurrencyTrackerServer.PriceService.Concrete.Poloniex
 
             var converter = new ExpandoObjectConverter();
             dynamic pairs = JsonConvert.DeserializeObject<ExpandoObject>(json, converter);
-            foreach (var pair in (IDictionary<String, Object>) pairs)
+            foreach (var pair in (IDictionary<String, Object>)pairs)
             {
                 string currencyPair = pair.Key;
                 string[] currencies = currencyPair.Split('_');

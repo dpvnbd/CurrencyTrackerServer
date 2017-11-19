@@ -1,12 +1,15 @@
 using System;
 using System.ComponentModel.DataAnnotations;
+using System.Diagnostics;
 using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
 using System.Security.Claims;
 using System.Text;
 using System.Threading.Tasks;
-using CurrencyTrackerServer.Infrastructure.Entities.Identity;
+using CurrencyTrackerServer.Infrastructure.Entities.Data;
+using CurrencyTrackerServer.Web.Infrastructure.Concrete.MultipleUsers;
 using CurrencyTrackerServer.Web.Models;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -19,18 +22,22 @@ using Serilog;
 namespace CurrencyTrackerServer.Web.Controllers
 {
   [Route("api/[controller]")]
+  [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
   public class AccountController : Controller
   {
     private readonly UserManager<ApplicationUser> _userManager;
     private readonly IConfiguration _config;
     private readonly SignInManager<ApplicationUser> _signInManager;
+    private readonly UserContainersManager _containersManager;
 
 
-    public AccountController(UserManager<ApplicationUser> userManager, IConfiguration config, SignInManager<ApplicationUser> signInManager)
+    public AccountController(UserManager<ApplicationUser> userManager,
+      IConfiguration config, SignInManager<ApplicationUser> signInManager, UserContainersManager containersManager)
     {
       _userManager = userManager;
       _config = config;
       _signInManager = signInManager;
+      _containersManager = containersManager;
     }
 
     [HttpPost("register")]
@@ -88,6 +95,20 @@ namespace CurrencyTrackerServer.Web.Controllers
       return BadRequest("Could not create token");
     }
 
+    [HttpPost("getToken")]
+    public async Task<IActionResult> GetToken()
+    {
+
+      var user = await GetCurrentUser();
+      if (user == null)
+      {
+        return BadRequest();
+      }
+
+      var token = await _containersManager.InitializeUserContainer(user.Id, _userManager);
+      return Ok(new { token });
+    }
+
     #region Helpers
 
     private void AddErrors(IdentityResult result)
@@ -98,7 +119,11 @@ namespace CurrencyTrackerServer.Web.Controllers
       }
     }
 
-  
+    private async Task<ApplicationUser> GetCurrentUser()
+    {
+      var name = User.FindFirst(ClaimTypes.NameIdentifier).Value;
+      return await _userManager.FindByEmailAsync(name);
+    }
     #endregion
   }
 }

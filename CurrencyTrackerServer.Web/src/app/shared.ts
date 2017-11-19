@@ -1,7 +1,17 @@
-export enum Source {
+import { Pipe, PipeTransform } from '@angular/core';
+
+export enum UpdateSource {
     None, Bittrex, Poloniex
 }
 
-export enum ChangeType {
-    Currency, Error, Info
+export enum UpdateDestination {
+    None, CurrencyChange, Price, Reminder, Notice
+}
+
+export enum UpdateType {
+    Currency, Error, Info, Special
+}
+
+export enum UpdateSpecial {
+    None, NotificationsEnabled, NotificationsDisabled
 }

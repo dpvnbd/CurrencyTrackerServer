@@ -4,6 +4,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using CurrencyTrackerServer.Web.Infrastructure.Concrete;
+using CurrencyTrackerServer.Web.Infrastructure.Websockets;
 
 namespace CurrencyTrackerServer.Web.Infrastructure.Abstract
 {
@@ -26,10 +27,10 @@ namespace CurrencyTrackerServer.Web.Infrastructure.Abstract
       await WebSocketConnectionManager.RemoveSocket(WebSocketConnectionManager.GetId(socket));
     }
 
-    public async Task SendMessageAsync(WebSocket socket, string message)
+    public async Task<bool> SendMessageAsync(WebSocket socket, string message)
     {
-      if (socket.State != WebSocketState.Open)
-        return;
+      if (socket == null || socket.State != WebSocketState.Open)
+        return false;
 
       var array = Encoding.UTF8.GetBytes(message);
 
@@ -46,12 +47,14 @@ namespace CurrencyTrackerServer.Web.Infrastructure.Abstract
       {
         System.Console.WriteLine("Discarding socket: " + e.Message);
         await OnDisconnected(socket);
+        return false;
       }
+      return true;
     }
 
-    public async Task SendMessageAsync(string socketId, string message)
+    public async Task<bool> SendMessageAsync(string socketId, string message)
     {
-      await SendMessageAsync(WebSocketConnectionManager.GetSocketById(socketId), message);
+      return await SendMessageAsync(WebSocketConnectionManager.GetSocketById(socketId), message);
     }
 
     public async Task SendMessageToAllAsync(string message)

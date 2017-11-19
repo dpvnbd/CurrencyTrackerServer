@@ -53,6 +53,6 @@ export class AuthService {
   }
 
   logout() {
-
+    localStorage.removeItem(TOKEN_NAME);
   }
 }

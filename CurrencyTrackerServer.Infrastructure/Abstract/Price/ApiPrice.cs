@@ -8,7 +8,7 @@ namespace CurrencyTrackerServer.Infrastructure.Abstract.Price
 {
     public class ApiPrice
     {
-        public ChangeSource Source { get; set; }
+        public UpdateSource Source { get; set; }
 
         public string Currency { get; set; }
         public double Last { get; set; }

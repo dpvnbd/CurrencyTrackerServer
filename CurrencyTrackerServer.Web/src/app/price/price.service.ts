@@ -1,6 +1,6 @@
 import { Injectable, isDevMode } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Source, ChangeType } from '../shared';
+import { UpdateSource, UpdateType, UpdateSpecial } from '../shared';
 import { Subject } from 'rxjs/Subject';
 import 'rxjs/add/operator/retryWhen';
 import 'rxjs/add/operator/delay';
@@ -10,6 +10,7 @@ import 'rxjs/add/operator/share';
 import { QueueingSubject } from 'queueing-subject';
 import websocketConnect from 'rxjs-websockets';
 import { Observable } from 'rxjs/Observable';
+import { BaseChangeEntity, ConnectionService } from '../connection/connection.service';
 
 export interface Price {
     currency?: string;
@@ -17,16 +18,18 @@ export interface Price {
     high?: number;
     low?: number;
 
-    source?: Source;
-    type?: ChangeType;
+    source?: UpdateSource;
+    type?: UpdateType;
+    special?: UpdateSpecial;
     time?: string;
     message?: string;
     recentlyChanged?: boolean;
 }
 
 export interface PriceSettings {
-    periodSeconds: number;
     prices?: Price[];
+    sendNotifications?: boolean;
+    email?: string;
 }
 
 @Injectable()
@@ -37,35 +40,18 @@ export class PriceService {
     private messages: Observable<string>;
     public subject: Subject<any>;
 
-    url: string = 'ws://' + window.location.host + '/priceNotifications';
-    constructor(private http: HttpClient) {
-        if (isDevMode()) {
-            this.url = 'ws://localhost:5000/priceNotifications';
-        }
-
-        this.connectSocket();
-        this.mapSocketToSubject();
+    constructor(private http: HttpClient, private connection: ConnectionService) {
+        this.mapSubject();
     }
 
-    private mapSocketToSubject() {
-        this.subject = <Subject<Price[]>>this.messages
-            .retryWhen(errors => errors.delay(30000))
-            .map((message: string): Price[] => {
-                const data = JSON.parse(message);
-                return data;
+    private mapSubject() {
+        this.subject = <Subject<Price[]>>this.connection.prices
+            .map((message: BaseChangeEntity[]): Price[] => {
+                return message;
             });
     }
 
-    private connectSocket() {
-        try {
-            this.messages = websocketConnect(this.url, this.input).messages;
-        } catch (e) {
-            console.log(e);
-            return;
-        }
-    }
-
-    public getSettings(source: Source) {
+    public getSettings(source: UpdateSource) {
         return this.http.get('/api/price/settings/' + source).map(data => {
             const settings = data as PriceSettings;
             if (!settings.prices) {
@@ -76,27 +62,18 @@ export class PriceService {
     }
 
 
-    public getPrice(source: Source, currency: string) {
+    public getPrice(source: UpdateSource, currency: string) {
         return this.http.get('/api/price/lastPrice/' + source + '/' + currency).map(data => {
             const price = data as Price;
             return price;
         }).toPromise();
     }
 
-    public getPrices(source: Source) {
-        return this.http.get('/api/price/' + source).map(data => {
-            const prices = data as Price[];
-            return prices;
-        }).toPromise();
-    }
-
-    public saveSettings(source: Source, settings: PriceSettings) {
+    public saveSettings(source: UpdateSource, settings: PriceSettings) {
         return this.http.post('/api/price/settings/' + source, settings, { responseType: 'text' }).map(data => data).toPromise();
     }
 
-    public start(source: Source) {
-        return this.http.post('/api/price/settings/' + source, { responseType: 'text' })
-            .map(data => data).toPromise();
+    public setNotification(source: UpdateSource, enabled: boolean) {
+        return this.http.post('/api/price/notification/' + source + '/' + enabled, {}).toPromise();
     }
-
 }

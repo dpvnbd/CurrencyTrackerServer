@@ -1,11 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using CurrencyTrackerServer.Infrastructure.Entities;
 
 namespace CurrencyTrackerServer.ReminderService
 {
-    public class Reminder
+    public class Reminder:BaseChangeEntity
     {
-        public DateTime Time { get; set; }
+        public override UpdateDestination Destination => UpdateDestination.Reminder;
     }
 }

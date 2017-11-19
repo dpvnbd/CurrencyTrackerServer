@@ -1,32 +1,30 @@
 using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
-using CurrencyTrackerServer.ChangeTrackerService.Concrete.Data;
-using CurrencyTrackerServer.ChangeTrackerService.Concrete.ProviderSpecific.Bittrex;
-using CurrencyTrackerServer.ChangeTrackerService.Concrete.ProviderSpecific.Poloniex;
-using CurrencyTrackerServer.ChangeTrackerService.Entities;
+using CurrencyTrackerServer.ChangeTrackerService.Concrete.Bittrex;
+using CurrencyTrackerServer.ChangeTrackerService.Concrete.Poloniex;
+using CurrencyTrackerServer.Data.Concrete;
 using CurrencyTrackerServer.Infrastructure.Abstract;
-using CurrencyTrackerServer.Infrastructure.Concrete.Identity;
+using CurrencyTrackerServer.Infrastructure.Abstract.Data;
+using CurrencyTrackerServer.Infrastructure.Entities;
 using CurrencyTrackerServer.Infrastructure.Entities.Changes;
-using CurrencyTrackerServer.Infrastructure.Entities.Identity;
+using CurrencyTrackerServer.Infrastructure.Entities.Data;
 using CurrencyTrackerServer.Infrastructure.Entities.Price;
+using CurrencyTrackerServer.NoticesService.Concrete;
+using CurrencyTrackerServer.NoticesService.Entities;
 using CurrencyTrackerServer.PriceService.Concrete;
 using CurrencyTrackerServer.PriceService.Concrete.Bittrex;
 using CurrencyTrackerServer.PriceService.Concrete.Poloniex;
-using CurrencyTrackerServer.Web.Infrastructure;
-using CurrencyTrackerServer.Web.Infrastructure.Concrete;
-using Microsoft.AspNetCore;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using CurrencyTrackerServer.ReminderService;
+using CurrencyTrackerServer.Web.Infrastructure.Concrete;
+using CurrencyTrackerServer.Web.Infrastructure.Concrete.MultipleUsers;
+using CurrencyTrackerServer.Web.Infrastructure.Websockets;
+using CurrencyTrackerServer.Web.Models;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore.Design;
 using Microsoft.IdentityModel.Tokens;
@@ -41,6 +39,7 @@ namespace CurrencyTrackerServer.Web
     public Startup(IConfiguration config)
     {
       Configuration = config;
+      Log.Warning(Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT"));
     }
 
     // This method gets called by the runtime. Use this method to add services to the container.
@@ -57,7 +56,7 @@ namespace CurrencyTrackerServer.Web
           options.Password.RequireLowercase = false;
           options.Password.RequiredUniqueChars = 1;
         })
-        .AddEntityFrameworkStores<ApplicationDbContext>()
+        .AddEntityFrameworkStores<AppDbContext>()
         .AddDefaultTokenProviders();
 
 
@@ -79,76 +78,69 @@ namespace CurrencyTrackerServer.Web
       services.AddMvc();
       services.AddWebSocketManager();
 
-      var provider = services.BuildServiceProvider();
-
-      #region Identity
-
-      services.AddDbContext<ApplicationDbContext>(options =>
+      services.AddDbContext<AppDbContext>(options =>
         options.UseSqlServer(Configuration.GetConnectionString("ChangesDb")));
 
-      #endregion
-
       #region Persistence DI
-
-      services.AddDbContext<ChangeTrackerContext>(options => options
-        .UseSqlServer(Configuration.GetConnectionString("ChangesDb")), ServiceLifetime.Transient);
-
-      services.AddSingleton<IDesignTimeDbContextFactory<ApplicationDbContext>, IdentityDbFactory>();
-      services.AddSingleton<IDesignTimeDbContextFactory<ChangeTrackerContext>, DbFactory>();
+      services.AddSingleton<IDesignTimeDbContextFactory<AppDbContext>, AppDbContextFactory>();
       services.AddSingleton<IRepositoryFactory, RepositoryFactory>();
+      services.AddSingleton<ISettingsProvider, DbSettingsProvider>();
 
       #endregion
 
       #region Websockets & notifications DI
+      var provider = services.BuildServiceProvider();
 
       var changesConnectionManager = provider.GetRequiredService<WebSocketConnectionManager>();
-      var changeHandler = new NotificationsMessageHandler<Change>(changesConnectionManager);
-      services.AddSingleton<NotificationsMessageHandler<Change>>(changeHandler);
-      services.AddSingleton<INotifier<Change>>(changeHandler);
+      var changeHandler = new NotificationsMessageHandler(changesConnectionManager);
+      services.AddSingleton<NotificationsMessageHandler>(changeHandler);
+      services.AddSingleton<INotifier>(changeHandler);
 
       #endregion
 
-      #region Background workers DI
+      #region ChangeTracker DI
 
-      services.AddSingleton<ISettingsProvider<ChangeSettings>, ChangeSettingsProvider>();
-
-      services.AddTransient<PoloniexChangeMonitor>();
-      services.AddTransient<BittrexChangeMonitor>();
+      //services.AddTransient<PoloniexChangeMonitor>();
+      //services.AddTransient<BittrexChangeMonitor>();
 
       services.AddSingleton<BittrexTimerWorker>();
       services.AddSingleton<PoloniexTimerWorker>();
 
+      services.AddSingleton<BittrexApiDataSource>();
+      services.AddSingleton<PoloniexApiDataSource>();
       #endregion
 
       #region PriceTracker DI
 
-      services.AddSingleton<ISettingsProvider<PriceSettings>, PriceSettingsProvider>();
-      services.AddSingleton<BittrexPriceDataSource>();
-      services.AddSingleton<BittrexPriceMonitor>();
-      services.AddSingleton<BittrexPriceTimerWorker>();
+      //services.AddTransient<BittrexPriceMonitor>();
+      //services.AddTransient<PoloniexPriceMonitor>();
 
-      services.AddSingleton<PoloniexPriceDataSource>();
-      services.AddSingleton<PoloniexPriceMonitor>();
+      services.AddSingleton<BittrexPriceTimerWorker>();
       services.AddSingleton<PoloniexPriceTimerWorker>();
 
-      var priceConnectionManager = provider.GetRequiredService<WebSocketConnectionManager>();
-
-      var priceHandler = new NotificationsMessageHandler<Price>(priceConnectionManager);
-      services.AddSingleton<NotificationsMessageHandler<Price>>(priceHandler);
-      services.AddSingleton<INotifier<Price>>(priceHandler);
+      services.AddSingleton<BittrexPriceDataSource>();
+      services.AddSingleton<PoloniexPriceDataSource>();
 
       #endregion
 
       #region Reminder
-
-      var reminderConnectionManager = provider.GetRequiredService<WebSocketConnectionManager>();
-      var reminderHandler = new NotificationsMessageHandler<Reminder>(reminderConnectionManager);
-      services.AddSingleton<NotificationsMessageHandler<Reminder>>(reminderHandler);
-      services.AddSingleton<INotifier<Reminder>>(reminderHandler);
-
       services.AddSingleton<ReminderTimerWorker>();
-
       #endregion
+
+      services.Configure<SmtpSettings>(Configuration.GetSection("SmtpSettings"));
+      services.Configure<TwitterSettings>(Configuration.GetSection("TwitterKeys"));
+      services.Configure<AppSettings>(Configuration.GetSection("AppSettings"));
+
+      services.AddSingleton<IMessageNotifier, EmailNotifier>();
+
+      services.AddSingleton<DefaultNoticesTimerWorker>();
+      services.AddSingleton<PoloniexTwitterNoticesDataSource>();
+      services.AddSingleton<PoloniexSiteNoticesDataSource>();
+      services.AddSingleton<PoloniexNoticesMonitor>();
+
+      services.AddSingleton<UserContainerFactory>();
+      services.AddSingleton<UserContainersManager>();
+
     }
 
     // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -162,14 +154,8 @@ namespace CurrencyTrackerServer.Web
 
       app.UseWebSockets(webSocketOptions);
 
-      app.MapWebSocketManager("/changeNotifications",
-        serviceProvider.GetRequiredService<NotificationsMessageHandler<Change>>());
-
-      app.MapWebSocketManager("/priceNotifications",
-        serviceProvider.GetRequiredService<NotificationsMessageHandler<Price>>());
-
-      app.MapWebSocketManager("/reminderNotifications",
-        serviceProvider.GetRequiredService<NotificationsMessageHandler<Reminder>>());
+      app.MapWebSocketManager("/notifications",
+        serviceProvider.GetRequiredService<NotificationsMessageHandler>());
 
       app.Use(async (context, next) =>
       {

@@ -37,12 +37,12 @@
           </div>
         </div>
 
-        <div class="form-group row">
+        <!-- <div class="form-group row">
           <label for="period" class="col-sm-6 col-form-label">Период, сек</label>
           <div class="col-sm-6">
             <input type="number" name="period" class="form-control" id="period" [(ngModel)]="settings.periodSeconds">
           </div>
-        </div>
+        </div> -->
 
         <div class="form-group row">
           <label for="resetHours" class="col-sm-6 col-form-label">Сброс, часов</label>
@@ -135,13 +135,16 @@
         <div class="col-6 col-md-2">
           <img src="{{iconPath}}" class="block-icon float-left" />
         </div>
-        <div class="hidden-sm-down col-md-6">Изменение за время
-
+        <div class="hidden-sm-down col-md-6">
+          Изменения
+          <label class="my-0 mx-1 pull-right" *ngIf="lastUpdate">
+            <i class="fa fa-clock-o fa-lg"></i>
+            <span >{{lastUpdate | date:'HH:mm:ss'}}</span>
+          </label>
         </div>
         <div class="col-6 col-md-4">
           <span class="pull-right">
-            <a *ngIf="lastError" placement="bottom" [ngbPopover]="errorContent"
-             href="javascript:void(0)" title="Ошибка">
+            <a *ngIf="lastError" placement="bottom" [ngbPopover]="errorContent" href="javascript:void(0)" title="Ошибка">
               <i class="fa fa-exclamation-circle fa-lg"></i>
             </a>
             <a href="javascript:void(0)" (click)="openModal(content)" title="Настройки">
@@ -155,7 +158,7 @@
       </div>
     </div>
     <div class="card-block scroll-block changes-block-height">
-      <table class="table table-hover">
+      <table class="table table-hover mb-0">
         <tbody>
           <tr *ngFor="let change of changes" [ngClass]="{'recently-changed': change.recentlyChanged}">
 
@@ -167,6 +170,12 @@
             <td *ngIf="!change.currency" colspan="2" class="py-1"> {{change.message}}</td>
 
             <td class="py-1">{{change.time | date:'HH:mm:ss'}}</td>
+
+            <td *ngIf="source === 1" class="py-1">
+              <a *ngIf="change.isOnPoloniex" href="https://poloniex.com/exchange#btc_{{change.currency}}">
+                <img src="../../assets/images/poloniexIcon.png" class="block-icon float-left" />
+              </a>
+            </td>
           </tr>
         </tbody>
       </table>

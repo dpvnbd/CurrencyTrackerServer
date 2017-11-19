@@ -1,52 +1,80 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading;
 using System.Threading.Tasks;
 using CurrencyTrackerServer.ChangeTrackerService.Entities;
 using CurrencyTrackerServer.Infrastructure.Abstract;
+using CurrencyTrackerServer.Infrastructure.Abstract.Data;
+using CurrencyTrackerServer.Infrastructure.Abstract.Workers;
 using CurrencyTrackerServer.Infrastructure.Entities;
 using CurrencyTrackerServer.Infrastructure.Entities.Changes;
+using CurrencyTrackerServer.Infrastructure.Entities.Data;
+using Microsoft.Extensions.Options;
 
 namespace CurrencyTrackerServer.ChangeTrackerService.Concrete
 {
-    public class ChangeTimerWorker : AbstractTimerWorker
+    public abstract class ChangeTimerWorker : AbstractTimerWorker<IEnumerable<CurrencyChangeApiData>>
     {
-        public IChangeMonitor<IEnumerable<Change>> Monitor { get; }
-        private readonly INotifier<Change> _notifier;
+        private readonly IDataSource<IEnumerable<CurrencyChangeApiData>> _dataSource;
+        private readonly INotifier _notifier;
+        private readonly ISettingsProvider _settingsProvider;
+        private readonly IRepositoryFactory _repoFactory;
 
-        public ChangeTimerWorker(IChangeMonitor<IEnumerable<Change>> monitor, INotifier<Change> notifier) : base()
+        private readonly int _updateClientsCyclePeriod; 
+        private int _currentCycle;
+
+
+        public ChangeTimerWorker(IDataSource<IEnumerable<CurrencyChangeApiData>> dataSource, INotifier notifier,
+                ISettingsProvider settingsProvider, IRepositoryFactory repoFactory, IOptions<AppSettings> config)
         {
-            Monitor = monitor;
+            _dataSource = dataSource;
             _notifier = notifier;
+            _settingsProvider = settingsProvider;
+            _repoFactory = repoFactory;
+            Period = config.Value.ChangeWorkerPeriodSeconds * 1000;
+            _updateClientsCyclePeriod = config.Value.ChangeWorkerUpdateCycle;
         }
+
 
 
         protected override async Task DoWork()
         {
             try
             {
-                await Monitor.ResetStates(TimeSpan.FromHours(Monitor.Settings.ResetHours));
-                var changes = await Monitor.GetChanges();
+                var changes = await _dataSource.GetData();
+                _currentCycle++;
                 if (changes.Any())
-                    await _notifier.SendNotificationMessage(changes);
+                    OnUpdated(changes);
             }
             catch (Exception e)
             {
                 var errorMessage = new Change
                 {
-                    Type = ChangeType.Error,
+                    Type = UpdateType.Error,
                     Message = e.Message,
                     Time = DateTime.Now,
-                    ChangeSource = Monitor.Source
+                    Source = Source
                 };
 
-                await _notifier.SendNotificationMessage(errorMessage);
+                await _notifier.SendToAll(new[] { errorMessage });
             }
             finally
             {
-                Period = Monitor.Settings.PeriodSeconds * 1000;
+                if (_currentCycle >= _updateClientsCyclePeriod)
+                {
+                    var update = new BaseChangeEntity
+                    {
+                        Destination = UpdateDestination.CurrencyChange,
+                        Source = Source,
+                        Type = UpdateType.Info,
+                        Time = DateTimeOffset.Now
+                    };
+
+                    await _notifier.SendToAll(new[] { update });
+                    _currentCycle = 0;
+                }
             }
         }
+
     }
 }
