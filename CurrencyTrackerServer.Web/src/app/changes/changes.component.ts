@@ -114,7 +114,9 @@ export class ChangesComponent implements OnInit {
 
         for (const change of changes) {
             if (change.source === this.source) {
-                change.recentlyChanged = true;
+                if (markAsNew) {
+                    change.recentlyChanged = true;
+                }
 
                 if (this.source === UpdateSource.Bittrex) {
                     const index = this.poloniexCurrencies.indexOf(change.currency);
