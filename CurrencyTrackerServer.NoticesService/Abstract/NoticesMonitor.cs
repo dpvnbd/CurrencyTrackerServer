@@ -46,7 +46,7 @@ namespace CurrencyTrackerServer.NoticesService.Abstract
 
                 if (newNotices.Any())
                 {
-                    foreach (var notice in newNotices.OrderBy(n => n.Time))
+                    foreach (var notice in newNotices.OrderByDescending(n => n.Time))
                     {
                         await repo.Add(new NoticeEntity
                         {
@@ -66,7 +66,7 @@ namespace CurrencyTrackerServer.NoticesService.Abstract
         {
             using (var repo = _repoFactory.Create<NoticeEntity>())
             {
-                var notices = repo.GetAll().OrderBy(n=> n.Time);
+                var notices = repo.GetAll().OrderByDescending(n=> n.Time);
 
                 var toDelete = notices.Take(Math.Max(0, notices.Count() - 10));
                 foreach (var entry in toDelete)

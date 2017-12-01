@@ -4,24 +4,23 @@
       <td class="align-top">
         <div class="card">
           <div class="card-block notices-block-height p-1">
-            <span>
-              <i class="fa  fa-newspaper-o fa-lg"></i>
-            </span>
-
             <span class="">
+              <i class="fa fa-newspaper-o fa-lg" *ngIf="!audioPlaying"></i>
+
+              <a href="javascript:void(0)" *ngIf="audioPlaying" (click)="stopAlarm()" title="Новость просмотрена">
+                <i class="fa fa-lg fa-check-square" aria-hidden="true"></i>
+              </a>
+
               <label class="form-check-label my-0">
                 <input class="form-check-input" name="soundEnabled" type="checkbox" [(ngModel)]="soundEnabled">
                 <label>
                   <i class="fa   fa-volume-up"></i>
                 </label>
               </label>
+
+
             </span>
 
-            <span>
-              <a href="javascript:void(0)" *ngIf="audioPlaying" (click)="stopAlarm()" title="Новость просмотрена">
-                <i class="fa fa-lg fa-check-square" aria-hidden="true"></i>
-              </a>
-            </span>
           </div>
         </div>
       </td>
