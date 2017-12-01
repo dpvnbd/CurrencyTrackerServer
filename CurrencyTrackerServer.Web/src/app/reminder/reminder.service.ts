@@ -50,16 +50,16 @@ export class ReminderService {
 
     public saveSettings(settings: ReminderSettings) {
         return this.httpClient.post('/api/reminder/period', settings, { responseType: 'text' })
-            .map(data => data).toPromise();
+            .toPromise();
     }
 
     public start() {
-        return this.httpClient.post('/api/reminder/start', { responseType: 'text' })
-            .map(data => data).toPromise();
+        return this.httpClient.post('/api/reminder/start', {}, { responseType: 'text' })
+            .toPromise();
     }
 
     public ping() {
-        return this.httpClient.post('/api/reminder/ping', { responseType: 'text' })
-            .map(data => data).toPromise();
+        return this.httpClient.post('/api/reminder/ping', {}, { responseType: 'text' })
+            .toPromise();
     }
 }

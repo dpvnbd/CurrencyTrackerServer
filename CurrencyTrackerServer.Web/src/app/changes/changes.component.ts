@@ -65,7 +65,6 @@ export class ChangesComponent implements OnInit {
                         this.lastUpdate = change.time;
                     } else if (change.type === UpdateType.Error) {
                         this.lastError = change;
-                        console.log(change.message);
                     }
                 }
             }

@@ -74,6 +74,7 @@ export class PriceService {
     }
 
     public setNotification(source: UpdateSource, enabled: boolean) {
-        return this.http.post('/api/price/notification/' + source + '/' + enabled, {}).toPromise();
+        return this.http.post('/api/price/notification/' + source + '/' + enabled, {}, { responseType: 'text' })
+            .toPromise();
     }
 }
