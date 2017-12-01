@@ -23,6 +23,7 @@ export interface Change {
   message?: string;
   recentlyChanged?: boolean;
   isOnPoloniex?: boolean;
+  isSmaller?: boolean;
 }
 
 export interface ChangeSettings {
@@ -32,6 +33,8 @@ export interface ChangeSettings {
   multipleChangesSpanMinutes: number;
   marginPercentage: number;
   marginCurrencies: string[];
+  separateSmallerChanges: boolean;
+  separatePercentage?: number;
 }
 
 @Injectable()

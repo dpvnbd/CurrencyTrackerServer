@@ -135,7 +135,7 @@ namespace CurrencyTrackerServer.ChangeTrackerService.Concrete
                     }
                     else if (threshold < 0 && currency.PercentChanged > threshold - percentage)
                     {
-                        continue; ;
+                        continue;
                     }
                     else if (threshold == 0 && Math.Abs(currency.PercentChanged) < percentage)
                     {
@@ -152,6 +152,10 @@ namespace CurrencyTrackerServer.ChangeTrackerService.Concrete
                     Threshold = CurrencyState.CalculateThreshold(percentage, currency.PercentChanged),
                     Source = currency.UpdateSource
                 };
+
+                if(settings.SeparateSmallerChanges && currency.PercentChanged < settings.SeparatePercentage){
+                    change.IsSmaller = true;
+                }
 
                 await SaveState(change);
 
@@ -222,9 +226,9 @@ namespace CurrencyTrackerServer.ChangeTrackerService.Concrete
                         Percentage = change.Percentage,
                         Time = change.Time.GetValueOrDefault(),
                         Type = change.Type,
-                        UpdateSource = change.Source
+                        UpdateSource = change.Source,
+                        IsSmaller = change.IsSmaller
                     };
-
 
                     await repo.Add(entry, false);
                 }
@@ -255,7 +259,8 @@ namespace CurrencyTrackerServer.ChangeTrackerService.Concrete
                 Percentage = entity.Percentage,
                 Time = entity.Time,
                 Type = entity.Type,
-                Source = entity.UpdateSource
+                Source = entity.UpdateSource,
+                IsSmaller = entity.IsSmaller
             })
                 .ToList();
         }

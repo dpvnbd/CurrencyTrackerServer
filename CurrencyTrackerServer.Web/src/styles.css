@@ -31,6 +31,10 @@
   height: auto;
 }
 
+.checkbox-empty label {
+  display: inline
+}
+
 .recently-changed {
   background: rgba(50, 205, 50, 0.23)
 }

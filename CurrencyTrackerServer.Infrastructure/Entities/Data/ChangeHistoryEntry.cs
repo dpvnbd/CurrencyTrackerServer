@@ -16,5 +16,6 @@ namespace CurrencyTrackerServer.Infrastructure.Entities.Data
         public double Percentage { get; set; }
         public UpdateType Type { get; set; }
         public string Message { get; set; }
+        public bool IsSmaller { get; set; }
     }
 }

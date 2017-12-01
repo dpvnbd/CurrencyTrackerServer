@@ -18,8 +18,11 @@ namespace CurrencyTrackerServer.Infrastructure.Entities.Changes
         public bool MultipleChanges { get; set; } = true;
         public int MultipleChangesSpanMinutes { get; set; } = 1;
 
-
         public double MarginPercentage { get; set; } = 0.5;
         public List<string> MarginCurrencies;
+        
+        public bool SeparateSmallerChanges { get; set; } = false;        
+        
+        public double SeparatePercentage { get; set; } = 0;
     }
 }
