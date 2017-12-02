@@ -138,16 +138,11 @@ export class ChangesComponent implements OnInit {
             this.skipSpeech = false;
             return;
         }
-
-        let text = '';
         for (const change of changes) {
             if (change.currency && change.currency.length > 0) {
-                text += change.currency + (change.isSmaller ? ',L' : '') + '.';
+                const text = change.currency + '.';
+                responsiveVoice.speak(text, (change.isSmaller ? 'UK English Female' : 'Russian Female'), { rate: 0.8 });
             }
-        }
-
-        if (text.length > 0) {
-            responsiveVoice.speak(text, 'Russian Female', {rate: 0.8});
         }
     }
 
