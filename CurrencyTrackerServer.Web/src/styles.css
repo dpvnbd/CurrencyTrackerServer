@@ -1,19 +1,23 @@
 /* You can add global styles to this file, and also import other style files */
 
 .changes-block-height {
-  height: calc(60vh - 2rem - 2 * 1.5rem);
+  height: calc(60vh - 2rem - 2 * 1.5rem - 1rem);
 }
 
 .price-block-height {
-  height: calc(40vh - 2rem - 2 * 1.5rem);
+  height: calc(40vh - 2rem - 2 * 1.5rem - 1rem);
 }
 
-.reduced-price-block-height {
+/* .reduced-price-block-height {
   height: calc(40vh - 2rem - 2.5em - 2 * 1.5rem);
-}
+} */
 
 .notices-block-height {
   height: calc(2 * 1.5rem);
+}
+
+.stats-block-size {
+  height: calc(48vh - 2rem - 1rem - 1rem);
 }
 
 .app-block {
