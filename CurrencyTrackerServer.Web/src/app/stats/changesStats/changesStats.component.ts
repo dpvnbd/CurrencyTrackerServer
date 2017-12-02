@@ -34,10 +34,13 @@ export class ChangesStatsComponent implements OnInit {
             // Height is hardcoded because chart doesn't fill the parent element
             this.changesChartData.options = {
                 legend: { position: 'none' },
-                histogram: { lastBucketPercentile: 10 },
+                histogram: {
+                    // lastBucketPercentile: 10,
+                    bucketSize: 5
+                },
                 chartArea: { width: '90%', height: '80%' },
                 height: Math.max(document.documentElement.clientHeight, window.innerHeight || 0) * 0.45
-                 - this.convertRemToPixels(3)
+                    - this.convertRemToPixels(3)
             };
         });
     }

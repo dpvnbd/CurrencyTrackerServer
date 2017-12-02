@@ -232,11 +232,11 @@ namespace CurrencyTrackerServer.ChangeTrackerService.Concrete
             }
         }
 
-        protected IEnumerable<CurrencyState> GetStates()
+        public IEnumerable<CurrencyState> GetStates()
         {
             using (var repo = _repoFactory.Create<CurrencyState>())
             {
-                return repo.GetAll().Where(s => s.UserId == UserId).ToList();
+                return repo.GetAll().Where(s => s.UserId == UserId && s.UpdateSource == Source).ToList();
             }
         }
 

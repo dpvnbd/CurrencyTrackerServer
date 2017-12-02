@@ -142,7 +142,7 @@ export class ChangesComponent implements OnInit {
         let text = '';
         for (const change of changes) {
             if (change.currency && change.currency.length > 0) {
-                text += '...' + change.currency + (change.isSmaller ? ',L' : '');
+                text += change.currency + (change.isSmaller ? ',L' : '') + '.';
             }
         }
 

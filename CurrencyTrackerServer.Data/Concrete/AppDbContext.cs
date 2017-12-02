@@ -14,6 +14,8 @@ namespace CurrencyTrackerServer.Data.Concrete
     public DbSet<SettingsSerialized> UserSettings { get; set; }
     public DbSet<NoticeEntity> Notices { get; set; }
 
+    public DbSet<StatsCurrencyState> StatsStates { get; set; }
+
 
     public AppDbContext(DbContextOptions options) : base(options)
     {
@@ -22,7 +24,7 @@ namespace CurrencyTrackerServer.Data.Concrete
     protected override void OnModelCreating(ModelBuilder builder)
     {
       base.OnModelCreating(builder);
-
+      
       builder.Entity<CurrencyState>()
         .HasKey(c => new { c.Currency, c.UpdateSource, c.UserId });
 
@@ -41,6 +43,8 @@ namespace CurrencyTrackerServer.Data.Concrete
         n.Property(e => e.Id).ValueGeneratedOnAdd();
       });
 
+      builder.Entity<StatsCurrencyState>()
+        .HasKey(c => new { c.Currency, c.UpdateSource });
     }
   }
 }
