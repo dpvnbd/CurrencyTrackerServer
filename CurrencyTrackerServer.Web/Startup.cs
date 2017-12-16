@@ -3,8 +3,11 @@ using System.IO;
 using System.Text;
 using CurrencyTrackerServer.ChangeTrackerService.Concrete.Bittrex;
 using CurrencyTrackerServer.ChangeTrackerService.Concrete.Poloniex;
+using CurrencyTrackerServer.ChangeTrackerService.Entities;
+using CurrencyTrackerServer.ChangeTrackerService.Concrete;
 using CurrencyTrackerServer.Data.Concrete;
 using CurrencyTrackerServer.Infrastructure.Abstract;
+using CurrencyTrackerServer.Infrastructure.Abstract.Changes;
 using CurrencyTrackerServer.Infrastructure.Abstract.Data;
 using CurrencyTrackerServer.Infrastructure.Entities;
 using CurrencyTrackerServer.Infrastructure.Entities.Changes;
@@ -102,6 +105,8 @@ namespace CurrencyTrackerServer.Web
 
       //services.AddTransient<PoloniexChangeMonitor>();
       //services.AddTransient<BittrexChangeMonitor>();
+
+      services.AddSingleton<IChangesStatsService<CurrencyChangeApiData>, ChangesStatsService>();
 
       services.AddSingleton<BittrexTimerWorker>();
       services.AddSingleton<PoloniexTimerWorker>();

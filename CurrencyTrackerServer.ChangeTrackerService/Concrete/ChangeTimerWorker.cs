@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using CurrencyTrackerServer.ChangeTrackerService.Entities;
 using CurrencyTrackerServer.Infrastructure.Abstract;
+using CurrencyTrackerServer.Infrastructure.Abstract.Changes;
 using CurrencyTrackerServer.Infrastructure.Abstract.Data;
 using CurrencyTrackerServer.Infrastructure.Abstract.Workers;
 using CurrencyTrackerServer.Infrastructure.Entities;
@@ -19,18 +20,21 @@ namespace CurrencyTrackerServer.ChangeTrackerService.Concrete
         private readonly INotifier _notifier;
         private readonly ISettingsProvider _settingsProvider;
         private readonly IRepositoryFactory _repoFactory;
+        private readonly IChangesStatsService<CurrencyChangeApiData> _statsService;
 
         private readonly int _updateClientsCyclePeriod; 
         private int _currentCycle;
 
 
         public ChangeTimerWorker(IDataSource<IEnumerable<CurrencyChangeApiData>> dataSource, INotifier notifier,
-                ISettingsProvider settingsProvider, IRepositoryFactory repoFactory, IOptions<AppSettings> config)
+                ISettingsProvider settingsProvider, IRepositoryFactory repoFactory, IOptions<AppSettings> config,
+                IChangesStatsService<CurrencyChangeApiData> statsService)
         {
             _dataSource = dataSource;
             _notifier = notifier;
             _settingsProvider = settingsProvider;
             _repoFactory = repoFactory;
+            _statsService = statsService;
             Period = config.Value.ChangeWorkerPeriodSeconds * 1000;
             _updateClientsCyclePeriod = config.Value.ChangeWorkerUpdateCycle;
         }
@@ -44,7 +48,10 @@ namespace CurrencyTrackerServer.ChangeTrackerService.Concrete
                 var changes = await _dataSource.GetData();
                 _currentCycle++;
                 if (changes.Any())
+                {
                     OnUpdated(changes);
+                    _statsService.UpdateStates(changes);
+                }
             }
             catch (Exception e)
             {

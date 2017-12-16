@@ -12,9 +12,10 @@ using System;
 namespace CurrencyTrackerServer.Data.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20171201174142_HistorySmallerColumn")]
+    partial class HistorySmallerColumn
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -152,23 +153,6 @@ namespace CurrencyTrackerServer.Data.Migrations
                     b.HasIndex("UserId");
 
                     b.ToTable("States");
-                });
-
-            modelBuilder.Entity("CurrencyTrackerServer.Infrastructure.Entities.Data.StatsCurrencyState", b =>
-                {
-                    b.Property<string>("Currency");
-
-                    b.Property<int>("UpdateSource");
-
-                    b.Property<DateTimeOffset>("Created");
-
-                    b.Property<DateTimeOffset>("LastChangeTime");
-
-                    b.Property<double>("Percentage");
-
-                    b.HasKey("Currency", "UpdateSource");
-
-                    b.ToTable("StatsStates");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole", b =>

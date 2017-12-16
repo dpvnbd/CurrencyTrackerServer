@@ -90,12 +90,7 @@ namespace CurrencyTrackerServer.ChangeTrackerService.Concrete
             var now = DateTime.Now;
             var changes = new List<Change>();
 
-            List<CurrencyState> states;
-
-            using (var repo = _repoFactory.Create<CurrencyState>())
-            {
-                states = repo.GetAll().Where(s => s.UserId == UserId).ToList();
-            }
+            var states = GetStates();
 
             foreach (var currency in currencies)
             {
@@ -135,7 +130,7 @@ namespace CurrencyTrackerServer.ChangeTrackerService.Concrete
                     }
                     else if (threshold < 0 && currency.PercentChanged > threshold - percentage)
                     {
-                        continue; ;
+                        continue;
                     }
                     else if (threshold == 0 && Math.Abs(currency.PercentChanged) < percentage)
                     {
@@ -152,6 +147,11 @@ namespace CurrencyTrackerServer.ChangeTrackerService.Concrete
                     Threshold = CurrencyState.CalculateThreshold(percentage, currency.PercentChanged),
                     Source = currency.UpdateSource
                 };
+
+                if (settings.SeparateSmallerChanges && currency.PercentChanged < settings.SeparatePercentage)
+                {
+                    change.IsSmaller = true;
+                }
 
                 await SaveState(change);
 
@@ -222,9 +222,9 @@ namespace CurrencyTrackerServer.ChangeTrackerService.Concrete
                         Percentage = change.Percentage,
                         Time = change.Time.GetValueOrDefault(),
                         Type = change.Type,
-                        UpdateSource = change.Source
+                        UpdateSource = change.Source,
+                        IsSmaller = change.IsSmaller
                     };
-
 
                     await repo.Add(entry, false);
                 }
@@ -232,7 +232,15 @@ namespace CurrencyTrackerServer.ChangeTrackerService.Concrete
             }
         }
 
-        public async  Task<IEnumerable<Change>> GetHistory()
+        public IEnumerable<CurrencyState> GetStates()
+        {
+            using (var repo = _repoFactory.Create<CurrencyState>())
+            {
+                return repo.GetAll().Where(s => s.UserId == UserId && s.UpdateSource == Source).ToList();
+            }
+        }
+
+        public async Task<IEnumerable<Change>> GetHistory()
         {
             IEnumerable<ChangeHistoryEntry> entities;
             using (var repo = _repoFactory.Create<ChangeHistoryEntry>())
@@ -255,7 +263,8 @@ namespace CurrencyTrackerServer.ChangeTrackerService.Concrete
                 Percentage = entity.Percentage,
                 Time = entity.Time,
                 Type = entity.Type,
-                Source = entity.UpdateSource
+                Source = entity.UpdateSource,
+                IsSmaller = entity.IsSmaller
             })
                 .ToList();
         }

@@ -7,11 +7,13 @@ using CurrencyTrackerServer.ChangeTrackerService.Concrete.Bittrex;
 using CurrencyTrackerServer.ChangeTrackerService.Concrete.Poloniex;
 using CurrencyTrackerServer.ChangeTrackerService.Entities;
 using CurrencyTrackerServer.Infrastructure.Abstract;
+using CurrencyTrackerServer.Infrastructure.Abstract.Changes;
 using CurrencyTrackerServer.Infrastructure.Abstract.Data;
 using CurrencyTrackerServer.Infrastructure.Entities;
 using CurrencyTrackerServer.Infrastructure.Entities.Changes;
 using CurrencyTrackerServer.Infrastructure.Entities.Data;
 using CurrencyTrackerServer.Web.Infrastructure.Concrete.MultipleUsers;
+using CurrencyTrackerServer.Web.Models;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
@@ -31,10 +33,12 @@ namespace CurrencyTrackerServer.Web.Controllers
     private readonly UserManager<ApplicationUser> _userManager;
     private readonly PoloniexApiDataSource _poloniexApiDataSource;
     private readonly UserContainersManager _userContainersManager;
+    private readonly IChangesStatsService<CurrencyChangeApiData> _statsService;
 
     public ChangesController(BittrexTimerWorker bWorker, PoloniexTimerWorker pWorker,
-      ISettingsProvider settingsProvider, UserManager<ApplicationUser> userManager,
-      PoloniexApiDataSource poloniexApiDataSource, UserContainersManager userContainersManager)
+        ISettingsProvider settingsProvider, UserManager<ApplicationUser> userManager,
+        PoloniexApiDataSource poloniexApiDataSource, UserContainersManager userContainersManager,
+        IChangesStatsService<CurrencyChangeApiData> statsService)
     {
       _bWorker = bWorker;
       _pWorker = pWorker;
@@ -42,7 +46,7 @@ namespace CurrencyTrackerServer.Web.Controllers
       _userManager = userManager;
       _poloniexApiDataSource = poloniexApiDataSource;
       _userContainersManager = userContainersManager;
-
+      _statsService = statsService;
       _bWorker.Start();
       _pWorker.Start();
     }
@@ -131,6 +135,15 @@ namespace CurrencyTrackerServer.Web.Controllers
       {
         return BadRequest(ModelState);
       }
+    }
+
+    [HttpGet("stats/{source}")]
+    public async Task<IEnumerable<ChangePercentageDto>> Stats(UpdateSource source)
+    {
+      var changes = await _statsService.GetStates(source);
+    
+      return changes.Select(c => new ChangePercentageDto
+      { Currency = c.Currency, PercentChanged = Math.Round(c.Percentage, 2) });
     }
 
     [HttpGet("poloniexCurrencies")]

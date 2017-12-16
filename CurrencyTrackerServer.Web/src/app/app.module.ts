@@ -1,5 +1,6 @@
 import { BrowserModule } from '@angular/platform-browser';
 import { NgModule, ErrorHandler } from '@angular/core';
+import { Ng2GoogleChartsModule } from 'ng2-google-charts';
 
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 
@@ -31,12 +32,16 @@ import { AuthInterceptor } from './auth/auth.interceptor';
 import { ConnectionService } from './connection/connection.service';
 import { NoticesComponent } from './notices/notices.component';
 import { NoticesService } from './notices/notices.service';
+import { ChangesStatsComponent } from './stats/changesStats/changesStats.component';
+import { StatsComponent } from './stats/stats.component';
+import { ChangesStatsService } from './stats/changesStats/changesStats.service';
 
 const routes: Routes = [
   { path: '', component: HomeComponent },
   { path: 'register', component: RegisterComponent },
   { path: 'login', component: LoginComponent },
-  { path: 'logout', component: LoginComponent }
+  { path: 'logout', component: LoginComponent },
+  { path: 'stats', component: StatsComponent }
 ];
 
 @NgModule({
@@ -49,7 +54,9 @@ const routes: Routes = [
     PriceComponent,
     ReminderComponent,
     AlertComponent,
-    NoticesComponent
+    NoticesComponent,
+    StatsComponent,
+    ChangesStatsComponent
   ],
   imports: [
     BrowserModule,
@@ -58,6 +65,7 @@ const routes: Routes = [
     HttpClientModule,
     HttpModule,
     NgbModule.forRoot(),
+    Ng2GoogleChartsModule,
     RouterModule.forRoot(routes, {}),
   ],
   providers: [
@@ -80,7 +88,8 @@ const routes: Routes = [
     ReminderService,
     AuthService,
     AuthAlertService,
-    NoticesService
+    NoticesService,
+    ChangesStatsService
   ],
   bootstrap: [AppComponent]
 })

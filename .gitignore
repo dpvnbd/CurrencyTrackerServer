@@ -264,3 +264,6 @@ __pycache__/
 *.pubxml
 
 log*.txt
+
+.vscode/
+appsettings.production.json

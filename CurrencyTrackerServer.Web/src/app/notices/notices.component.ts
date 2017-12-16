@@ -22,7 +22,7 @@ export class NoticesComponent implements OnInit {
 
     ngOnInit() {
         this.noticesService.getNotices().then((n: Notice[]) => {
-            this.addChanges(n, false);
+            this.addChanges(n, false, true);
         });
 
         this.noticesService.subject.subscribe((changes: Notice[]) => {
@@ -44,7 +44,7 @@ export class NoticesComponent implements OnInit {
         this.initAudio();
     }
 
-    addChanges(changes: Notice[], markAsNew = true) {
+    addChanges(changes: Notice[], markAsNew = true, addToEnd = false) {
         for (const oldChange of this.notices) {
             oldChange.recentlyChanged = false;
         }
@@ -53,11 +53,15 @@ export class NoticesComponent implements OnInit {
             if (markAsNew) {
                 change.recentlyChanged = true;
             }
-            this.notices.push(change);
+            if (addToEnd) {
+                this.notices.push(change);
+            } else {
+                this.notices.unshift(change);
+            }
         }
-        if (changes && changes.length > 0) {
-            this.scrollToBottom();
-        }
+        // if (changes && changes.length > 0) {
+        //     this.scrollToBottom();
+        // }
 
     }
 
