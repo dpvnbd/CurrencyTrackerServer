@@ -266,3 +266,4 @@ __pycache__/
 log*.txt
 
 .vscode/
+appsettings.production.json
