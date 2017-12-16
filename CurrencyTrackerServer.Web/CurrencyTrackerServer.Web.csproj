@@ -7,11 +7,16 @@
 		<AssetTargetFallback>portable-net45+win8</AssetTargetFallback>
 		<Configurations>Debug;Release;ReleaseNoAngular</Configurations>
 		<UserSecretsId>bc715cdb-13dc-46d2-b162-64b23592ccea</UserSecretsId>
+    <ServerGarbageCollection>false</ServerGarbageCollection>
 
   </PropertyGroup>
 
   <ItemGroup>
     <None Remove="log*.txt" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Remove="Properties\PublishProfiles\Default Settings.pubxml" />
   </ItemGroup>
 
   <ItemGroup>
