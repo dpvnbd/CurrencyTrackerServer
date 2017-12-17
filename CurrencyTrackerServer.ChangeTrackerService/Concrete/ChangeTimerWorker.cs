@@ -22,7 +22,7 @@ namespace CurrencyTrackerServer.ChangeTrackerService.Concrete
         private readonly IRepositoryFactory _repoFactory;
         private readonly IChangesStatsService<CurrencyChangeApiData> _statsService;
 
-        private readonly int _updateClientsCyclePeriod; 
+        private readonly int _updateClientsCyclePeriod = 3; 
         private int _currentCycle;
 
 

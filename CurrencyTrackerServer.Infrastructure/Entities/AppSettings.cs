@@ -4,6 +4,7 @@ namespace CurrencyTrackerServer.Infrastructure.Entities
   {
     public int ChangeWorkerPeriodSeconds { get; set; } = 3;
     public int ChangeWorkerUpdateCycle { get; set; } = 20;
+    public int ChangeMonitorStateSyncCycle { get; set; } = 10;
     public int PriceWorkerPeriodSeconds { get; set; } = 3;
     public int ReminderPeriodSeconds { get; set; } = 150;
     public int NoticesWorkerPeriodSeconds { get; set; } = 60;
