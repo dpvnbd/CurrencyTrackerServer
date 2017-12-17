@@ -59,6 +59,7 @@ namespace CurrencyTrackerServer.ChangeTrackerService.Concrete
       _settingsProvider = settingsProvider;
       UserId = userId;
       changeWorker.Updated += ChangeWorkerOnUpdated;
+      _stateSyncCyclePeriod = config.Value.ChangeMonitorStateSyncCycle;
     }
 
     private async void ChangeWorkerOnUpdated(object sender, IEnumerable<CurrencyChangeApiData> currencyChangeApiData)
@@ -85,7 +86,7 @@ namespace CurrencyTrackerServer.ChangeTrackerService.Concrete
       {
         if (_currentCycle >= _stateSyncCyclePeriod)
         {
-          ResetStates(States, TimeSpan.FromHours(Settings.ResetHours));
+          States = ResetStates(States, TimeSpan.FromHours(Settings.ResetHours));
           await SaveStates(States);
           _currentCycle = 0;
         }
@@ -356,17 +357,18 @@ namespace CurrencyTrackerServer.ChangeTrackerService.Concrete
       }
     }
 
-    protected void ResetStates(IList<CurrencyState> states, TimeSpan olderThan)
+    protected List<CurrencyState> ResetStates(IEnumerable<CurrencyState> states, TimeSpan olderThan)
     {
       var now = DateTime.Now;
-
-      foreach (var state in states)
+      var localStates = states.ToList();
+      foreach (var state in localStates)
       {
         if (now > state.Created + olderThan)
         {
-          states.Remove(state);
+          localStates.Remove(state);
         }
       }
+      return localStates;
     }
 
 
