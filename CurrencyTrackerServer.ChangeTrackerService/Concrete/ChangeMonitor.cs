@@ -360,14 +360,7 @@ namespace CurrencyTrackerServer.ChangeTrackerService.Concrete
     protected List<CurrencyState> ResetStates(IEnumerable<CurrencyState> states, TimeSpan olderThan)
     {
       var now = DateTime.Now;
-      var localStates = states.ToList();
-      foreach (var state in localStates)
-      {
-        if (now > state.Created + olderThan)
-        {
-          localStates.Remove(state);
-        }
-      }
+      var localStates = states.Where(s => now <= s.Created + olderThan).ToList();      
       return localStates;
     }
 
