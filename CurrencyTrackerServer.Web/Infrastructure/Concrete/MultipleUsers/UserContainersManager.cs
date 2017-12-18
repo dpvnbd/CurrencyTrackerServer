@@ -131,6 +131,11 @@ namespace CurrencyTrackerServer.Web.Infrastructure.Concrete.MultipleUsers
 
     public void AddConnection(string userToken, string connection)
     {
+      if(string.IsNullOrEmpty(userToken) || string.IsNullOrEmpty(connection))
+      {
+        return;
+      }
+
       if (!TokenConnections.ContainsKey(userToken))
       {
         TokenConnections.TryAdd(userToken, new List<string>());
