@@ -5,7 +5,7 @@ namespace CurrencyTrackerServer.Infrastructure.Abstract
 {
     public interface IDataSource<T>
     {
-        Task<T> GetData();
+        T GetData();
         UpdateSource Source { get; }
     }
 }

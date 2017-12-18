@@ -12,39 +12,44 @@ using Microsoft.Extensions.Options;
 
 namespace CurrencyTrackerServer.NoticesService.Concrete
 {
-    public class TwitterNoticesDataSource:IDataSource<IEnumerable<Notice>>
+  public class TwitterNoticesDataSource : IDataSource<IEnumerable<Notice>>
+  {
+    private readonly IOptions<TwitterSettings> _settings;
+    private OAuth2Token _appOnly;
+
+    public TwitterNoticesDataSource(IOptions<TwitterSettings> settings)
     {
-        private readonly IOptions<TwitterSettings> _settings;
-        private OAuth2Token _appOnly;
-
-        public TwitterNoticesDataSource(IOptions<TwitterSettings> settings)
-        {
-            _settings = settings;
-            Initialize();
-        }
-
-        private async void Initialize()
-        {
-            _appOnly = await OAuth2.GetTokenAsync(_settings.Value.ConsumerKey, _settings.Value.ConsumerSecret);
-        }
-
-
-        public async Task<IEnumerable<Notice>> GetData()
-        {
-            try
-            {
-                var tweets = await _appOnly.Statuses.UserTimelineAsync(screen_name: _settings.Value.UsernameToWatch, count: 10,
-                        exclude_replies: true);
-                return tweets.Select(t => new Notice { Time = t.CreatedAt, Message = t.Text,
-                    Source = Source, Destination = UpdateDestination.Notices});
-            }
-            catch (Exception)
-            {
-                Initialize();
-                throw;
-            }
-        }
-
-        public virtual UpdateSource Source { get; set; }
+      _settings = settings;
+      Initialize();
     }
+
+    private void Initialize()
+    {
+      _appOnly = OAuth2.GetTokenAsync(_settings.Value.ConsumerKey, _settings.Value.ConsumerSecret).Result;
+    }
+
+
+    public IEnumerable<Notice> GetData()
+    {
+      try
+      {
+        var tweets = _appOnly.Statuses.UserTimelineAsync(screen_name: _settings.Value.UsernameToWatch, count: 10,
+                exclude_replies: true).Result;
+        return tweets.Select(t => new Notice
+        {
+          Time = t.CreatedAt,
+          Message = t.Text,
+          Source = Source,
+          Destination = UpdateDestination.Notices
+        });
+      }
+      catch (Exception)
+      {
+        Initialize();
+        throw;
+      }
+    }
+
+    public virtual UpdateSource Source { get; set; }
+  }
 }

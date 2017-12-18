@@ -20,9 +20,9 @@ namespace CurrencyTrackerServer.ReminderService
 
     public override UpdateSource Source => UpdateSource.None;
 
-    protected override async Task DoWork()
+    protected override void DoWork()
     {
-      await _notifier.SendToAll(new []{new Reminder {Time = DateTime.Now}});
+      _notifier.SendToAll(new[] { new Reminder { Time = DateTime.Now } });
     }
   }
 }

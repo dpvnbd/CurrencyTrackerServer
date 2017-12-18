@@ -45,14 +45,14 @@ namespace CurrencyTrackerServer.Web.Controllers
     }
 
     [HttpGet("lastPrice/{source}/{currency}")]
-    public async Task<Price> GetLastPrice(UpdateSource source, string currency)
+    public Price GetLastPrice(UpdateSource source, string currency)
     {
       switch (source)
       {
         case UpdateSource.Bittrex:
-          return await _bWorker.GetPrice(currency);
+          return _bWorker.GetPrice(currency);
         case UpdateSource.Poloniex:
-          return await _pWorker.GetPrice(currency);
+          return _pWorker.GetPrice(currency);
         default:
           return new Price { Message = "Source " + source + " doesn't exist" };
       }
@@ -102,7 +102,7 @@ namespace CurrencyTrackerServer.Web.Controllers
       if (ModelState.IsValid)
       {
         var user = await GetCurrentUser();
-        await _settingsProvider.SaveSettings(source, UpdateDestination.Price, user.Id, settings);
+        _settingsProvider.SaveSettings(source, UpdateDestination.Price, user.Id, settings);
         return Ok();
       }
       else
@@ -139,7 +139,7 @@ namespace CurrencyTrackerServer.Web.Controllers
     private async Task<UserMonitorsContainer> GetUserContainer()
     {
       var user = await GetCurrentUser();
-      return (UserMonitorsContainer)await _userContainersManager.GetUserContainer(user.Id, _userManager);
+      return (UserMonitorsContainer)_userContainersManager.GetUserContainer(user.Id, _userManager);
     }
 
     private async Task<ApplicationUser> GetCurrentUser()

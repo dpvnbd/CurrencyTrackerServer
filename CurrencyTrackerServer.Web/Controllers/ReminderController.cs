@@ -65,7 +65,7 @@ namespace CurrencyTrackerServer.Web.Controllers
         return BadRequest();
       }
 
-      await _userContainersManager.InitializeUserContainer(user.Id, _userManager);
+      _userContainersManager.InitializeUserContainer(user.Id, _userManager);
       return Ok();
     }
 

@@ -46,11 +46,11 @@ namespace CurrencyTrackerServer.Infrastructure.Abstract.Workers
       }
     }
 
-    private async void TimerTick(object state)
+    private void TimerTick(object state)
     {
       try
       {
-        await DoWork();
+        DoWork();
       }
       catch (Exception e)
       {
@@ -68,7 +68,7 @@ namespace CurrencyTrackerServer.Infrastructure.Abstract.Workers
     /// If updates are found, it should invoke the event Updated.
     /// </summary>
     /// <returns></returns>
-    protected abstract Task DoWork();
+    protected abstract void DoWork();
 
 
     /// <summary>

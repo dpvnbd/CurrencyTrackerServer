@@ -62,7 +62,7 @@ namespace CurrencyTrackerServer.ChangeTrackerService.Concrete
       _stateSyncCyclePeriod = config.Value.ChangeMonitorStateSyncCycle;
     }
 
-    private async void ChangeWorkerOnUpdated(object sender, IEnumerable<CurrencyChangeApiData> currencyChangeApiData)
+    private void ChangeWorkerOnUpdated(object sender, IEnumerable<CurrencyChangeApiData> currencyChangeApiData)
     {
       if (_processing)
       {
@@ -87,17 +87,17 @@ namespace CurrencyTrackerServer.ChangeTrackerService.Concrete
         if (_currentCycle >= _stateSyncCyclePeriod)
         {
           States = ResetStates(States, TimeSpan.FromHours(Settings.ResetHours));
-          await SaveStates(States);
+          SaveStates(States);
           _currentCycle = 0;
         }
 
-        var changes = await CheckChanges(currencyChangeApiData, States);
+        var changes = CheckChanges(currencyChangeApiData, States);
 
         if (changes.Any())
         {
           var handler = Changed;
           handler?.Invoke(this, changes);
-          await SaveHistory(changes);
+           SaveHistory(changes);
         }
 
       }
@@ -111,7 +111,7 @@ namespace CurrencyTrackerServer.ChangeTrackerService.Concrete
     }
 
 
-    public async Task<IEnumerable<Change>> CheckChanges(IEnumerable<CurrencyChangeApiData> currencies,
+    public IEnumerable<Change> CheckChanges(IEnumerable<CurrencyChangeApiData> currencies,
       IList<CurrencyState> states)
     {
       if (currencies != null && !currencies.Any())
@@ -184,7 +184,7 @@ namespace CurrencyTrackerServer.ChangeTrackerService.Concrete
           change.IsSmaller = true;
         }
 
-        // await SaveState(change); 
+        //  SaveState(change); 
         // TODO: save state
         if (state == null)
         {
@@ -225,7 +225,7 @@ namespace CurrencyTrackerServer.ChangeTrackerService.Concrete
       return changes;
     }
 
-    protected async Task SaveStates(IEnumerable<CurrencyState> states)
+    protected void SaveStates(IEnumerable<CurrencyState> states)
     {
       using (var repo = _repoFactory.Create<CurrencyState>())
       {
@@ -236,20 +236,20 @@ namespace CurrencyTrackerServer.ChangeTrackerService.Concrete
           var dbState = dbStates.FirstOrDefault(s => s.Currency == state.Currency);
           if (dbState == null)
           {
-            await repo.Add(state, false);
+            repo.Add(state, false);
           }
           else
           {
             dbState.LastChangeTime = state.LastChangeTime;
             dbState.Threshold = state.Threshold;
-            await repo.Update(dbState, false);
+            repo.Update(dbState, false);
           }
         }
-        await repo.SaveChanges();
+        repo.SaveChanges();
       }
     }
 
-    protected async Task SaveHistory(IEnumerable<Change> changes)
+    protected void SaveHistory(IEnumerable<Change> changes)
     {
       using (var repo = _repoFactory.Create<ChangeHistoryEntry>())
       {
@@ -267,9 +267,9 @@ namespace CurrencyTrackerServer.ChangeTrackerService.Concrete
             IsSmaller = change.IsSmaller
           };
 
-          await repo.Add(entry, false);
+          repo.Add(entry, false);
         }
-        await repo.SaveChanges();
+        repo.SaveChanges();
       }
     }
 
@@ -281,7 +281,7 @@ namespace CurrencyTrackerServer.ChangeTrackerService.Concrete
       }
     }
 
-    public async Task<IEnumerable<Change>> GetHistory()
+    public IEnumerable<Change> GetHistory()
     {
       IEnumerable<ChangeHistoryEntry> entities;
       using (var repo = _repoFactory.Create<ChangeHistoryEntry>())
@@ -292,9 +292,9 @@ namespace CurrencyTrackerServer.ChangeTrackerService.Concrete
         var toDelete = history.Take(Math.Max(0, history.Count() - 50));
         foreach (var entry in toDelete)
         {
-          await repo.Delete(entry, false);
+          repo.Delete(entry, false);
         }
-        await repo.SaveChanges();
+        repo.SaveChanges();
       }
 
       return entities.Select(entity => new Change
@@ -310,21 +310,21 @@ namespace CurrencyTrackerServer.ChangeTrackerService.Concrete
           .ToList();
     }
 
-    public async Task ResetAll()
+    public void ResetAll()
     {
       using (var repo = _repoFactory.Create<CurrencyState>())
       {
         var states = repo.GetAll().Where(s => s.UserId == UserId && s.UpdateSource == Source);
         foreach (var entity in states)
         {
-          await repo.Delete(entity, false);
+          repo.Delete(entity, false);
         }
-        await repo.SaveChanges();
+        repo.SaveChanges();
       }
-      await ClearHistory(TimeSpan.Zero, true);
+      ClearHistory(TimeSpan.Zero, true);
     }
 
-    public async Task ClearHistory(TimeSpan olderThan, bool logDeletion = false)
+    public void ClearHistory(TimeSpan olderThan, bool logDeletion = false)
     {
       var now = DateTime.Now;
 
@@ -336,11 +336,11 @@ namespace CurrencyTrackerServer.ChangeTrackerService.Concrete
         {
           if (now > entry.Time + olderThan)
           {
-            await historyRepo.Delete(entry, false);
+            historyRepo.Delete(entry, false);
           }
         }
 
-        await historyRepo.SaveChanges();
+        historyRepo.SaveChanges();
 
         if (logDeletion)
         {
@@ -352,7 +352,7 @@ namespace CurrencyTrackerServer.ChangeTrackerService.Concrete
             Time = DateTime.Now,
             UpdateSource = Source
           };
-          await historyRepo.Add(entry);
+          historyRepo.Add(entry);
         }
       }
     }

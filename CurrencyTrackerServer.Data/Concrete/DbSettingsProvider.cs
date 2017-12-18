@@ -40,32 +40,32 @@ namespace CurrencyTrackerServer.Data.Concrete
             return settings;
         }
 
-        public async Task SaveSettings<T>(UpdateSource source, UpdateDestination destination, string userId, T settings)
-        {
-            
-            using (var repo = _repoFactory.Create<SettingsSerialized>())
-            {
-                var dbDettings = repo.GetAll().FirstOrDefault(s =>
-                    (s.UserId == userId && s.Destination == destination && s.Source == source));
+    public void SaveSettings<T>(UpdateSource source, UpdateDestination destination, string userId, T settings)
+    {
 
-                var serialized = JsonConvert.SerializeObject(settings);
-                if (dbDettings == null)
-                {
-                    var newSettings = new SettingsSerialized
-                    {
-                        Source = source,
-                        Destination = destination,
-                        UserId = userId,
-                        SerializedSettings = serialized
-                    };
-                    await repo.Add(newSettings);
-                }
-                else
-                {
-                    dbDettings.SerializedSettings = serialized;
-                    await repo.Update(dbDettings);
-                }
-            }
+      using (var repo = _repoFactory.Create<SettingsSerialized>())
+      {
+        var dbDettings = repo.GetAll().FirstOrDefault(s =>
+            (s.UserId == userId && s.Destination == destination && s.Source == source));
+
+        var serialized = JsonConvert.SerializeObject(settings);
+        if (dbDettings == null)
+        {
+          var newSettings = new SettingsSerialized
+          {
+            Source = source,
+            Destination = destination,
+            UserId = userId,
+            SerializedSettings = serialized
+          };
+          repo.Add(newSettings);
         }
+        else
+        {
+          dbDettings.SerializedSettings = serialized;
+          repo.Update(dbDettings);
+        }
+      }
     }
+  }
 }

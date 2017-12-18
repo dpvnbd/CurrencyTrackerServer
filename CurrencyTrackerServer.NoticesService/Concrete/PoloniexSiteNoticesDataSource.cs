@@ -18,19 +18,19 @@ namespace CurrencyTrackerServer.NoticesService.Concrete
         {
             _noticesPageUrl = "https://poloniex.com/lending";
         }
-        public async Task<IEnumerable<Notice>> GetData()
-        {
-            string pageHtml;
-            using (var httpClient = new HttpClient())
-            {
-                var response = await httpClient.GetAsync(_noticesPageUrl);
-                pageHtml = await response.Content.ReadAsStringAsync();
-            }
-            var notices = ParsePage(pageHtml);
-            return notices;
-        }
+    public IEnumerable<Notice> GetData()
+    {
+      string pageHtml;
+      using (var httpClient = new HttpClient())
+      {
+        var response = httpClient.GetAsync(_noticesPageUrl).Result;
+        pageHtml = response.Content.ReadAsStringAsync().Result;
+      }
+      var notices = ParsePage(pageHtml);
+      return notices;
+    }
 
-        public IEnumerable<Notice> ParsePage(string content)
+    public IEnumerable<Notice> ParsePage(string content)
         {
             var notices = new List<Notice>();
 

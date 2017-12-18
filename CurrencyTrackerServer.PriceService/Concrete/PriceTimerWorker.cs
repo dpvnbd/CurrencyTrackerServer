@@ -14,61 +14,61 @@ using Microsoft.Extensions.Options;
 
 namespace CurrencyTrackerServer.PriceService.Concrete
 {
-    public abstract class PriceTimerWorker : AbstractTimerWorker<IEnumerable<ApiPrice>>
+  public abstract class PriceTimerWorker : AbstractTimerWorker<IEnumerable<ApiPrice>>
+  {
+    private readonly IPriceSource _dataSource;
+    private readonly INotifier _notifier;
+
+    public PriceTimerWorker(IPriceSource dataSource, INotifier notifier,
+        ISettingsProvider settingsProvider, IOptions<AppSettings> config)
     {
-        private readonly IPriceSource _dataSource;
-        private readonly INotifier _notifier;
-
-        public PriceTimerWorker(IPriceSource dataSource, INotifier notifier,
-            ISettingsProvider settingsProvider, IOptions<AppSettings> config)
-        {
-            _dataSource = dataSource;
-            _notifier = notifier;
-            Period = config.Value.PriceWorkerPeriodSeconds * 1000;
-        }
-
-        protected override async Task DoWork()
-        {
-            try
-            {
-                var prices = await _dataSource.GetPrices();
-                if (prices.Any())
-                {
-                    OnUpdated(prices);
-                }
-            }
-            catch (Exception e)
-            {
-                var errorMessage = new Price
-                {
-                    Message = e.Message,
-                    //Source = Monitor.Source,
-                    Type = UpdateType.Error
-                };
-
-                await _notifier.SendToAll(new[] { errorMessage });
-            }
-        }
-
-        public async Task<Price> GetPrice(string currency)
-        {
-            try
-            {
-                var prices = await _dataSource.GetPrices();
-                var price = prices.FirstOrDefault(p => string.Equals(p.Currency, currency, StringComparison.OrdinalIgnoreCase));
-                if (price == null) throw new Exception();
-                return new Price { Currency = currency, Last = price.Last, Source = price.Source };
-            }
-            catch (Exception)
-            {
-                return new Price
-                {
-                    Message = "Ошибка получения валюты " + currency,
-                    Source = Source,
-                    Destination = UpdateDestination.Price,
-                    Type = UpdateType.Error
-                };
-            }
-        }
+      _dataSource = dataSource;
+      _notifier = notifier;
+      Period = config.Value.PriceWorkerPeriodSeconds * 1000;
     }
+
+    protected override void DoWork()
+    {
+      try
+      {
+        var prices = _dataSource.GetPrices();
+        if (prices.Any())
+        {
+          OnUpdated(prices);
+        }
+      }
+      catch (Exception e)
+      {
+        var errorMessage = new Price
+        {
+          Message = e.Message,
+          //Source = Monitor.Source,
+          Type = UpdateType.Error
+        };
+
+        _notifier.SendToAll(new[] { errorMessage });
+      }
+    }
+
+    public Price GetPrice(string currency)
+    {
+      try
+      {
+        var prices = _dataSource.GetPrices();
+        var price = prices.FirstOrDefault(p => string.Equals(p.Currency, currency, StringComparison.OrdinalIgnoreCase));
+        if (price == null) throw new Exception();
+        return new Price { Currency = currency, Last = price.Last, Source = price.Source };
+      }
+      catch (Exception)
+      {
+        return new Price
+        {
+          Message = "Ошибка получения валюты " + currency,
+          Source = Source,
+          Destination = UpdateDestination.Price,
+          Type = UpdateType.Error
+        };
+      }
+    }
+  }
 }

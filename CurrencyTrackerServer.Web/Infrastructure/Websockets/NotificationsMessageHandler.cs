@@ -26,16 +26,16 @@ namespace CurrencyTrackerServer.Web.Infrastructure.Websockets
       await SendMessageAsync(socket, message);
     }
 
-    public async Task SendToAll(IEnumerable<BaseChangeEntity> changes)
+    public void SendToAll(IEnumerable<BaseChangeEntity> changes)
     {
       if (changes.Any())
-        await SendMessageToAllAsync(JsonConvert.SerializeObject(changes, new JsonSerializerSettings
+        SendMessageToAllAsync(JsonConvert.SerializeObject(changes, new JsonSerializerSettings
         {
           ContractResolver = new CamelCasePropertyNamesContractResolver(),
         }));
     }
 
-    public async Task<List<string>> SendToConnections(IEnumerable<string> connections, IEnumerable<BaseChangeEntity> changes)
+    public List<string> SendToConnections(IEnumerable<string> connections, IEnumerable<BaseChangeEntity> changes)
     {
       var stillConnected = new List<string>();
       var message = JsonConvert.SerializeObject(changes, new JsonSerializerSettings
@@ -45,7 +45,7 @@ namespace CurrencyTrackerServer.Web.Infrastructure.Websockets
 
       foreach (var connection in connections)
       {
-        var isSent = await SendMessageAsync(connection, message);
+        var isSent = SendMessageAsync(connection, message).Result;
         if (isSent)
         {
           stillConnected.Add(connection);

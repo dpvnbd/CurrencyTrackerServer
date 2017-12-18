@@ -9,6 +9,6 @@ namespace CurrencyTrackerServer.Infrastructure.Abstract.Changes
   {
     void UpdateStates(IEnumerable<T> changes);
 
-    Task<IEnumerable<StatsCurrencyState>> GetStates(UpdateSource source);
+    IEnumerable<StatsCurrencyState> GetStates(UpdateSource source);
   }
 }

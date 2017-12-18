@@ -1,18 +1,17 @@
 ﻿using System;
-using System.Threading.Tasks;
 
 namespace CurrencyTrackerServer.Infrastructure.Abstract.Data
 {
     public interface IRepository<T>:IDisposable where T : class
     {
         System.Linq.IQueryable<T> GetAll();
-        Task<T> Add(T entity);
-        Task<T> Add(T entity, bool saveChanges);
-        Task<T> Update(T entity);
-        Task<T> Update(T entity, bool saveChanges);
-        Task Delete(T entity);
-        Task Delete(T entity, bool saveChanges);
-        Task DeleteAll();
-        Task SaveChanges();
+        T Add(T entity);
+        T Add(T entity, bool saveChanges);
+        T Update(T entity);
+        T Update(T entity, bool saveChanges);
+        void Delete(T entity);
+        void Delete(T entity, bool saveChanges);
+        void DeleteAll();
+        void SaveChanges();
     }
 }

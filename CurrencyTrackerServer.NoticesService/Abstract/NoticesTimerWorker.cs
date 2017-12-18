@@ -21,29 +21,29 @@ namespace CurrencyTrackerServer.NoticesService.Abstract
             _sources = sources;
             Period = config.Value.NoticesWorkerPeriodSeconds * 1000;
         }
-        protected override async Task DoWork()
+    protected override void DoWork()
+    {
+      var notices = new List<Notice>();
+
+      foreach (var dataSource in _sources)
+      {
+        try
         {
-            var notices = new List<Notice>();
-
-            foreach (var dataSource in _sources)
-            {
-                try
-                {
-                    var prices = await dataSource.GetData();
-                    notices.AddRange(prices.Take(5));
-                }
-                catch (Exception e1)
-                {
-                    Log.Debug(e1, "Notices error");
-                }
-            }
-
-            if (notices.Any())
-            {
-                OnUpdated(notices);
-            }
-
+          var prices = dataSource.GetData();
+          notices.AddRange(prices.Take(5));
         }
+        catch (Exception e1)
+        {
+          Log.Debug(e1, "Notices error");
+        }
+      }
+
+      if (notices.Any())
+      {
+        OnUpdated(notices);
+      }
 
     }
+
+  }
 }

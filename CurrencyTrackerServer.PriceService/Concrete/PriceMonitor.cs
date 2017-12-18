@@ -44,12 +44,12 @@ namespace CurrencyTrackerServer.PriceService.Concrete
       _sendNotification = settings.SendNotifications;
     }
 
-    public async void SetNotification(bool value)
+    public void SetNotification(bool value)
     {
       _sendNotification = value;
       var settings = GetSettings();
       settings.SendNotifications = value;
-      await _settingsProvider.SaveSettings(Source, Destination, UserId, settings);
+      _settingsProvider.SaveSettings(Source, Destination, UserId, settings);
 
       var notification = new BaseChangeEntity
       {
@@ -136,7 +136,7 @@ namespace CurrencyTrackerServer.PriceService.Concrete
       return prices;
     }
 
-    private async void SendEmailIfChanged(IEnumerable<Price> prices)
+    private void SendEmailIfChanged(IEnumerable<Price> prices)
     {
       if (prices == null || !prices.Any())
       {
@@ -171,10 +171,10 @@ namespace CurrencyTrackerServer.PriceService.Concrete
         return;
       }
 
-      var isSent = await _messageNotifier.SendMessage(settings.Email, text);
+      var isSent = _messageNotifier.SendMessage(settings.Email, text);
       SetNotification(false);
       settings.SendNotifications = false;
-      await _settingsProvider.SaveSettings(Source, Destination, UserId, settings);
+      _settingsProvider.SaveSettings(Source, Destination, UserId, settings);
     }
 
     private void OnMessage(IEnumerable<BaseChangeEntity> message)

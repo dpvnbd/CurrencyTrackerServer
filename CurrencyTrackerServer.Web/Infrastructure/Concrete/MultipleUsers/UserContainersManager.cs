@@ -61,7 +61,7 @@ namespace CurrencyTrackerServer.Web.Infrastructure.Concrete.MultipleUsers
     /// <param name="userManager">Instance of userManager to create or get a secret token</param>
     /// <returns>A secret token to be used to receive personal notifications</returns>
     /// User manager is passed here because it can't be injected into this singleton class
-    public async Task<string> InitializeUserContainer(string userId, UserManager<ApplicationUser> userManager)
+    public string InitializeUserContainer(string userId, UserManager<ApplicationUser> userManager)
     {
       lock (_lockObject) //Prevent creating multiple containers for one user
       {
@@ -69,8 +69,8 @@ namespace CurrencyTrackerServer.Web.Infrastructure.Concrete.MultipleUsers
         {
           var container = UserContainers[userId];
 
-          if(container != null)
-          return container.UserToken;
+          if (container != null)
+            return container.UserToken;
         }
 
         var token = GetOrCreateUserToken(userId, userManager).Result;
@@ -99,20 +99,20 @@ namespace CurrencyTrackerServer.Web.Infrastructure.Concrete.MultipleUsers
 
     }
 
-    public async Task<AbstractUserMonitorsContainer> GetUserContainer(string userId, UserManager<ApplicationUser> userManager)
+    public AbstractUserMonitorsContainer GetUserContainer(string userId, UserManager<ApplicationUser> userManager)
     {
       var result = UserContainers.TryGetValue(userId, out var container);
 
       if (!result || container == null)
       {
-        await InitializeUserContainer(userId, userManager);
+        InitializeUserContainer(userId, userManager);
         UserContainers.TryGetValue(userId, out container);
       }
 
       return container;
     }
 
-    public async void SendToUser(string userToken, IEnumerable<BaseChangeEntity> changes)
+    public void SendToUser(string userToken, IEnumerable<BaseChangeEntity> changes)
     {
       var isConnected = TokenConnections.TryGetValue(userToken, out var connections);
       if (!isConnected)
@@ -125,7 +125,7 @@ namespace CurrencyTrackerServer.Web.Infrastructure.Concrete.MultipleUsers
         return;
       }
 
-      var stillConnected = await _notifier.SendToConnections(connections, changes);
+      var stillConnected = _notifier.SendToConnections(connections, changes);
       TokenConnections[userToken] = stillConnected;
     }
 

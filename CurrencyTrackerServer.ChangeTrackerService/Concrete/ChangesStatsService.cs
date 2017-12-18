@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
 using CurrencyTrackerServer.ChangeTrackerService.Entities;
 using CurrencyTrackerServer.Infrastructure.Abstract.Changes;
 using CurrencyTrackerServer.Infrastructure.Abstract.Data;
@@ -22,7 +21,7 @@ namespace CurrencyTrackerServer.ChangeTrackerService.Concrete
       _resetHours = settings.Value.ChangesStatsPeriodHours;
     }
 
-    public async void UpdateStates(IEnumerable<CurrencyChangeApiData> changes)
+    public void UpdateStates(IEnumerable<CurrencyChangeApiData> changes)
     {
       using (var repo = _repoFactory.Create<StatsCurrencyState>())
       {
@@ -30,17 +29,18 @@ namespace CurrencyTrackerServer.ChangeTrackerService.Concrete
         {
           if (DateTimeOffset.Now - state.Created >= TimeSpan.FromHours(_resetHours))
           {
-            await repo.Delete(state, false);
+            repo.Delete(state, false);
           }
         }
-        await repo.SaveChanges();
+        repo.SaveChanges();
 
         foreach (var change in changes)
         {
-          if(change.PercentChanged < 0){
+          if (change.PercentChanged < 0)
+          {
             continue;
           }
-          
+
           var state = repo.GetAll().FirstOrDefault(s => s.Currency == change.Currency &&
           s.UpdateSource == change.UpdateSource);
 
@@ -50,7 +50,7 @@ namespace CurrencyTrackerServer.ChangeTrackerService.Concrete
             {
               state.Percentage = change.PercentChanged;
               state.LastChangeTime = DateTimeOffset.Now;
-              await repo.Update(state, false);
+              repo.Update(state, false);
             }
           }
           else
@@ -64,14 +64,14 @@ namespace CurrencyTrackerServer.ChangeTrackerService.Concrete
               UpdateSource = change.UpdateSource,
               Percentage = change.PercentChanged
             };
-            await repo.Add(state, false);
+            repo.Add(state, false);
           }
         }
-        await repo.SaveChanges();
+        repo.SaveChanges();
       }
     }
 
-    public async Task<IEnumerable<StatsCurrencyState>> GetStates(UpdateSource source)
+    public IEnumerable<StatsCurrencyState> GetStates(UpdateSource source)
     {
       using (var repo = _repoFactory.Create<StatsCurrencyState>())
       {
@@ -79,12 +79,12 @@ namespace CurrencyTrackerServer.ChangeTrackerService.Concrete
         {
           if (DateTimeOffset.Now - state.Created >= TimeSpan.FromHours(_resetHours))
           {
-            await repo.Delete(state, false);
+            repo.Delete(state, false);
           }
         }
-        await repo.SaveChanges();
+        repo.SaveChanges();
 
-        return repo.GetAll().Where(s=> s.UpdateSource == source).AsNoTracking().ToList();
+        return repo.GetAll().Where(s => s.UpdateSource == source).AsNoTracking().ToList();
       }
     }
   }

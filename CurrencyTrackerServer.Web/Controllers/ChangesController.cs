@@ -59,9 +59,9 @@ namespace CurrencyTrackerServer.Web.Controllers
       switch (source)
       {
         case UpdateSource.Bittrex:
-          return await container.BittrexChangeMonitor.GetHistory();
+          return container.BittrexChangeMonitor.GetHistory();
         case UpdateSource.Poloniex:
-          return await container.PoloniexChangeMonitor.GetHistory();
+          return container.PoloniexChangeMonitor.GetHistory();
       }
       return Array.Empty<Change>();
     }
@@ -74,10 +74,10 @@ namespace CurrencyTrackerServer.Web.Controllers
       switch (source)
       {
         case UpdateSource.Bittrex:
-          await container.BittrexChangeMonitor.ResetAll();
+          container.BittrexChangeMonitor.ResetAll();
           break;
         case UpdateSource.Poloniex:
-          await container.PoloniexChangeMonitor.ResetAll();
+          container.PoloniexChangeMonitor.ResetAll();
           break;
       }
       return Ok();
@@ -128,7 +128,7 @@ namespace CurrencyTrackerServer.Web.Controllers
       if (ModelState.IsValid)
       {
         var user = await GetCurrentUser();
-        await _settingsProvider.SaveSettings(source, UpdateDestination.CurrencyChange, user.Id, settings);
+        _settingsProvider.SaveSettings(source, UpdateDestination.CurrencyChange, user.Id, settings);
         return Ok();
       }
       else
@@ -138,25 +138,25 @@ namespace CurrencyTrackerServer.Web.Controllers
     }
 
     [HttpGet("stats/{source}")]
-    public async Task<IEnumerable<ChangePercentageDto>> Stats(UpdateSource source)
+    public IEnumerable<ChangePercentageDto> Stats(UpdateSource source)
     {
-      var changes = await _statsService.GetStates(source);
-    
+      var changes = _statsService.GetStates(source);
+
       return changes.Select(c => new ChangePercentageDto
       { Currency = c.Currency, PercentChanged = Math.Round(c.Percentage, 2) });
     }
 
     [HttpGet("poloniexCurrencies")]
-    public async Task<IEnumerable<string>> GetPoloniexCurrencies()
+    public IEnumerable<string> GetPoloniexCurrencies()
     {
-      var currencies = await _poloniexApiDataSource.GetCurrencies();
+      var currencies = _poloniexApiDataSource.GetCurrencies();
       return currencies;
     }
 
     private async Task<UserMonitorsContainer> GetUserContainer()
     {
       var user = await GetCurrentUser();
-      return (UserMonitorsContainer)await _userContainersManager.GetUserContainer(user.Id, _userManager);
+      return (UserMonitorsContainer)_userContainersManager.GetUserContainer(user.Id, _userManager);
     }
 
     private async Task<ApplicationUser> GetCurrentUser()

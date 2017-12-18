@@ -47,58 +47,58 @@ namespace CurrencyTrackerServer.ChangeTrackerService.Concrete.Poloniex
             return list;
         }
 
-        public async Task<IEnumerable<CurrencyChangeApiData>> GetData()
+    public IEnumerable<CurrencyChangeApiData> GetData()
+    {
+      var list = new List<CurrencyChangeApiData>();
+      try
+      {
+        string json;
+        using (var client = new HttpClient())
         {
-            var list = new List<CurrencyChangeApiData>();
-            try
-            {
-                string json;
-                using (var client = new HttpClient())
-                {
-                    var result = await client.GetAsync(_url);
-                    if (!result.IsSuccessStatusCode)
-                    {
-                        throw new Exception("Ошибка работы с API (Poloniex)");
-                    }
-                    json = await result.Content.ReadAsStringAsync();
-                }
-                list = ParseResponse(json);
-            }
-            catch (Exception e)
-            {
-                throw new Exception("Ошибка загрузки значений (Poloniex); ", e);
-            }
-
-            return list;
+          var result = client.GetAsync(_url).Result;
+          if (!result.IsSuccessStatusCode)
+          {
+            throw new Exception("Ошибка работы с API (Poloniex)");
+          }
+          json = result.Content.ReadAsStringAsync().Result;
         }
+        list = ParseResponse(json);
+      }
+      catch (Exception e)
+      {
+        throw new Exception("Ошибка загрузки значений (Poloniex); ", e);
+      }
 
-        public async Task<IEnumerable<string>> GetCurrencies()
+      return list;
+    }
+
+    public IEnumerable<string> GetCurrencies()
+    {
+      List<string> list;
+      try
+      {
+        string json;
+        using (var client = new HttpClient())
         {
-            List<string> list;
-            try
-            {
-                string json;
-                using (var client = new HttpClient())
-                {
-                    var result = await client.GetAsync(_url);
-                    if (!result.IsSuccessStatusCode)
-                    {
-                        throw new Exception("Ошибка работы с API (Poloniex)");
-                    }
-                    json = await result.Content.ReadAsStringAsync();
-                }
-                var statesList = ParseResponse(json);
-
-                list = statesList.Select(s => s.Currency).ToList();
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine("Error getting poloniex currencies " + e.Message);
-                list = new List<string>();
-            }
-            return list;
-
+          var result = client.GetAsync(_url).Result;
+          if (!result.IsSuccessStatusCode)
+          {
+            throw new Exception("Ошибка работы с API (Poloniex)");
+          }
+          json = result.Content.ReadAsStringAsync().Result;
         }
+        var statesList = ParseResponse(json);
+
+        list = statesList.Select(s => s.Currency).ToList();
+      }
+      catch (Exception e)
+      {
+        Console.WriteLine("Error getting poloniex currencies " + e.Message);
+        list = new List<string>();
+      }
+      return list;
 
     }
+
+  }
 }

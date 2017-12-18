@@ -27,7 +27,7 @@ namespace CurrencyTrackerServer.Tests.ChangeTrackerService
                     Percentage = 10.12
                 };
                 var service = new Repository<TestEntity>(context);
-                await service.Add(constituent);
+                service.Add(constituent);
             }
 
             // Use a separate instance of the context to verify correct data was saved to database
@@ -40,7 +40,7 @@ namespace CurrencyTrackerServer.Tests.ChangeTrackerService
 
                 var service = new Repository<TestEntity>(context);
                 entity.Percentage = 42;
-                await service.Update(entity);
+                service.Update(entity);
             }
 
             // Use a separate instance of the context to verify correct data was saved to database
@@ -53,7 +53,7 @@ namespace CurrencyTrackerServer.Tests.ChangeTrackerService
                 Assert.IsTrue(entity.Percentage == 42);
 
                 var service = new Repository<TestEntity>(context);
-                await service.Delete(entity);
+                service.Delete(entity);
             }
 
             //use separate context to verify delete

@@ -13,48 +13,48 @@ namespace CurrencyTrackerServer.PriceService.Concrete.Bittrex
 {
     public class BittrexPriceDataSource : IPriceSource
     {
-        public async Task<IEnumerable<ApiPrice>> GetPrices()
+    public IEnumerable<ApiPrice> GetPrices()
+    {
+      var list = new List<ApiPrice>();
+      try
+      {
+        string json;
+        using (var client = new HttpClient())
         {
-            var list = new List<ApiPrice>();
-            try
-            {
-                string json;
-                using (var client = new HttpClient())
-                {
-                    json = await client.GetStringAsync("https://bittrex.com/api/v1.1/public/getmarketsummaries");
-                }
-                dynamic result = JsonConvert.DeserializeObject(json);
-                bool success = result.success;
-                if (!success)
-                {
-                    throw new Exception("Ошибка работы с API " + result.message ?? "");
-                }
-
-                foreach (dynamic c in result.result)
-                {
-                    string[] markets = c.MarketName.ToString().Split('-');
-                    if (markets[0] != "BTC")
-                    {
-                        continue;
-                    }
-                    
-                    var currencyChange = new ApiPrice()
-                    {
-                        Currency = markets[1],
-                        Last = c.Last,
-                        Source = Source
-                    };
-                    list.Add(currencyChange);
-                }
-            }
-            catch (Exception e)
-            {
-                throw new Exception("Ошибка загрузки значений", e);
-            }
-
-            return list;
+          json = client.GetStringAsync("https://bittrex.com/api/v1.1/public/getmarketsummaries").Result;
+        }
+        dynamic result = JsonConvert.DeserializeObject(json);
+        bool success = result.success;
+        if (!success)
+        {
+          throw new Exception("Ошибка работы с API " + result.message ?? "");
         }
 
-        public UpdateSource Source => UpdateSource.Bittrex;
+        foreach (dynamic c in result.result)
+        {
+          string[] markets = c.MarketName.ToString().Split('-');
+          if (markets[0] != "BTC")
+          {
+            continue;
+          }
+
+          var currencyChange = new ApiPrice()
+          {
+            Currency = markets[1],
+            Last = c.Last,
+            Source = Source
+          };
+          list.Add(currencyChange);
+        }
+      }
+      catch (Exception e)
+      {
+        throw new Exception("Ошибка загрузки значений", e);
+      }
+
+      return list;
+    }
+
+    public UpdateSource Source => UpdateSource.Bittrex;
     }
 }

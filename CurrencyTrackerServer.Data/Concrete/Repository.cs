@@ -32,73 +32,73 @@ namespace CurrencyTrackerServer.Data.Concrete
             return _entities.AsQueryable<T>();
         }
 
-        public async Task<T> Add(T entity)
-        {
-            return await Add(entity, true);
-        }
+    public T Add(T entity)
+    {
+      return Add(entity, true);
+    }
 
-        public async Task<T> Update(T entity)
-        {
-            return await Update(entity, true);
-        }
+    public T Update(T entity)
+    {
+      return Update(entity, true);
+    }
 
-        public async Task Delete(T entity)
-        {
-            await Delete(entity, true);
-        }
+    public void Delete(T entity)
+    {
+      Delete(entity, true);
+    }
 
-        public async Task<T> Add(T entity, bool saveChanges)
-        {
-            if (entity == null)
-            {
-                throw new ArgumentNullException("entity");
-            }
-            await Context.AddAsync(entity);
-            if (saveChanges)
-            {
-                await Context.SaveChangesAsync();
-            }
-            return entity;
-        }
+    public T Add(T entity, bool saveChanges)
+    {
+      if (entity == null)
+      {
+        throw new ArgumentNullException("entity");
+      }
+      Context.Add(entity);
+      if (saveChanges)
+      {
+        Context.SaveChanges();
+      }
+      return entity;
+    }
 
-        public async Task<T> Update(T entity, bool saveChanges)
-        {
-            if (entity == null)
-            {
-                throw new ArgumentNullException("entity");
-            }
-            if (saveChanges)
-                await Context.SaveChangesAsync();
-            return entity;
-        }
+    public T Update(T entity, bool saveChanges)
+    {
+      if (entity == null)
+      {
+        throw new ArgumentNullException("entity");
+      }
+      if (saveChanges)
+        Context.SaveChanges();
+      return entity;
+    }
 
-        public async Task Delete(T entity, bool saveChanges)
-        {
-            if (entity == null)
-            {
-                throw new ArgumentNullException("entity");
-            }
-            _entities.Remove(entity);
-            if (saveChanges)
-                await Context.SaveChangesAsync();
-        }
+    public void Delete(T entity, bool saveChanges)
+    {
+      if (entity == null)
+      {
+        throw new ArgumentNullException("entity");
+      }
+      _entities.Remove(entity);
+      if (saveChanges)
+        Context.SaveChanges();
+    }
 
 
-        public async Task DeleteAll()
-        {
-            foreach (var entity in _entities.AsEnumerable())
-            {
-                _entities.Remove(entity);
-            }
-            await Context.SaveChangesAsync();
-        }
+    public void DeleteAll()
+    {
+      foreach (var entity in _entities.AsEnumerable())
+      {
+        _entities.Remove(entity);
+      }
+      Context.SaveChanges();
+    }
 
-        public async Task SaveChanges()
-        {
-            await Context.SaveChangesAsync();
-        }
+    public void SaveChanges()
+    {
+      Context.SaveChanges();
+    }
 
-        public void Dispose()
+    public void Dispose()
         {
             Context?.Dispose();
         }

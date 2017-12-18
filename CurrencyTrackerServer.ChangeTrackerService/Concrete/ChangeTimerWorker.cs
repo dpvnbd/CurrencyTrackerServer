@@ -41,47 +41,47 @@ namespace CurrencyTrackerServer.ChangeTrackerService.Concrete
 
 
 
-        protected override async Task DoWork()
+    protected override void DoWork()
+    {
+      try
+      {
+        var changes = _dataSource.GetData();
+        _currentCycle++;
+        if (changes.Any())
         {
-            try
-            {
-                var changes = await _dataSource.GetData();
-                _currentCycle++;
-                if (changes.Any())
-                {
-                    OnUpdated(changes);
-                    _statsService.UpdateStates(changes);
-                }
-            }
-            catch (Exception e)
-            {
-                var errorMessage = new Change
-                {
-                    Type = UpdateType.Error,
-                    Message = e.Message,
-                    Time = DateTime.Now,
-                    Source = Source
-                };
-
-                await _notifier.SendToAll(new[] { errorMessage });
-            }
-            finally
-            {
-                if (_currentCycle >= _updateClientsCyclePeriod)
-                {
-                    var update = new BaseChangeEntity
-                    {
-                        Destination = UpdateDestination.CurrencyChange,
-                        Source = Source,
-                        Type = UpdateType.Info,
-                        Time = DateTimeOffset.Now
-                    };
-
-                    await _notifier.SendToAll(new[] { update });
-                    _currentCycle = 0;
-                }
-            }
+          OnUpdated(changes);
+          _statsService.UpdateStates(changes);
         }
+      }
+      catch (Exception e)
+      {
+        var errorMessage = new Change
+        {
+          Type = UpdateType.Error,
+          Message = e.Message,
+          Time = DateTime.Now,
+          Source = Source
+        };
 
+        _notifier.SendToAll(new[] { errorMessage });
+      }
+      finally
+      {
+        if (_currentCycle >= _updateClientsCyclePeriod)
+        {
+          var update = new BaseChangeEntity
+          {
+            Destination = UpdateDestination.CurrencyChange,
+            Source = Source,
+            Type = UpdateType.Info,
+            Time = DateTimeOffset.Now
+          };
+
+          _notifier.SendToAll(new[] { update });
+          _currentCycle = 0;
+        }
+      }
     }
+
+  }
 }

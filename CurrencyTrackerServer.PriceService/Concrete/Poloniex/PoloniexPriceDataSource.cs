@@ -20,33 +20,33 @@ namespace CurrencyTrackerServer.PriceService.Concrete.Poloniex
 
         private readonly string _url = @"https://poloniex.com/public?command=returnTicker";
 
-        public async Task<IEnumerable<ApiPrice>> GetPrices()
+    public IEnumerable<ApiPrice> GetPrices()
+    {
+      var prices = new List<ApiPrice>();
+
+      try
+      {
+        string json;
+        using (var client = new HttpClient())
         {
-            var prices = new List<ApiPrice>();
-
-            try
-            {
-                string json;
-                using (var client = new HttpClient())
-                {
-                    var result = await client.GetAsync(_url);
-                    if (!result.IsSuccessStatusCode)
-                    {
-                        throw new Exception("Ошибка работы с API (Poloniex)");
-                    }
-                    json = await result.Content.ReadAsStringAsync();
-                }
-                var ticker = ParseResponse(json);
-
-                return ticker;
-            }
-            catch (Exception e)
-            {
-                throw new Exception("Ошибка загрузки значений (Poloniex); ", e);
-            }
+          var result = client.GetAsync(_url).Result;
+          if (!result.IsSuccessStatusCode)
+          {
+            throw new Exception("Ошибка работы с API (Poloniex)");
+          }
+          json = result.Content.ReadAsStringAsync().Result;
         }
+        var ticker = ParseResponse(json);
 
-        public List<ApiPrice> ParseResponse(string json)
+        return ticker;
+      }
+      catch (Exception e)
+      {
+        throw new Exception("Ошибка загрузки значений (Poloniex); ", e);
+      }
+    }
+
+    public List<ApiPrice> ParseResponse(string json)
         {
             var list = new List<ApiPrice>();
 

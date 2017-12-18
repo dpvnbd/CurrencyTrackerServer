@@ -9,7 +9,7 @@ namespace CurrencyTrackerServer.Infrastructure.Abstract
 {
     public interface INotifier
     {
-        Task SendToAll(IEnumerable<BaseChangeEntity> changes);
-        Task<List<string>> SendToConnections(IEnumerable<string> connections, IEnumerable<BaseChangeEntity> changes);
+        void SendToAll(IEnumerable<BaseChangeEntity> changes);
+        List<string> SendToConnections(IEnumerable<string> connections, IEnumerable<BaseChangeEntity> changes);
     }
 }
