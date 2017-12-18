@@ -32,19 +32,21 @@ namespace CurrencyTrackerServer.ChangeTrackerService.Concrete
 
     private readonly int _stateSyncCyclePeriod;
     private int _currentCycle = 0;
+    private bool _saveStates;
 
     private List<CurrencyState> _states;
     private List<CurrencyState> States
     {
       get
       {
-        if (_states == null)
+        if (_saveStates && _states == null)
         {
-          _states = LoadStates();
-        }
+          return _states = LoadStates();
 
-        return _states;
+        }
+        return new List<CurrencyState>();
       }
+
       set
       {
         _states = value;
@@ -60,6 +62,7 @@ namespace CurrencyTrackerServer.ChangeTrackerService.Concrete
       UserId = userId;
       changeWorker.Updated += ChangeWorkerOnUpdated;
       _stateSyncCyclePeriod = config.Value.ChangeMonitorStateSyncCycle;
+      _saveStates = config.Value.SaveStatesToDatabase;
     }
 
     private void ChangeWorkerOnUpdated(object sender, IEnumerable<CurrencyChangeApiData> currencyChangeApiData)
@@ -87,7 +90,10 @@ namespace CurrencyTrackerServer.ChangeTrackerService.Concrete
         if (_currentCycle >= _stateSyncCyclePeriod)
         {
           States = ResetStates(States, TimeSpan.FromHours(Settings.ResetHours));
-          SaveStates(States);
+          if (_saveStates)
+          {
+            SaveStates(States);
+          }
           _currentCycle = 0;
         }
 
@@ -97,7 +103,7 @@ namespace CurrencyTrackerServer.ChangeTrackerService.Concrete
         {
           var handler = Changed;
           handler?.Invoke(this, changes);
-           SaveHistory(changes);
+          SaveHistory(changes);
         }
 
       }
@@ -360,7 +366,7 @@ namespace CurrencyTrackerServer.ChangeTrackerService.Concrete
     protected List<CurrencyState> ResetStates(IEnumerable<CurrencyState> states, TimeSpan olderThan)
     {
       var now = DateTime.Now;
-      var localStates = states.Where(s => now <= s.Created + olderThan).ToList();      
+      var localStates = states.Where(s => now <= s.Created + olderThan).ToList();
       return localStates;
     }
 
