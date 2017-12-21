@@ -18,6 +18,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Options;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
@@ -38,7 +39,7 @@ namespace CurrencyTrackerServer.Web.Controllers
     public ChangesController(BittrexTimerWorker bWorker, PoloniexTimerWorker pWorker,
         ISettingsProvider settingsProvider, UserManager<ApplicationUser> userManager,
         PoloniexApiDataSource poloniexApiDataSource, UserContainersManager userContainersManager,
-        IChangesStatsService<CurrencyChangeApiData> statsService)
+        IChangesStatsService<CurrencyChangeApiData> statsService, IOptions<AppSettings> config)
     {
       _bWorker = bWorker;
       _pWorker = pWorker;
@@ -47,8 +48,14 @@ namespace CurrencyTrackerServer.Web.Controllers
       _poloniexApiDataSource = poloniexApiDataSource;
       _userContainersManager = userContainersManager;
       _statsService = statsService;
-      _bWorker.Start();
-      _pWorker.Start();
+      if (config.Value.BittrexChangesWorkerEnabled)
+      {
+        _bWorker.Start();
+      }
+      if (config.Value.PoloniexChangesWorkerEnabled)
+      {
+        _pWorker.Start();
+      }
     }
 
     [HttpGet("{source}")]
