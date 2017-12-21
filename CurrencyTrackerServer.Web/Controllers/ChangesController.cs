@@ -156,7 +156,7 @@ namespace CurrencyTrackerServer.Web.Controllers
     private async Task<UserMonitorsContainer> GetUserContainer()
     {
       var user = await GetCurrentUser();
-      return (UserMonitorsContainer)await _userContainersManager.GetUserContainer(user.Id, _userManager);
+      return (UserMonitorsContainer)_userContainersManager.GetUserContainer(user.Id, _userManager);
     }
 
     private async Task<ApplicationUser> GetCurrentUser()
