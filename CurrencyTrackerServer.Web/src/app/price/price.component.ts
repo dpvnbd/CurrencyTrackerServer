@@ -20,7 +20,7 @@ export class PriceComponent implements OnInit {
     settings: PriceSettings;
     sendNotification = false;
     lastError: Price;
-
+    lastUpdate: any;
     addedCurrency: any = {};
 
     private skipSpeech = true;
@@ -66,6 +66,7 @@ export class PriceComponent implements OnInit {
                 }
             }
             if (localPrices[0] && localPrices[0].source === this.source) {
+                this.lastUpdate = Date.now();
                 this.prices = localPrices;
                 this.checkPriceBounds();
             }
