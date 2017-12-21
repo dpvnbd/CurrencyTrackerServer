@@ -34,13 +34,19 @@ namespace CurrencyTrackerServer.ChangeTrackerService.Concrete
     private int _currentCycle = 0;
 
     private List<CurrencyState> _states;
+    private bool _saveStates;
+
     private List<CurrencyState> States
     {
       get
       {
-        if (_states == null)
+        if (_saveStates && _states == null)
         {
           _states = LoadStates();
+        }
+        else if (_states == null)
+        {
+          _states = new List<CurrencyState>();
         }
 
         return _states;
@@ -60,6 +66,7 @@ namespace CurrencyTrackerServer.ChangeTrackerService.Concrete
       UserId = userId;
       changeWorker.Updated += ChangeWorkerOnUpdated;
       _stateSyncCyclePeriod = config.Value.ChangeMonitorStateSyncCycle;
+      _saveStates = config.Value.SaveStatesToDatabase;
     }
 
     private async void ChangeWorkerOnUpdated(object sender, IEnumerable<CurrencyChangeApiData> currencyChangeApiData)
@@ -87,11 +94,14 @@ namespace CurrencyTrackerServer.ChangeTrackerService.Concrete
         if (_currentCycle >= _stateSyncCyclePeriod)
         {
           States = ResetStates(States, TimeSpan.FromHours(Settings.ResetHours));
-          await SaveStates(States);
+          if (_saveStates)
+          {
+            await SaveStates(States);
+          }
           _currentCycle = 0;
         }
 
-        var changes = await CheckChanges(currencyChangeApiData, States);
+        var changes = CheckChanges(currencyChangeApiData, States);
 
         if (changes.Any())
         {
@@ -111,7 +121,7 @@ namespace CurrencyTrackerServer.ChangeTrackerService.Concrete
     }
 
 
-    public async Task<IEnumerable<Change>> CheckChanges(IEnumerable<CurrencyChangeApiData> currencies,
+    public IEnumerable<Change> CheckChanges(IEnumerable<CurrencyChangeApiData> currencies,
       IList<CurrencyState> states)
     {
       if (currencies != null && !currencies.Any())
@@ -360,7 +370,7 @@ namespace CurrencyTrackerServer.ChangeTrackerService.Concrete
     protected List<CurrencyState> ResetStates(IEnumerable<CurrencyState> states, TimeSpan olderThan)
     {
       var now = DateTime.Now;
-      var localStates = states.Where(s => now <= s.Created + olderThan).ToList();      
+      var localStates = states.Where(s => now <= s.Created + olderThan).ToList();
       return localStates;
     }
 
