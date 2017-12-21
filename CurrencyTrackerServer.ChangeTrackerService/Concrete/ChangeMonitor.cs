@@ -41,10 +41,13 @@ namespace CurrencyTrackerServer.ChangeTrackerService.Concrete
       {
         if (_saveStates && _states == null)
         {
-          return _states = LoadStates();
+          _states = LoadStates();
 
+        }else if(_states == null)
+        {
+          States = new List<CurrencyState>();
         }
-        return new List<CurrencyState>();
+        return _states;
       }
 
       set
