@@ -1,6 +1,7 @@
 ﻿using System.Linq;
 using System.Threading.Tasks;
 using CurrencyTrackerServer.ChangeTrackerService.Concrete;
+using CurrencyTrackerServer.Data.Concrete;
 using CurrencyTrackerServer.Tests.ChangeTrackerService.Entities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.VisualStudio.TestTools.UnitTesting;

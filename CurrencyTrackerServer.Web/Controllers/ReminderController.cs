@@ -53,11 +53,30 @@ namespace CurrencyTrackerServer.Web.Controllers
     public async Task<IActionResult> Ping()
     {
       _reminder.Start();
-      _pChange.Start();
-      _bChange.Start();
-      _pPrice.Start();
-      _bPrice.Start();
-      _notices.Start();
+
+      if (_config.Value.BittrexChangesWorkerEnabled)
+      {
+        _bChange.Start();
+      }
+
+      if (_config.Value.PoloniexChangesWorkerEnabled)
+      {
+        _pChange.Start();
+      }
+
+      if (_config.Value.BittrexPriceWorkerEnabled)
+      {
+        _bPrice.Start();
+      }
+
+      if (_config.Value.PoloniexPriceWorkerEnabled)
+      {
+        _pPrice.Start();
+      }
+      if (_config.Value.PoloniexNoticesWorkerEnabled)
+      {
+        _notices.Start();
+      }
 
       var user = await GetCurrentUser();
       if (user == null)
@@ -65,7 +84,7 @@ namespace CurrencyTrackerServer.Web.Controllers
         return BadRequest();
       }
 
-      await _userContainersManager.InitializeUserContainer(user.Id, _userManager);
+      _userContainersManager.InitializeUserContainer(user.Id, _userManager);
       return Ok();
     }
 
@@ -86,7 +105,7 @@ namespace CurrencyTrackerServer.Web.Controllers
     [HttpGet("period")]
     public IActionResult Period()
     {
-      return Ok(new PeriodSetting {Period = _reminder.Period / 1000});
+      return Ok(new PeriodSetting { Period = _reminder.Period / 1000 });
     }
 
     [HttpPost("period")]

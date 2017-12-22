@@ -16,6 +16,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Options;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
@@ -33,15 +34,23 @@ namespace CurrencyTrackerServer.Web.Controllers
 
 
     public PriceController(ISettingsProvider settingsProvider, BittrexPriceTimerWorker bWorker,
-      PoloniexPriceTimerWorker pWorker, UserManager<ApplicationUser> userManager, UserContainersManager userContainersManager)
+      PoloniexPriceTimerWorker pWorker, UserManager<ApplicationUser> userManager,
+      UserContainersManager userContainersManager, IOptions<AppSettings> config)
     {
       _settingsProvider = settingsProvider;
       _bWorker = bWorker;
       _pWorker = pWorker;
       _userManager = userManager;
       _userContainersManager = userContainersManager;
-      _bWorker.Start();
-      _pWorker.Start();
+
+      if (config.Value.BittrexPriceWorkerEnabled)
+      {
+        _bWorker.Start();
+      }
+      if (config.Value.PoloniexPriceWorkerEnabled)
+      {
+        _pWorker.Start();
+      }
     }
 
     [HttpGet("lastPrice/{source}/{currency}")]
@@ -67,7 +76,7 @@ namespace CurrencyTrackerServer.Web.Controllers
           _bWorker.Start();
           break;
         case UpdateSource.Poloniex:
-          _pWorker.Start(); 
+          _pWorker.Start();
           break;
       }
 
@@ -83,7 +92,7 @@ namespace CurrencyTrackerServer.Web.Controllers
       }
       else if (source == UpdateSource.Poloniex)
       {
-        _pWorker.Stop(); 
+        _pWorker.Stop();
       }
 
       return Ok();
@@ -136,10 +145,35 @@ namespace CurrencyTrackerServer.Web.Controllers
       }
     }
 
+    [HttpPost("{source}")]
+    public async Task<IActionResult> SetCurrencies(UpdateSource source, [FromBody] IEnumerable<Price> currencies)
+    {
+      if (ModelState.IsValid)
+      {
+        var container = await GetUserContainer();
+        switch (source)
+        {
+          case UpdateSource.Bittrex:
+            container.BittrexPriceMonitor.SetCurrencies(currencies);
+            break;
+          case UpdateSource.Poloniex:
+            container.PoloniexPriceMonitor.SetCurrencies(currencies);
+            break;
+          default:
+            return BadRequest();
+        }
+        return Ok();
+      }
+      else
+      {
+        return BadRequest(ModelState);
+      }
+    }
+
     private async Task<UserMonitorsContainer> GetUserContainer()
     {
       var user = await GetCurrentUser();
-      return (UserMonitorsContainer)await _userContainersManager.GetUserContainer(user.Id, _userManager);
+      return (UserMonitorsContainer)_userContainersManager.GetUserContainer(user.Id, _userManager);
     }
 
     private async Task<ApplicationUser> GetCurrentUser()

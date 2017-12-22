@@ -1,4 +1,5 @@
 ﻿using CurrencyTrackerServer.ChangeTrackerService.Entities;
+using CurrencyTrackerServer.Infrastructure.Entities.Data;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace CurrencyTrackerServer.Tests.ChangeTrackerService
@@ -49,10 +50,10 @@ namespace CurrencyTrackerServer.Tests.ChangeTrackerService
         [TestMethod]
         public void TestThresholdCalculation()
         {
-            var exact = CurrencyStateEntity.CalculateThreshold(5, 15);
-            var over = CurrencyStateEntity.CalculateThreshold(5, 16);
-            var under = CurrencyStateEntity.CalculateThreshold(5, 14);
-            var zero = CurrencyStateEntity.CalculateThreshold(0, 14);
+            var exact = CurrencyState.CalculateThreshold(5, 15);
+            var over = CurrencyState.CalculateThreshold(5, 16);
+            var under = CurrencyState.CalculateThreshold(5, 14);
+            var zero = CurrencyState.CalculateThreshold(0, 14);
 
             Assert.AreEqual(15, exact);
             Assert.AreEqual(15, over);

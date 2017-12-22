@@ -63,6 +63,12 @@ namespace CurrencyTrackerServer.PriceService.Concrete
       OnMessage(message);
     }
 
+    public async void SetCurrencies(IEnumerable<Price> prices)
+    {      
+      var settings = GetSettings();
+      settings.Prices = prices.ToList();
+      await _settingsProvider.SaveSettings(Source, Destination, UserId, settings);           
+    }
 
     public PriceSettings GetSettings()
     {
@@ -114,18 +120,19 @@ namespace CurrencyTrackerServer.PriceService.Concrete
       var prices = new List<Price>();
       var settings = GetSettings();
       try
-      {
-        foreach (var apiPrice in apiPrices)
+      {        
+        foreach(var sPrice in settings.Prices)
         {
-          var price = settings.Prices.SingleOrDefault(c => c.Currency == apiPrice.Currency);
-          if (price == null)
+          var apiPrice = apiPrices.SingleOrDefault(c => c.Currency.Equals(sPrice.Currency, StringComparison.OrdinalIgnoreCase));
+
+          if (apiPrice == null)
           {
             continue;
           }
-          price.Last = apiPrice.Last;
-          price.Source = apiPrice.Source;
-          price.Type = UpdateType.Currency;
-          prices.Add(price);
+
+          sPrice.Last = apiPrice.Last;
+          sPrice.Source = apiPrice.Source;
+          prices.Add(sPrice);
         }
       }
       catch (Exception e)

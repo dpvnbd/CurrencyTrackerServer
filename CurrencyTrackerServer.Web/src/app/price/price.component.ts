@@ -20,7 +20,7 @@ export class PriceComponent implements OnInit {
     settings: PriceSettings;
     sendNotification = false;
     lastError: Price;
-
+    lastUpdate: any;
     addedCurrency: any = {};
 
     private skipSpeech = true;
@@ -66,7 +66,8 @@ export class PriceComponent implements OnInit {
                 }
             }
             if (localPrices[0] && localPrices[0].source === this.source) {
-                this.prices = localPrices;
+                this.lastUpdate = Date.now();
+                this.updatePrices(localPrices);
                 this.checkPriceBounds();
             }
         });
@@ -77,6 +78,22 @@ export class PriceComponent implements OnInit {
                 this.sendNotification = settings.sendNotifications;
             }
         });
+    }
+
+    updatePrices(newPrices: Price[]) {
+        for (const newPrice of newPrices) {
+            const foundPrice = this.prices.find(price =>
+                price.currency.toUpperCase() === newPrice.currency.toUpperCase());
+
+            if (!foundPrice) {
+                this.prices.push(newPrice);
+            } else {
+                foundPrice.last = newPrice.last;
+
+                foundPrice.low = newPrice.low;
+                foundPrice.high = newPrice.high;
+            }
+        }
     }
 
     initAudio() {
@@ -150,6 +167,10 @@ export class PriceComponent implements OnInit {
         });
     }
 
+    savePrices() {
+        this.priceService.saveCurrencies(this.source, this.prices);
+    }
+
     getPrice() {
         if (!this.addedCurrency.currency) {
             return;
@@ -185,6 +206,11 @@ export class PriceComponent implements OnInit {
 
     removeCurrencyFromSettings(i: number) {
         this.settings.prices.splice(i, 1);
+    }
+
+    removeCurrencyFromMainList(i: number) {
+        this.prices.splice(i, 1);
+        this.savePrices();
     }
 
     notificationChange(e) {

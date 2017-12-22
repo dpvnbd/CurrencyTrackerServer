@@ -73,6 +73,10 @@ export class PriceService {
         return this.http.post('/api/price/settings/' + source, settings, { responseType: 'text' }).map(data => data).toPromise();
     }
 
+    public saveCurrencies(source: UpdateSource, currencies: Price[]) {
+        return this.http.post('/api/price/' + source, currencies, { responseType: 'text' }).map(data => data).toPromise();
+    }
+
     public setNotification(source: UpdateSource, enabled: boolean) {
         return this.http.post('/api/price/notification/' + source + '/' + enabled, {}, { responseType: 'text' })
             .toPromise();
