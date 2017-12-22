@@ -1,6 +1,7 @@
 import { BrowserModule } from '@angular/platform-browser';
 import { NgModule, ErrorHandler } from '@angular/core';
 import { Ng2GoogleChartsModule } from 'ng2-google-charts';
+import { InlineEditorModule } from '@qontu/ngx-inline-editor';
 
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 
@@ -36,6 +37,7 @@ import { ChangesStatsComponent } from './stats/changesStats/changesStats.compone
 import { StatsComponent } from './stats/stats.component';
 import { ChangesStatsService } from './stats/changesStats/changesStats.service';
 
+
 const routes: Routes = [
   { path: '', component: HomeComponent },
   { path: 'register', component: RegisterComponent },
@@ -66,6 +68,7 @@ const routes: Routes = [
     HttpModule,
     NgbModule.forRoot(),
     Ng2GoogleChartsModule,
+    InlineEditorModule,
     RouterModule.forRoot(routes, {}),
   ],
   providers: [

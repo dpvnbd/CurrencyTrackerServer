@@ -49,6 +49,7 @@
   min-width: 20em !important;
 }
 
+/* truncate text in tables */
 .table .text {
   position: relative;
 }
@@ -63,4 +64,11 @@
 .text:before {
   content: '';
   display: inline-block;
+}
+/**********/
+
+.table > tbody > tr > td {
+  vertical-align: middle;
+  padding-top: 0;
+  padding-bottom: 0;
 }

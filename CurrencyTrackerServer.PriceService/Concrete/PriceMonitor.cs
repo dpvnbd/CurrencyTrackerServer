@@ -63,6 +63,12 @@ namespace CurrencyTrackerServer.PriceService.Concrete
       OnMessage(message);
     }
 
+    public async void SetCurrencies(IEnumerable<Price> prices)
+    {      
+      var settings = GetSettings();
+      settings.Prices = prices.ToList();
+      await _settingsProvider.SaveSettings(Source, Destination, UserId, settings);           
+    }
 
     public PriceSettings GetSettings()
     {

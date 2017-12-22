@@ -145,6 +145,31 @@ namespace CurrencyTrackerServer.Web.Controllers
       }
     }
 
+    [HttpPost("{source}")]
+    public async Task<IActionResult> SetCurrencies(UpdateSource source, [FromBody] IEnumerable<Price> currencies)
+    {
+      if (ModelState.IsValid)
+      {
+        var container = await GetUserContainer();
+        switch (source)
+        {
+          case UpdateSource.Bittrex:
+            container.BittrexPriceMonitor.SetCurrencies(currencies);
+            break;
+          case UpdateSource.Poloniex:
+            container.PoloniexPriceMonitor.SetCurrencies(currencies);
+            break;
+          default:
+            return BadRequest();
+        }
+        return Ok();
+      }
+      else
+      {
+        return BadRequest(ModelState);
+      }
+    }
+
     private async Task<UserMonitorsContainer> GetUserContainer()
     {
       var user = await GetCurrentUser();
