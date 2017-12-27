@@ -141,7 +141,7 @@ export class ChangesComponent implements OnInit {
         for (const change of changes) {
             if (change.currency && change.currency.length > 0) {
                 const text = change.currency + '.';
-                responsiveVoice.speak(text, (change.isSmaller ? 'UK English Female' : 'Russian Female'), { rate: 0.8 });
+                responsiveVoice.speak(text, 'Russian Female', { rate: 0.8 });
             }
         }
     }

@@ -189,10 +189,7 @@ namespace CurrencyTrackerServer.ChangeTrackerService.Concrete
           Source = currency.UpdateSource
         };
 
-        if (settings.SeparateSmallerChanges && currency.PercentChanged < settings.SeparatePercentage)
-        {
-          change.IsSmaller = true;
-        }
+        
 
         // await SaveState(change); 
         // TODO: save state
@@ -230,7 +227,13 @@ namespace CurrencyTrackerServer.ChangeTrackerService.Concrete
             continue;
           }
         }
-        changes.Add(change);
+
+        if (!settings.ExcludeSmallerChanges
+          || (settings.ExcludeSmallerChanges && currency.PercentChanged >= settings.ExcludePercentage)
+          || isMargin)
+        {
+          changes.Add(change);
+        }
       }
       return changes;
     }
@@ -274,7 +277,6 @@ namespace CurrencyTrackerServer.ChangeTrackerService.Concrete
             Time = change.Time.GetValueOrDefault(),
             Type = change.Type,
             UpdateSource = change.Source,
-            IsSmaller = change.IsSmaller
           };
 
           await repo.Add(entry, false);
@@ -315,7 +317,6 @@ namespace CurrencyTrackerServer.ChangeTrackerService.Concrete
         Time = entity.Time,
         Type = entity.Type,
         Source = entity.UpdateSource,
-        IsSmaller = entity.IsSmaller
       })
           .ToList();
     }
@@ -331,6 +332,7 @@ namespace CurrencyTrackerServer.ChangeTrackerService.Concrete
         }
         await repo.SaveChanges();
       }
+      States.Clear();
       await ClearHistory(TimeSpan.Zero, true);
     }
 

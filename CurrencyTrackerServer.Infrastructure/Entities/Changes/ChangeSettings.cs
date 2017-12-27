@@ -12,7 +12,6 @@ namespace CurrencyTrackerServer.Infrastructure.Entities.Changes
         [Range(0.1, double.MaxValue)]
         public double Percentage { get; set; } = 3;
                 
-        [NotMapped]
         public double ResetHours { get; set; } = 24;
 
         public bool MultipleChanges { get; set; } = true;
@@ -21,8 +20,8 @@ namespace CurrencyTrackerServer.Infrastructure.Entities.Changes
         public double MarginPercentage { get; set; } = 0.5;
         public List<string> MarginCurrencies;
         
-        public bool SeparateSmallerChanges { get; set; } = false;        
+        public bool ExcludeSmallerChanges { get; set; } = false;        
         
-        public double SeparatePercentage { get; set; } = 0;
+        public double ExcludePercentage { get; set; } = 0;
     }
 }

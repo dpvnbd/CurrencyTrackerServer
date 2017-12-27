@@ -76,20 +76,22 @@
         <hr/>
 
         <div class="form-group row">
-          <label class="col-sm-6">Выделять изменения ниже значения</label>
+          <label class="col-sm-6">Не показывать изменения ниже порога</label>
           <div class="col-sm-6">
             <div class="form-check checkbox-empty">
               <label class="form-check-label">
-                <input class="form-check-input" name="separateChanges" type="checkbox" [(ngModel)]="settings.separateSmallerChanges">
+                <input class="form-check-input" name="separateChanges" type="checkbox"
+                 [(ngModel)]="settings.excludeSmallerChanges">
               </label>
             </div>
           </div>
         </div>
 
         <div class="form-group row">
-          <label for="separatePercentage" class="col-sm-6 col-form-label">Значение, %</label>
+          <label for="separatePercentage" class="col-sm-6 col-form-label">Порог, %</label>
           <div class="col-sm-6">
-            <input type="number" step="0.01" name="separatePercentage" class="form-control" id="separatePercentage" [(ngModel)]="settings.separatePercentage">
+            <input type="number" step="0.01" name="separatePercentage" class="form-control"
+             id="separatePercentage" [(ngModel)]="settings.excludePercentage">
           </div>
         </div>
 
@@ -182,8 +184,7 @@
     <div class="card-block scroll-block changes-block-height">
       <table class="table table-hover mb-0">
         <tbody>
-          <tr *ngFor="let change of changes" [ngClass]="{'recently-changed': change.recentlyChanged,
-           'smaller-change':change.isSmaller}">
+          <tr *ngFor="let change of changes" [ngClass]="{'recently-changed': change.recentlyChanged}">
 
             <td *ngIf="change.currency" class="py-1">
               <a href="{{linkTemplate}}{{change.currency}}" target="_blank">{{change.currency}}</a>
