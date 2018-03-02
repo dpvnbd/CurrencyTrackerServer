@@ -26,6 +26,7 @@ export interface Change {
 }
 
 export interface ChangeSettings {
+  soundEnabled?: Boolean;
   percentage: number;
   resetHours: number;
   multipleChanges: boolean;

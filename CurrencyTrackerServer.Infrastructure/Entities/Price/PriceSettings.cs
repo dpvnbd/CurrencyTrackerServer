@@ -7,9 +7,10 @@ namespace CurrencyTrackerServer.Infrastructure.Entities.Price
 {
   public class PriceSettings
   {
+    public bool SoundEnabled { get; set; } = true;
+
     private List<Price> _currencies;
     private string _email;
-
 
     public List<Price> Prices
     {
