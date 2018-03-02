@@ -27,7 +27,6 @@ export interface Price {
 }
 
 export interface PriceSettings {
-    soundEnabled?: Boolean;
     prices?: Price[];
     sendNotifications?: boolean;
     email?: string;

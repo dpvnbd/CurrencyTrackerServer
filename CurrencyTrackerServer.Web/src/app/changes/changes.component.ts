@@ -10,6 +10,8 @@ import { UpdateSource, UpdateType } from '../shared';
     styleUrls: ['changes.component.css']
 })
 export class ChangesComponent implements OnInit {
+
+
     @Input()
     source: UpdateSource;
 
@@ -27,6 +29,7 @@ export class ChangesComponent implements OnInit {
 
     linkTemplate: string;
     iconPath: string;
+    soundEnabled = true;
 
     constructor(private changesService: ChangesService, private modalService: NgbModal) { }
 
@@ -131,7 +134,7 @@ export class ChangesComponent implements OnInit {
     }
 
     speakChanges(changes: Change[]) {
-        if (this.skipSpeech || !this.settings.soundEnabled) {
+        if (this.skipSpeech || !this.soundEnabled) {
             this.skipSpeech = false;
             return;
         }

@@ -26,7 +26,7 @@ export class PriceComponent implements OnInit {
     private skipSpeech = true;
     linkTemplate: string;
     iconPath: string;
-    // soundEnabled = true;
+    soundEnabled = true;
     soundNotLoaded = false;
     tempMute = false;
 
@@ -134,7 +134,7 @@ export class PriceComponent implements OnInit {
     }
 
     playAlarm(high: boolean, low: boolean) {
-        if (!this.settings.soundEnabled || this.tempMute) {
+        if (!this.soundEnabled || this.tempMute) {
             return;
         }
         if (high && !this.audioHigh.playing()) {
