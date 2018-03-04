@@ -15,7 +15,6 @@ namespace CurrencyTrackerServer.Data.Concrete
     public DbSet<NoticeEntity> Notices { get; set; }
 
     public DbSet<StatsCurrencyState> StatsStates { get; set; }
-    public DbSet<StatsAverageChangeEntry> AverageChanges { get; set; }
 
 
     public AppDbContext(DbContextOptions options) : base(options)
@@ -46,9 +45,6 @@ namespace CurrencyTrackerServer.Data.Concrete
 
       builder.Entity<StatsCurrencyState>()
         .HasKey(c => new { c.Currency, c.UpdateSource });
-
-      builder.Entity<StatsAverageChangeEntry>()
-        .HasKey(c => new { c.UpdateSource, c.Timestamp });
     }
   }
 }

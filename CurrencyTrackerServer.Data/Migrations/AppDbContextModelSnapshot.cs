@@ -154,19 +154,6 @@ namespace CurrencyTrackerServer.Data.Migrations
                     b.ToTable("States");
                 });
 
-            modelBuilder.Entity("CurrencyTrackerServer.Infrastructure.Entities.Data.StatsAverageChangeEntry", b =>
-                {
-                    b.Property<int>("UpdateSource");
-
-                    b.Property<DateTimeOffset>("Timestamp");
-
-                    b.Property<double>("Percentage");
-
-                    b.HasKey("UpdateSource", "Timestamp");
-
-                    b.ToTable("AverageChanges");
-                });
-
             modelBuilder.Entity("CurrencyTrackerServer.Infrastructure.Entities.Data.StatsCurrencyState", b =>
                 {
                     b.Property<string>("Currency");
