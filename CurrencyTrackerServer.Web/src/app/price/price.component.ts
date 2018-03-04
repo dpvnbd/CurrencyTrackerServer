@@ -3,6 +3,7 @@ import { UpdateSource, UpdateType, UpdateSpecial } from '../shared';
 import { PriceService, Price, PriceSettings } from './price.service';
 import { NgbModal, ModalDismissReasons } from '@ng-bootstrap/ng-bootstrap';
 import { Howl } from 'howler';
+import { LocalStorage } from 'ngx-store/dist';
 
 @Component({
     selector: 'app-price',
@@ -26,17 +27,34 @@ export class PriceComponent implements OnInit {
     private skipSpeech = true;
     linkTemplate: string;
     iconPath: string;
-    soundEnabled = true;
     soundNotLoaded = false;
     tempMute = false;
 
     audioHigh: Howl;
     audioLow: Howl;
 
+    //  this.source not initialized at the moment when key is defined
+    @LocalStorage('poloniexPriceSound') poloniexSoundEnabled = true;
+    @LocalStorage('bittrexPriceSound') bittrexSoundEnabled = true;
+
+    get soundEnabled(): boolean {
+        if (this.source === UpdateSource.Bittrex) {
+            return this.bittrexSoundEnabled;
+        } else if (this.source === UpdateSource.Poloniex) {
+            return this.poloniexSoundEnabled;
+        }
+    }
+    set soundEnabled(value: boolean) {
+        if (this.source === UpdateSource.Bittrex) {
+            this.bittrexSoundEnabled = value;
+        } else if (this.source === UpdateSource.Poloniex) {
+            this.poloniexSoundEnabled = value;
+        }
+    }
+
     constructor(private priceService: PriceService, private modalService: NgbModal) { }
 
     ngOnInit() {
-
         if (this.source === UpdateSource.Bittrex) {
             this.linkTemplate = 'https://bittrex.com/Market/Index?MarketName=BTC-';
             this.iconPath = '../../assets/images/bittrexIcon.png';
@@ -74,6 +92,7 @@ export class PriceComponent implements OnInit {
 
         this.priceService.getSettings(this.source).then((settings) => {
             if (settings && settings.prices) {
+                this.settings = settings;
                 this.prices = settings.prices;
                 this.sendNotification = settings.sendNotifications;
             }
@@ -142,7 +161,6 @@ export class PriceComponent implements OnInit {
         }
         if (low && !this.audioLow.playing()) {
             this.audioLow.play();
-
         }
     }
 

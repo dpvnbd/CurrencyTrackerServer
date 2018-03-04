@@ -3,6 +3,7 @@ import { DatePipe } from '@angular/common';
 import { UpdateSource, UpdateType } from '../shared';
 import { Notice, NoticesService } from './notices.service';
 import { Howl } from 'howler';
+import { LocalStorage } from 'ngx-store/dist';
 
 @Component({
     selector: 'app-notices',
@@ -13,7 +14,7 @@ export class NoticesComponent implements OnInit {
     @ViewChild('bottom') bottom: ElementRef;
     notices: Notice[] = [];
     lastError: Notice;
-    soundEnabled = true;
+    @LocalStorage('noticesSound') soundEnabled = true;
 
     audio: Howl;
     audioPlaying = false;

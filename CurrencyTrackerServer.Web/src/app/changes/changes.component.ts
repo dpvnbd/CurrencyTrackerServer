@@ -3,6 +3,7 @@ import { ChangesService, Change, ChangeSettings } from './changes.service';
 import { DatePipe, DecimalPipe } from '@angular/common';
 import { NgbModal, ModalDismissReasons } from '@ng-bootstrap/ng-bootstrap';
 import { UpdateSource, UpdateType } from '../shared';
+import { LocalStorage } from 'ngx-store/dist';
 
 @Component({
     selector: 'app-changes',
@@ -29,7 +30,28 @@ export class ChangesComponent implements OnInit {
 
     linkTemplate: string;
     iconPath: string;
-    soundEnabled = true;
+
+    //  this.source not initialized at the moment when key is defined
+    @LocalStorage('poloniexChangesSound')
+    poloniexSoundEnabled = true;
+
+    @LocalStorage('bittrexChangesSound')
+    bittrexSoundEnabled = true;
+
+    get soundEnabled(): boolean {
+        if (this.source === UpdateSource.Bittrex) {
+            return this.bittrexSoundEnabled;
+        } else if (this.source === UpdateSource.Poloniex) {
+            return this.poloniexSoundEnabled;
+        }
+    }
+    set soundEnabled(value: boolean) {
+        if (this.source === UpdateSource.Bittrex) {
+            this.bittrexSoundEnabled = value;
+        } else if (this.source === UpdateSource.Poloniex) {
+            this.poloniexSoundEnabled = value;
+        }
+    }
 
     constructor(private changesService: ChangesService, private modalService: NgbModal) { }
 

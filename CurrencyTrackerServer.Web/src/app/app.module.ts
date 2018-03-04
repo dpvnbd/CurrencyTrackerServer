@@ -2,6 +2,7 @@ import { BrowserModule } from '@angular/platform-browser';
 import { NgModule, ErrorHandler } from '@angular/core';
 import { Ng2GoogleChartsModule } from 'ng2-google-charts';
 import { InlineEditorModule } from '@qontu/ngx-inline-editor';
+import { WebStorageModule } from 'ngx-store';
 
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 
@@ -68,6 +69,7 @@ const routes: Routes = [
     HttpModule,
     NgbModule.forRoot(),
     Ng2GoogleChartsModule,
+    WebStorageModule,
     InlineEditorModule,
     RouterModule.forRoot(routes, {}),
   ],

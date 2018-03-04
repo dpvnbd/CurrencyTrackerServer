@@ -33,8 +33,10 @@
           <span *ngIf="lastUpdate">{{lastUpdate | date:'HH:mm:ss'}}</span>
         </label>
         <span class="pull-right">
-          <label class="form-check-label my-0 mx-1">
-            <input class="form-check-input" name="soundEnabled" type="checkbox" [(ngModel)]="soundEnabled"> Звук
+          <label class="form-check form-check-inline my-0">
+            <input class="form-check-input" name="soundEnabled"
+             type="checkbox" [(ngModel)]="soundEnabled">
+              <label class="form-check-label my-0"><i class="fa fa-volume-up"></i></label>
           </label>
 
           <a href="javascript:void(0)" (click)="openModal(content)" title="Настройки" class="mx-1">

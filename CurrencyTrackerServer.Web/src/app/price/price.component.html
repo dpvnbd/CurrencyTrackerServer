@@ -22,18 +22,6 @@ export interface PriceSettings {
   <div class="modal-body">
     <div class="container">
       <form>
-        <div class="form-group row">
-          <label class="col-sm-6">Звук</label>
-          <div class="col-sm-6">
-            <div class="form-check checkbox-empty">
-              <label class="form-check-label">
-                <input class="form-check-input" name="soundEnabled" type="checkbox" [(ngModel)]="soundEnabled">
-              </label>
-            </div>
-          </div>
-        </div>
-        <hr/>
-
         <!-- <div class="form-group row">
           <label class="col-sm-6">Послать уведомление</label>
           <div class="col-sm-6">
@@ -46,6 +34,7 @@ export interface PriceSettings {
         </div> -->
 
         <div class="form-group row">
+
           <label for="period" class="col-sm-6 col-form-label">Email</label>
           <div class="col-sm-6">
             <input type="email" name="notificationsEmail" class="form-control" id="notificationsEmail" [(ngModel)]="settings.email">
@@ -160,9 +149,17 @@ export interface PriceSettings {
         </div>
         <div class="col-6 col-md-4">
           <span class="pull-right">
-            <label class="form-check-label my-0 mx-1">
-              <input class="form-check-input" name="notificationsEnabled" type="checkbox" [(ngModel)]="sendNotification" (change)="notificationChange($event)"> Email
+            <label class="form-check form-check-inline my-0">
+              <input class="form-check-input" name="soundEnabled"
+               type="checkbox" [(ngModel)]="soundEnabled">
+                <label class="form-check-label my-0"><i class="fa fa-volume-up"></i></label>
             </label>
+
+            <label class="form-check form-check-inline my-0">
+              <input class="form-check-input" name="notificationsEnabled" type="checkbox" [(ngModel)]="sendNotification" (change)="notificationChange($event)">
+                <label class="form-check-label my-0">Email</label>
+            </label>
+            
             <a *ngIf="lastError" placement="bottom" [ngbPopover]="errorContent" href="javascript:void(0)" title="Ошибка">
               <i class="fa fa-exclamation-circle fa-lg"></i>
             </a>
