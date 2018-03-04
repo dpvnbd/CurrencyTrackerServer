@@ -3,7 +3,7 @@
   <PropertyGroup>
     <TargetFramework>netcoreapp2.0</TargetFramework>
     <TypeScriptCompileBlocked>true</TypeScriptCompileBlocked>
-    <TypeScriptToolsVersion>2.3</TypeScriptToolsVersion>
+    <TypeScriptToolsVersion>Latest</TypeScriptToolsVersion>
 		<AssetTargetFallback>portable-net45+win8</AssetTargetFallback>
 		<Configurations>Debug;Release;ReleaseNoAngular</Configurations>
 		<UserSecretsId>bc715cdb-13dc-46d2-b162-64b23592ccea</UserSecretsId>

@@ -10,6 +10,7 @@ namespace CurrencyTrackerServer.Infrastructure.Entities
     public int ReminderPeriodSeconds { get; set; } = 150;
     public int NoticesWorkerPeriodSeconds { get; set; } = 60;
     public int ChangesStatsPeriodHours { get; set; } = 24;
+    public int AverageStatsPeriodMinutes { get; set; } = 1;
 
     public bool BittrexChangesWorkerEnabled { get; set; } = true;
     public bool PoloniexChangesWorkerEnabled { get; set; } = true;

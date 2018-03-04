@@ -16,13 +16,19 @@ namespace CurrencyTrackerServer.ChangeTrackerService.Concrete
   {
     private readonly IRepositoryFactory _repoFactory;
     private int _resetHours;
+
+    private TimeSpan _averageChangeRecordPeriod;
+    private Dictionary<UpdateSource, DateTimeOffset> _lastAverageChangeRecord;
     public ChangesStatsService(IRepositoryFactory repoFactory, IOptions<AppSettings> settings)
     {
       _repoFactory = repoFactory;
       _resetHours = settings.Value.ChangesStatsPeriodHours;
+
+      _lastAverageChangeRecord = new Dictionary<UpdateSource, DateTimeOffset>();
+      _averageChangeRecordPeriod = TimeSpan.FromMinutes(settings.Value.AverageStatsPeriodMinutes);
     }
 
-    public async void UpdateStates(IEnumerable<CurrencyChangeApiData> changes)
+    public async Task UpdateStates(IEnumerable<CurrencyChangeApiData> changes)
     {
       using (var repo = _repoFactory.Create<StatsCurrencyState>())
       {
@@ -68,6 +74,37 @@ namespace CurrencyTrackerServer.ChangeTrackerService.Concrete
           }
         }
         await repo.SaveChanges();
+      }
+    }
+
+    public async Task ProcessAverageChange(IEnumerable<CurrencyChangeApiData> changes)
+    {
+      if(_averageChangeRecordPeriod.TotalMinutes <= 0)
+      {
+        return;
+      }
+
+      var source = changes.First().UpdateSource;
+      var now = DateTimeOffset.Now;
+      var recentlyRecorded = _lastAverageChangeRecord.TryGetValue(source, out DateTimeOffset lastRecordingTime);
+      if(!recentlyRecorded || now - lastRecordingTime > _averageChangeRecordPeriod)
+      {
+        var average = changes.Average(c => c.PercentChanged);
+        _lastAverageChangeRecord[source] = now;
+        await RecordAverageChange(source, average, now);        
+      }
+    }
+    
+    private async Task RecordAverageChange(UpdateSource source, double percentage, DateTimeOffset time)
+    {
+      using(var repo = _repoFactory.Create<StatsAverageChangeEntry>())
+      {
+        await repo.Add(new StatsAverageChangeEntry
+        {
+          UpdateSource = source,
+          Percentage = percentage,
+          Timestamp = time
+        });
       }
     }
 

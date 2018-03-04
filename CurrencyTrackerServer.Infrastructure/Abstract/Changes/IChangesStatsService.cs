@@ -7,7 +7,8 @@ namespace CurrencyTrackerServer.Infrastructure.Abstract.Changes
 {
   public interface IChangesStatsService<T>
   {
-    void UpdateStates(IEnumerable<T> changes);
+    Task UpdateStates(IEnumerable<T> changes);
+    Task ProcessAverageChange(IEnumerable<T> changes);
 
     Task<IEnumerable<StatsCurrencyState>> GetStates(UpdateSource source);
   }
