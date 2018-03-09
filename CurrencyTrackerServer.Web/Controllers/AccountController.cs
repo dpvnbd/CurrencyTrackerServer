@@ -60,6 +60,29 @@ namespace CurrencyTrackerServer.Web.Controllers
       return BadRequest(ModelState);
     }
 
+    [HttpPost("changePassword")]
+    public async Task<IActionResult> ChangePassword([FromBody] ChangePasswordViewModel model)
+    {
+      if (ModelState.IsValid)
+      {
+        var user = await GetCurrentUser();
+        if (user == null)
+        {
+          return BadRequest();
+        }
+
+        var result = await _userManager.ChangePasswordAsync(user, model.OldPassword, model.NewPassword);
+        if (result.Succeeded)
+        {
+          return Ok();
+        }
+        AddErrors(result);
+      }
+
+      // If we got this far, something failed
+      return BadRequest(ModelState);
+    }
+
     [AllowAnonymous]
     [HttpPost("login")]
     public async Task<IActionResult> GenerateToken([FromBody] LoginViewModel model)
@@ -92,8 +115,8 @@ namespace CurrencyTrackerServer.Web.Controllers
               token = new JwtSecurityTokenHandler().WriteToken(token),
               email = user.Email,
               username = user.UserName,
-              isAdmin = _userManager.IsInRoleAsync(user, "Admin").Result,
-              isEnabled = user.isEnabled
+              IsAdmin = _userManager.IsInRoleAsync(user, "Admin").Result,
+              user.IsEnabled
             };
 
             return Ok(response);
@@ -113,7 +136,7 @@ namespace CurrencyTrackerServer.Web.Controllers
         return BadRequest();
       }
 
-      if (!user.isEnabled)
+      if (!user.IsEnabled)
       {
         return BadRequest(new {error = "Account is deactivated and can't receive updates. Ask admin to activate the account."});
       }

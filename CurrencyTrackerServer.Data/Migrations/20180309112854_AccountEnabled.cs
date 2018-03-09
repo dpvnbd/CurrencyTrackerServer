@@ -9,7 +9,7 @@ namespace CurrencyTrackerServer.Data.Migrations
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.AddColumn<bool>(
-                name: "isEnabled",
+                name: "IsEnabled",
                 table: "AspNetUsers",
                 type: "bit",
                 nullable: false,
@@ -19,7 +19,7 @@ namespace CurrencyTrackerServer.Data.Migrations
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropColumn(
-                name: "isEnabled",
+                name: "IsEnabled",
                 table: "AspNetUsers");
         }
     }

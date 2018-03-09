@@ -32,6 +32,9 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore.Design;
 using Microsoft.IdentityModel.Tokens;
 using Serilog;
+using System.IdentityModel.Tokens.Jwt;
+using System.Collections.Generic;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 
 namespace CurrencyTrackerServer.Web
 {
@@ -63,9 +66,20 @@ namespace CurrencyTrackerServer.Web
         .AddDefaultTokenProviders();
 
 
-      services.AddAuthentication()
+      services.AddAuthentication(options =>
+      {
+        options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+        options.DefaultForbidScheme = JwtBearerDefaults.AuthenticationScheme;
+      })
         .AddJwtBearer(cfg =>
         {
+          cfg.SecurityTokenValidators.Clear();
+          cfg.SecurityTokenValidators.Add(new JwtSecurityTokenHandler
+          {
+            // Disable the built-in JWT claims mapping feature.
+            InboundClaimTypeMap = new Dictionary<string, string>()
+          });
+
           cfg.RequireHttpsMetadata = false;
           cfg.SaveToken = true;
 
@@ -75,6 +89,8 @@ namespace CurrencyTrackerServer.Web
             ValidAudience = Configuration["TrackerTokens:Issuer"],
             IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(Configuration["TrackerTokens:Key"]))
           };
+
+          
         });
 
 

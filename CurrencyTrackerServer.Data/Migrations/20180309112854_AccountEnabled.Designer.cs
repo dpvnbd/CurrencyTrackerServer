@@ -93,7 +93,7 @@ namespace CurrencyTrackerServer.Data.Migrations
                     b.Property<string>("UserName")
                         .HasMaxLength(256);
 
-                    b.Property<bool>("isEnabled");
+                    b.Property<bool>("IsEnabled");
 
                     b.HasKey("Id");
 

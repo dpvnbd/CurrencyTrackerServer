@@ -1,6 +1,8 @@
 using System;
+using CurrencyTrackerServer.Web.Infrastructure;
 using Microsoft.AspNetCore;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.Extensions.DependencyInjection;
 using Serilog;
 using Serilog.Events;
 
@@ -21,8 +23,15 @@ namespace CurrencyTrackerServer.Web
 
       try
       {
+        var host = BuildWebHost(args);
+        using (var scope = host.Services.CreateScope())
+        {
+          // place your DB seeding code here
+          IdentityAdminSetup.CreateRoles(scope.ServiceProvider);
+        }
+
         Log.Warning("Starting web host");
-        BuildWebHost(args).Run();
+        host.Run();
         return 0;
       }
       catch (Exception ex)
