@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { Http, Response, Headers } from '@angular/http';
 import * as jwt_decode from 'jwt-decode';
+import { HttpClient } from '@angular/common/http';
 
 export const TOKEN_NAME = 'jwt_token';
 
@@ -10,7 +11,7 @@ export class AuthService {
   private url = 'api/account';
   private headers = new Headers({ 'Content-Type': 'application/json' });
 
-  constructor(private http: Http) { }
+  constructor(private http: Http, private httpClient: HttpClient) { }
 
   getToken(): string {
     return localStorage.getItem(TOKEN_NAME);
@@ -54,5 +55,10 @@ export class AuthService {
 
   logout() {
     localStorage.removeItem(TOKEN_NAME);
+  }
+
+  changePassword(oldPassword: string, newPassword: string) {
+    return this.httpClient
+      .post(`${this.url}/changePassword`, { oldPassword, newPassword }).toPromise();
   }
 }

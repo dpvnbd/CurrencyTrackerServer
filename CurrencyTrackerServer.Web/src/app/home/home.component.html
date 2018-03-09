@@ -11,10 +11,11 @@
             <a href="stats" target="_blank">Статистика</a>
           </span>
           <span *ngIf="userInfo.isAdmin">
-             | <a href="admin" target="_blank">Администрирование</a>
-            </span>
+            |
+            <a href="admin" target="_blank">Администрирование</a>
+          </span>
           <span class="pull-right">
-            <a>{{userInfo.username}}</a>
+            <a href="account" target="_blank">{{userInfo.username}}</a> | 
             <a href="logout">Выход</a>
           </span>
         </div>

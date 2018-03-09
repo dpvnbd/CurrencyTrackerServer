@@ -39,6 +39,7 @@ import { StatsComponent } from './stats/stats.component';
 import { ChangesStatsService } from './stats/changesStats/changesStats.service';
 import { AdminService } from './admin/admin.service';
 import { AdminComponent } from './admin/admin.component';
+import { AccountComponent } from './account/account.component';
 
 
 const routes: Routes = [
@@ -47,7 +48,8 @@ const routes: Routes = [
   { path: 'login', component: LoginComponent },
   { path: 'logout', component: LoginComponent },
   { path: 'stats', component: StatsComponent },
-  { path: 'admin', component: AdminComponent }
+  { path: 'admin', component: AdminComponent },
+  { path: 'account', component: AccountComponent }
 ];
 
 @NgModule({
@@ -63,7 +65,8 @@ const routes: Routes = [
     NoticesComponent,
     StatsComponent,
     ChangesStatsComponent,
-    AdminComponent
+    AdminComponent,
+    AccountComponent
   ],
   imports: [
     BrowserModule,
