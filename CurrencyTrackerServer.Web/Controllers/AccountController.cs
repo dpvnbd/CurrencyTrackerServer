@@ -88,7 +88,15 @@ namespace CurrencyTrackerServer.Web.Controllers
               expires: DateTime.Now.AddYears(1),
               signingCredentials: creds);
 
-            return Ok(new { token = new JwtSecurityTokenHandler().WriteToken(token) });
+            var response = new {
+              token = new JwtSecurityTokenHandler().WriteToken(token),
+              email = user.Email,
+              username = user.UserName,
+              isAdmin = _userManager.IsInRoleAsync(user, "Admin").Result,
+              isEnabled = user.isEnabled
+            };
+
+            return Ok(response);
           }
         }
       }
@@ -103,6 +111,11 @@ namespace CurrencyTrackerServer.Web.Controllers
       if (user == null)
       {
         return BadRequest();
+      }
+
+      if (!user.isEnabled)
+      {
+        return BadRequest(new {error = "Account is deactivated and can't receive updates. Ask admin to activate the account."});
       }
 
       var token = _containersManager.InitializeUserContainer(user.Id, _userManager);

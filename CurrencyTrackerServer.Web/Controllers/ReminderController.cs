@@ -79,7 +79,7 @@ namespace CurrencyTrackerServer.Web.Controllers
       }
 
       var user = await GetCurrentUser();
-      if (user == null)
+      if (user == null || !user.isEnabled)
       {
         return BadRequest();
       }
