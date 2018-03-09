@@ -39,8 +39,7 @@ namespace CurrencyTrackerServer.Web.Controllers
     [HttpGet("users")]
     public async Task<IActionResult> Users()
     {
-      var users = _userManager.Users;
-
+      var users = _userManager.Users.ToArray();
       var response = users.Select(u => new
       {
         u.Id,
@@ -101,8 +100,8 @@ namespace CurrencyTrackerServer.Web.Controllers
 
     private async Task<ApplicationUser> GetCurrentUser()
     {
-      var name = User.FindFirst(ClaimTypes.NameIdentifier).Value;
-      return await _userManager.FindByEmailAsync(name);
+      var email = User.FindFirst("sub")?.Value;
+      return await _userManager.FindByEmailAsync(email);
     }
 
     public class UserEnableWrapper

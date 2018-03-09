@@ -178,8 +178,8 @@ namespace CurrencyTrackerServer.Web.Controllers
 
     private async Task<ApplicationUser> GetCurrentUser()
     {
-      var name = User.FindFirst(ClaimTypes.NameIdentifier).Value;
-      return await _userManager.FindByEmailAsync(name);
+      var email = User.FindFirst("sub")?.Value;
+      return await _userManager.FindByEmailAsync(email);
     }
   }
 }

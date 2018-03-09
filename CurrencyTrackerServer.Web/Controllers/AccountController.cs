@@ -18,6 +18,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Tokens;
 using Serilog;
+using System.Collections.Generic;
 
 namespace CurrencyTrackerServer.Web.Controllers
 {
@@ -28,15 +29,17 @@ namespace CurrencyTrackerServer.Web.Controllers
     private readonly UserManager<ApplicationUser> _userManager;
     private readonly IConfiguration _config;
     private readonly SignInManager<ApplicationUser> _signInManager;
+    private readonly RoleManager<IdentityRole> _roleManager;
     private readonly UserContainersManager _containersManager;
 
 
     public AccountController(UserManager<ApplicationUser> userManager,
-      IConfiguration config, SignInManager<ApplicationUser> signInManager, UserContainersManager containersManager)
+      IConfiguration config, SignInManager<ApplicationUser> signInManager, RoleManager<IdentityRole> roleManager, UserContainersManager containersManager)
     {
       _userManager = userManager;
       _config = config;
       _signInManager = signInManager;
+      _roleManager = roleManager;
       _containersManager = containersManager;
     }
 
@@ -96,11 +99,28 @@ namespace CurrencyTrackerServer.Web.Controllers
           var result = await _signInManager.CheckPasswordSignInAsync(user, model.Password, false);
           if (result.Succeeded)
           {
-            var claims = new[]
+           
+            var claims = new List<Claim>
             {
               new Claim(JwtRegisteredClaimNames.Sub, user.Email),
               new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
             };
+
+            var userClaims = await _userManager.GetClaimsAsync(user);
+            var userRoles = await _userManager.GetRolesAsync(user);
+            foreach (var userRole in userRoles)
+            {
+              claims.Add(new Claim(ClaimTypes.Role, userRole));
+              var role = await _roleManager.FindByNameAsync(userRole);
+              if (role != null)
+              {
+                var roleClaims = await _roleManager.GetClaimsAsync(role);
+                foreach (Claim roleClaim in roleClaims)
+                {
+                  claims.Add(roleClaim);
+                }
+              }
+            }
 
             var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_config["TrackerTokens:Key"]));
             var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
@@ -157,8 +177,8 @@ namespace CurrencyTrackerServer.Web.Controllers
 
     private async Task<ApplicationUser> GetCurrentUser()
     {
-      var name = User.FindFirst(ClaimTypes.NameIdentifier).Value;
-      return await _userManager.FindByEmailAsync(name);
+      var email = User.FindFirst("sub")?.Value;
+      return await _userManager.FindByEmailAsync(email);
     }
     #endregion
   }
