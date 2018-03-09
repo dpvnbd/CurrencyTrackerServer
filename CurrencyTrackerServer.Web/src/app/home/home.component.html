@@ -4,10 +4,17 @@
       <app-reminder></app-reminder>
     </div>
     <div class="col-md-6 px-1">
-      <div class="card">
+      <div class="card ">
         <div class="card-body py-1">
-          <span class="1align-middle">
-            <a href="stats" target="_blank">Статистика</a> |
+
+          <span class="">
+            <a href="stats" target="_blank">Статистика</a>
+          </span>
+          <span *ngIf="userInfo.isAdmin">
+             | <a href="admin" target="_blank">Администрирование</a>
+            </span>
+          <span class="pull-right">
+            <a>{{userInfo.username}}</a>
             <a href="logout">Выход</a>
           </span>
         </div>

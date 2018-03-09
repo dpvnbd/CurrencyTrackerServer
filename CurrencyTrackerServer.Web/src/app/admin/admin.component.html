@@ -1,0 +1,47 @@
+<div class="container">
+  <span>
+    <a href="">Главная</a> |
+    <a href="logout">Выход</a>
+  </span>
+  <div class="row">
+    <div class="col-12">
+      <table class="table table-hover">
+        <thead>
+          <tr>
+            <th>Логин</th>
+            <th>Email</th>
+            <th>Функционал приложения</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let user of users" [ngClass]="{'table-success': user.isEnabled}">
+            <td class="p-2">
+              {{user.username}}
+              <span *ngIf="user.isAdmin" class="badge badge-success">Админ</span>
+            </td>
+            <td>
+              {{user.email}}
+            </td>
+            <td>
+              <button class="btn btn-warning btn-sm" (click)="toggleUser(user)"
+               [ngClass]="{'btn-primary': !user.isActive, 'btn-warning': user.isEnabled}">
+                <span *ngIf="user.isEnabled">
+                  Деактивировать
+                </span>
+                <span *ngIf="!user.isEnabled">
+                  Aктивировать
+                </span>
+              </button>
+            </td>
+            <td>
+              <button class="btn btn-danger btn-sm" (click)="deleteUser(user)">
+                Удалить
+              </button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>

@@ -11,6 +11,7 @@ import { FormControl, FormGroup, Validators } from '@angular/forms';
 
 import { BrowserModule } from '@angular/platform-browser';
 import { platformBrowserDynamic } from '@angular/platform-browser-dynamic';
+import { LocalStorage } from 'ngx-store/dist';
 
 
 @Component({
@@ -25,6 +26,12 @@ export class LoginComponent implements OnInit {
     name: FormControl;
     password: FormControl;
 
+    @LocalStorage()
+    userInfo: any = {
+        username: 'unavailable',
+        isAdmin: false
+    };
+
     constructor(
         private route: ActivatedRoute,
         private router: Router,
@@ -36,6 +43,8 @@ export class LoginComponent implements OnInit {
         this.createForm();
         // reset login status
         this.authenticationService.logout();
+        this.userInfo = {};
+        this.userInfo.save();
     }
 
     login() {
@@ -50,7 +59,8 @@ export class LoginComponent implements OnInit {
                 if (json.token) {
                     this.authenticationService.setToken(json.token);
                 }
-
+                this.userInfo = json;
+                this.userInfo.save();
                 // this.router.navigate(['']);
 
                 // reload main page so app initializes with logged in user

@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { Http } from '@angular/http';
+import { LocalStorage } from 'ngx-store/dist';
 
 @Component({
     selector: 'app-home',
@@ -7,6 +8,12 @@ import { Http } from '@angular/http';
     styleUrls: ['./home.component.css']
 })
 export class HomeComponent implements OnInit {
+    @LocalStorage()
+    userInfo: any = {
+        username: 'unavailable',
+        isAdmin: false
+    };
+
     constructor() { }
     ngOnInit() {
 

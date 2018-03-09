@@ -37,6 +37,8 @@ import { NoticesService } from './notices/notices.service';
 import { ChangesStatsComponent } from './stats/changesStats/changesStats.component';
 import { StatsComponent } from './stats/stats.component';
 import { ChangesStatsService } from './stats/changesStats/changesStats.service';
+import { AdminService } from './admin/admin.service';
+import { AdminComponent } from './admin/admin.component';
 
 
 const routes: Routes = [
@@ -44,7 +46,8 @@ const routes: Routes = [
   { path: 'register', component: RegisterComponent },
   { path: 'login', component: LoginComponent },
   { path: 'logout', component: LoginComponent },
-  { path: 'stats', component: StatsComponent }
+  { path: 'stats', component: StatsComponent },
+  { path: 'admin', component: AdminComponent }
 ];
 
 @NgModule({
@@ -59,7 +62,8 @@ const routes: Routes = [
     AlertComponent,
     NoticesComponent,
     StatsComponent,
-    ChangesStatsComponent
+    ChangesStatsComponent,
+    AdminComponent
   ],
   imports: [
     BrowserModule,
@@ -94,7 +98,8 @@ const routes: Routes = [
     AuthService,
     AuthAlertService,
     NoticesService,
-    ChangesStatsService
+    ChangesStatsService,
+    AdminService
   ],
   bootstrap: [AppComponent]
 })

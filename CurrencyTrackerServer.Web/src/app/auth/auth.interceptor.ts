@@ -8,10 +8,6 @@ export class AuthInterceptor implements HttpInterceptor {
     constructor(private auth: AuthService) { }
 
     intercept(req: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
-
-        if (req.url.includes('Notifications')) {
-            console.log('caught websocket');
-        }
         // Get the auth header from the service.
         const authHeader = this.auth.getToken();
         // Clone the request to add the new header.
