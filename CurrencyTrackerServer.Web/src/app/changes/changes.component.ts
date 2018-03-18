@@ -1,72 +1,98 @@
-import { Component, OnInit, AfterViewChecked, Input, ElementRef, ViewChild } from '@angular/core';
-import { ChangesService, Change, ChangeSettings, ChangeType } from './changes.service';
+import { Component, OnInit, AfterViewChecked, Input, ElementRef, ViewChild, OnDestroy } from '@angular/core';
+import { ChangesService, Change, ChangeSettings } from './changes.service';
 import { DatePipe, DecimalPipe } from '@angular/common';
 import { NgbModal, ModalDismissReasons } from '@ng-bootstrap/ng-bootstrap';
-import { Source } from '../shared';
+import { UpdateSource, UpdateType } from '../shared';
+import { LocalStorage, LocalStorageService } from 'ngx-store/dist';
 
 @Component({
     selector: 'app-changes',
     templateUrl: 'changes.component.html',
     styleUrls: ['changes.component.css']
 })
-export class ChangesComponent implements OnInit {
-
-
+export class ChangesComponent implements OnInit, OnDestroy {
     @Input()
-    source: Source;
+    source: UpdateSource;
 
     @ViewChild('bottom') bottom: ElementRef;
     changes: Change[] = [];
     lastError: Change;
+    lastUpdate: any;
     settings: ChangeSettings;
     message: string;
     private skipSpeech = true;
     modalCloseResult: string;
     newCurrency: string;
 
+    poloniexCurrencies: string[] = [];
+
     linkTemplate: string;
     iconPath: string;
-    soundEnabled = true;
 
-    // audioPing: HTMLAudioElement;
+    private _soundEnabled = true;
+    get soundEnabled(): boolean {
+        return this._soundEnabled;
+    }
+    set soundEnabled(value: boolean) {
+        this._soundEnabled = value;
+        const key = 'changes' + this.source;
+        this.localStorageService.set(key, value);
+    }
 
-
-    constructor(private changesService: ChangesService, private modalService: NgbModal) { }
+    constructor(private changesService: ChangesService, private modalService: NgbModal,
+        private localStorageService: LocalStorageService
+    ) { }
 
     ngOnInit() {
-        // this.audioPing = new Audio('../../assets/sounds/ping.mp3');
 
-        if (this.source === Source.Bittrex) {
+        if (this.source === UpdateSource.Bittrex) {
             this.linkTemplate = 'https://bittrex.com/Market/Index?MarketName=BTC-';
             this.iconPath = '../../assets/images/bittrexIcon.png';
-        } else if (this.source = Source.Poloniex) {
+        } else if (this.source === UpdateSource.Poloniex) {
             this.linkTemplate = 'https://poloniex.com/exchange#btc_';
             this.iconPath = '../../assets/images/poloniexIcon.png';
         }
 
+        const sound = this.localStorageService.get('changes' + this.source);
+        if (sound !== null) {
+            this._soundEnabled = sound;
+        }
+
+        if (this.source === UpdateSource.Bittrex) {
+            this.changesService.getPoloniexCurrencies().then((currencies) => {
+                if (currencies) {
+                    this.poloniexCurrencies = currencies;
+                }
+                this.reloadHistory();
+            });
+        } else {
+            this.reloadHistory();
+        }
+
+
         this.changesService.subject.subscribe((changes: Change[]) => {
             const localChanges: Change[] = [];
             for (const change of changes) {
-                if (change.changeSource === this.source) {
-                    if (change.type === ChangeType.Currency) {
+                if (change.source === this.source) {
+                    if (change.type === UpdateType.Currency) {
                         localChanges.push(change);
-                    } else if (change.type === ChangeType.Info && this.soundEnabled) {
-                        // this.audioPing.play();
-                        responsiveVoice.speak('working', 'Russian Female', { rate: 0.8 });
-                    } else if (change.type === ChangeType.Error) {
+                    } else if (change.type === UpdateType.Info) {
+                        this.lastUpdate = change.time;
+                    } else if (change.type === UpdateType.Error) {
                         this.lastError = change;
-                        console.log(change.message);
                     }
                 }
             }
             if (localChanges.length > 0) {
                 this.addChanges(localChanges);
                 this.speakChanges(localChanges);
+                this.lastUpdate = Date.now();
             }
         });
 
-        this.reloadHistory();
     }
+
+    ngOnDestroy() { }
 
     openModal(content) {
         this.changesService.getSettings(this.source).then((settings) => {
@@ -90,21 +116,31 @@ export class ChangesComponent implements OnInit {
         this.changesService.getHistory(this.source).then(
             (history) => {
                 if (history) {
-                    this.addChanges(history);
+                    this.addChanges(history, false);
                 }
                 this.message = null;
             }
         );
     }
 
-    addChanges(changes: Change[]) {
+    addChanges(changes: Change[], markAsNew = true) {
         for (const oldChange of this.changes) {
             oldChange.recentlyChanged = false;
         }
 
         for (const change of changes) {
-            if (change.changeSource === this.source) {
-                change.recentlyChanged = true;
+            if (change.source === this.source) {
+                if (markAsNew) {
+                    change.recentlyChanged = true;
+                }
+
+                if (this.source === UpdateSource.Bittrex) {
+                    const index = this.poloniexCurrencies.indexOf(change.currency);
+                    if (index >= 0) {
+                        change.isOnPoloniex = true;
+                    }
+                }
+
                 this.changes.push(change);
             }
         }
@@ -119,16 +155,11 @@ export class ChangesComponent implements OnInit {
             this.skipSpeech = false;
             return;
         }
-
-        let text = '';
         for (const change of changes) {
             if (change.currency && change.currency.length > 0) {
-                text += ' ' + change.currency;
+                const text = change.currency + '.';
+                responsiveVoice.speak(text, 'Russian Female', { rate: 0.8 });
             }
-        }
-
-        if (text.length > 0) {
-            responsiveVoice.speak(text, 'Russian Female');
         }
     }
 

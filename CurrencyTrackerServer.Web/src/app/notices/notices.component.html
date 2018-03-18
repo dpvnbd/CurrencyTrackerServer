@@ -1,0 +1,40 @@
+<div class="row">
+  <div class="col-1 px-0">
+    <div class="card">
+      <div class="card-block notices-block-height p-1">
+        <span class="">
+          <i class="fa fa-newspaper-o fa-lg" *ngIf="!audioPlaying"></i>
+
+          <a href="javascript:void(0)" *ngIf="audioPlaying" (click)="stopAlarm()" title="Новость просмотрена">
+            <i class="fa fa-lg fa-check-square" aria-hidden="true"></i>
+          </a>
+
+          <label class="form-check form-check-inline my-0">
+            <input class="form-check-input" name="soundEnabled"
+             type="checkbox" [(ngModel)]="soundEnabled">
+              <label class="form-check-label my-0"><i class="fa fa-volume-up"></i></label>
+          </label>        
+        </span>
+
+      </div>
+    </div>
+  </div>
+  <div class="col-11 px-0">
+    <div class="card">
+      <div class="card-block scroll-block notices-block-height">
+        <table class="table table-hover mb-0">
+          <tbody>
+            <tr *ngFor="let notice of notices" [ngClass]="{'recently-changed': notice.recentlyChanged}">
+              <td class="py-0 text">
+                <span class="">
+                  <small>{{notice.time | date:'dd/MM HH:mm:ss'}} </small>{{notice.message}}
+                </span>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+        <div #bottom></div>
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,55 @@
+<div class="container block-container">
+  <div class="row">
+    <div class="col-md-6 px-1">
+      <div class="row">
+        <div class="col-6 pr-0">
+          <app-reminder></app-reminder>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-6 px-1">
+      <div class="card ">
+        <div class="card-body py-1">
+
+          <span class="">
+            <a href="stats" target="_blank">Статистика</a>
+          </span>
+          <span *ngIf="userInfo.isAdmin">
+            |
+            <a href="admin" target="_blank">Администрирование</a>
+          </span>
+          <span class="pull-right">
+            <a href="account" target="_blank">{{userInfo.username}}</a> |
+            <a href="logout">Выход</a>
+          </span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="col-md-6 p-1">
+      <app-changes [source]="1"></app-changes>
+    </div>
+
+    <div class="col-md-6 p-1">
+      <app-changes [source]="2"></app-changes>
+    </div>
+
+  </div>
+
+  <div class="row">
+    <div class="col-md-6 p-1">
+      <app-price [source]="1"></app-price>
+    </div>
+    <div class="col-md-6 p-1">
+      <app-price [source]="2"></app-price>
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="col-md-12 px-1">
+      <app-notices></app-notices>
+    </div>
+  </div>
+</div>

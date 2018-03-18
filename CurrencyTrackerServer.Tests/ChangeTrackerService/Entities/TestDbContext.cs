@@ -1,10 +1,9 @@
-﻿using CurrencyTrackerServer.ChangeTrackerService.Concrete.Data;
-using CurrencyTrackerServer.ChangeTrackerService.Entities;
+﻿using CurrencyTrackerServer.ChangeTrackerService.Entities;
 using Microsoft.EntityFrameworkCore;
 
 namespace CurrencyTrackerServer.Tests.ChangeTrackerService.Entities
 {
-    internal class TestDbContext : ChangeTrackerContext
+    internal class TestDbContext : DbContext
     {
 
         public DbSet<TestEntity> TestSet { get; set; }

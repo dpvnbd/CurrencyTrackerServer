@@ -13,36 +13,42 @@
     recentlyChanged?: boolean;
 }
 export interface PriceSettings {
-    periodSeconds: number;
     prices?: Price[];
+    sendNotifications?: boolean;
+    email?: string;
 }
   } -->
 
   <div class="modal-body">
     <div class="container">
       <form>
-        <div class="form-group row">
-          <label class="col-sm-6">Звук</label>
+        <!-- <div class="form-group row">
+          <label class="col-sm-6">Послать уведомление</label>
           <div class="col-sm-6">
             <div class="form-check">
               <label class="form-check-label">
-                    <input class="form-check-input" name="soundEnabled"
-                     type="checkbox" [(ngModel)]="soundEnabled">
-                  </label>
+                <input class="form-check-input" name="sendNotifications" type="checkbox" [(ngModel)]="settings.sendNotifications">
+              </label>
             </div>
           </div>
-        </div>
-        <hr/>
+        </div> -->
 
         <div class="form-group row">
+
+          <label for="period" class="col-sm-6 col-form-label">Email</label>
+          <div class="col-sm-6">
+            <input type="email" name="notificationsEmail" class="form-control" id="notificationsEmail" [(ngModel)]="settings.email">
+          </div>
+        </div>
+
+        <!-- <div class="form-group row">
           <label for="period" class="col-sm-6 col-form-label">Период, сек</label>
           <div class="col-sm-6">
             <input type="number" name="period" class="form-control" id="period" [(ngModel)]="settings.periodSeconds">
           </div>
-        </div>
+        </div> -->
 
         <hr/>
-
         <div class="form-group row">
           <label for="currency" class="col-sm-6 col-form-label">Валюта</label>
           <div class="col-sm-4">
@@ -50,7 +56,7 @@ export interface PriceSettings {
           </div>
 
           <button class="col-sm-2 btn btn-primary" (click)="getPrice()">
-              Цена
+            Цена
           </button>
         </div>
 
@@ -70,21 +76,25 @@ export interface PriceSettings {
           <div class="col-sm-6">
             <input type="number" name="low" id="low" class="form-control" step="0.00000001" [(ngModel)]="addedCurrency.low">
           </div>
-        </div>      
+        </div>
 
         <div class="form-group row">
           <div class="offset-sm-6">
             <button class="btn btn-primary" (click)="addCurrencyToSettings()">
               Добавить
-          </button>
+            </button>
           </div>
         </div>
 
         <table class="table">
           <tbody>
             <th class="text-center">Валюта</th>
-            <th class="text-center"><i class="fa fa-arrow-down"></i></th>
-            <th class="text-center"><i class="fa fa-arrow-up"></i></th>
+            <th class="text-center">
+              <i class="fa fa-arrow-down"></i>
+            </th>
+            <th class="text-center">
+              <i class="fa fa-arrow-up"></i>
+            </th>
             <th class="text-center"></th>
 
             <tr *ngFor="let price of settings.prices; index as i;" [ngClass]="{'recently-changed': price.recentlyChanged}">
@@ -92,15 +102,15 @@ export interface PriceSettings {
                 <a href="{{linkTemplate}}{{price.currency}}" target="_blank">{{price.currency}}</a>
               </td>
               <td>
-                <input type="number" name="low{{i}}" class="form-control" step="0.00000001" [(ngModel)]="price.low ">
+                <input type="number" name="low{{i}}" class="form-control" step="0.00000001" [ngModel]="price.low | number:'1.8-8'" (ngModelChange)="price.low=$event">
               </td>
               <td>
-                <input type="number" name="high{{i}}" class="form-control" step="0.00000001" [(ngModel)]="price.high ">
+                <input type="number" name="high{{i}}" class="form-control" step="0.00000001" [ngModel]="price.high | number:'1.8-8'" (ngModelChange)="price.high=$event">
               </td>
               <td class="text-center">
-                <button class="close" type="button" (click)="removeCurrencyFromSettings(i)">
-                      <span aria-hidden="true">&times;</span>
-                   </button>
+                <a href="javascript:void(0)" class="close" (click)="removeCurrencyFromSettings(i)">
+                  <span aria-hidden="true">&times;</span>
+                </a>
               </td>
             </tr>
           </tbody>
@@ -115,6 +125,12 @@ export interface PriceSettings {
 </ng-template>
 
 
+<ng-template #errorContent>
+  <div *ngIf="lastError">
+    {{lastError.time | date:'HH:mm:ss'}} - {{lastError.message}}
+  </div>
+</ng-template>
+
 
 <div class="price">
   <div class="card">
@@ -123,37 +139,69 @@ export interface PriceSettings {
         <div class="col-6 col-md-2">
           <img src="{{iconPath}}" class="block-icon float-left" />
         </div>
-        <div class="hidden-sm-down col-md-6">Цена валют
-
+        <div class="hidden-sm-down col-md-6">
+          Цена валют
+          <span *ngIf="soundNotLoaded" class="badge badge-danger">Звук не загружен</span>
+          <label class="my-0 mx-1 pull-right" *ngIf="lastUpdate">
+            <i class="fa fa-clock-o fa-lg"></i>
+            <span>{{lastUpdate | date:'HH:mm:ss'}}</span>
+          </label>
         </div>
         <div class="col-6 col-md-4">
           <span class="pull-right">
-              <a href="javascript:void(0)" (click)="openModal(content)" title="Настройки">
-                <i class="fa fa-cog fa-lg"></i> 
-              </a>
+            <label class="form-check form-check-inline my-0">
+              <input class="form-check-input" name="soundEnabled"
+               type="checkbox" [(ngModel)]="soundEnabled">
+                <label class="form-check-label my-0"><i class="fa fa-volume-up"></i></label>
+            </label>
+
+            <label class="form-check form-check-inline my-0">
+              <input class="form-check-input" name="notificationsEnabled" type="checkbox" [(ngModel)]="sendNotification" (change)="notificationChange($event)">
+                <label class="form-check-label my-0">Email</label>
+            </label>
+            
+            <a *ngIf="lastError" placement="bottom" [ngbPopover]="errorContent" href="javascript:void(0)" title="Ошибка">
+              <i class="fa fa-exclamation-circle fa-lg"></i>
+            </a>
+            <a href="javascript:void(0)" (click)="openModal(content)" title="Настройки">
+              <i class="fa fa-cog fa-lg"></i>
+            </a>
           </span>
         </div>
       </div>
     </div>
-    <div class="card-block app-block">
-      <table class="table table-hover">
-        <th class="py-1 text-center">Валюта</th>
-        <th class="py-1 text-center"><i class="fa fa-arrow-down"></i></th>
-        <th class="py-1 text-center">Цена</th>
-        <th class="py-1 text-center"><i class="fa fa-arrow-up"></i></th>
-        <tr *ngFor="let price of prices" [ngClass]="{'recently-changed': price.recentlyChanged,
+    <div class="card-block scroll-block price-block-height">
+      <table class="table table-hover mb-0 text-center">
+        <th class="">Валюта</th>
+        <th class="">
+          <i class="fa fa-arrow-down"></i>
+        </th>
+        <th class="">Цена</th>
+        <th class=" ">
+          <i class="fa fa-arrow-up"></i>
+        </th>
+
+        <tr *ngFor="let price of prices; index as i;" [ngClass]="{'recently-changed': price.recentlyChanged,
          'priceLow': price.last <= price.low, 'priceHigh': price.last >= price.high }">
-          <td class="py-1 text-center">
+          <td class=" ">
             <a href="{{linkTemplate}}{{price.currency}}" target="_blank">{{price.currency}}</a>
           </td>
-          <td class="py-1 text-center">
-            {{price.low | number:'1.8-8'}}
+          <td class="">
+            <inline-editor type="text" [ngModel]="price.low | number:'1.8-8'" (ngModelChange)="price.low=$event" (onSave)="savePrices()"
+              name="low{{source}}{{i}}" size="8"></inline-editor>
+
           </td>
-          <td class="py-1 text-center">
+          <td class="">
             {{price.last | number:'1.8-8'}}
           </td>
-          <td class="py-1 text-center">
-            {{price.high | number:'1.8-8'}}
+          <td class="">
+            <inline-editor type="text" [ngModel]="price.high | number:'1.8-8'" (ngModelChange)="price.high=$event" (onSave)="savePrices()"
+              name="high{{source}}{{i}}" size="8"></inline-editor>
+          </td>
+          <td class="">
+            <a href="javascript:void(0)" class="close" (click)="removeCurrencyFromMainList(i)">
+              <span aria-hidden="true">&times;</span>
+            </a>
           </td>
         </tr>
 

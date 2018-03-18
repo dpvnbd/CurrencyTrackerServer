@@ -1,7 +1,31 @@
 /* You can add global styles to this file, and also import other style files */
 
+/*height = viewPort% - verticalPadding - noticesLines*lineHeight */
+.changes-block-height {
+  height: calc(60vh - 2rem - 3 * 1.5rem);
+}
+
+.price-block-height {
+  height: calc(40vh - 2rem - 3 * 1.5rem);
+}
+
+/* .reduced-price-block-height {
+  height: calc(40vh - 2rem - 2.5em - 2 * 1.5rem);
+} */
+
+.notices-block-height {
+  height: calc(3 * 1.5rem);
+}
+
+.stats-block-size {
+  height: calc(48vh - 2rem - 1rem - 1rem);
+}
+
 .app-block {
-  height: calc(50vh - 40px);
+  padding: 0;
+}
+
+.scroll-block {
   overflow-y: scroll;
   padding: 0;
 }
@@ -12,11 +36,39 @@
   height: auto;
 }
 
+.checkbox-empty label {
+  display: inline
+}
+
 .recently-changed {
   background: rgba(50, 205, 50, 0.23)
 }
 
-.popover{
+.popover {
   /* max-width: 100% !important; Max Width of the popover (depending on the container!) */
   min-width: 20em !important;
+}
+
+/* truncate text in tables */
+.table .text {
+  position: relative;
+}
+.table .text span {
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  position: absolute;
+  left: 0;
+  right: 0;
+}
+.text:before {
+  content: '';
+  display: inline-block;
+}
+/**********/
+
+.table > tbody > tr > td {
+  vertical-align: middle;
+  padding-top: 0;
+  padding-bottom: 0;
 }

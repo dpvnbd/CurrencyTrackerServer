@@ -1,74 +1,111 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Claims;
 using System.Threading.Tasks;
-using CurrencyTrackerServer.ChangeTrackerService.Concrete.ProviderSpecific.Bittrex;
-using CurrencyTrackerServer.ChangeTrackerService.Concrete.ProviderSpecific.Poloniex;
+using CurrencyTrackerServer.ChangeTrackerService.Concrete.Bittrex;
+using CurrencyTrackerServer.ChangeTrackerService.Concrete.Poloniex;
 using CurrencyTrackerServer.ChangeTrackerService.Entities;
 using CurrencyTrackerServer.Infrastructure.Abstract;
+using CurrencyTrackerServer.Infrastructure.Abstract.Changes;
+using CurrencyTrackerServer.Infrastructure.Abstract.Data;
 using CurrencyTrackerServer.Infrastructure.Entities;
 using CurrencyTrackerServer.Infrastructure.Entities.Changes;
+using CurrencyTrackerServer.Infrastructure.Entities.Data;
+using CurrencyTrackerServer.Web.Infrastructure.Concrete.MultipleUsers;
+using CurrencyTrackerServer.Web.Models;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Cors;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Options;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
 namespace CurrencyTrackerServer.Web.Controllers
 {
+  [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
   [Route("api/[controller]")]
   public class ChangesController : Controller
   {
     private readonly BittrexTimerWorker _bWorker;
     private readonly PoloniexTimerWorker _pWorker;
-    private readonly ISettingsProvider<ChangeSettings> _settingsProvider;
+    private readonly ISettingsProvider _settingsProvider;
+    private readonly UserManager<ApplicationUser> _userManager;
+    private readonly PoloniexApiDataSource _poloniexApiDataSource;
+    private readonly UserContainersManager _userContainersManager;
+    private readonly IChangesStatsService<CurrencyChangeApiData> _statsService;
+    private readonly IConfiguration _config;
+    private readonly INotifier _notifier;
 
     public ChangesController(BittrexTimerWorker bWorker, PoloniexTimerWorker pWorker,
-      ISettingsProvider<ChangeSettings> settingsProvider)
+        ISettingsProvider settingsProvider, UserManager<ApplicationUser> userManager,
+        PoloniexApiDataSource poloniexApiDataSource, UserContainersManager userContainersManager,
+        IChangesStatsService<CurrencyChangeApiData> statsService, IOptions<AppSettings> settings, IConfiguration config,
+        INotifier notifier)
     {
       _bWorker = bWorker;
       _pWorker = pWorker;
       _settingsProvider = settingsProvider;
-
-      _bWorker.Start();
-      _pWorker.Start();
+      _userManager = userManager;
+      _poloniexApiDataSource = poloniexApiDataSource;
+      _userContainersManager = userContainersManager;
+      _statsService = statsService;
+      _config = config;
+      _notifier = notifier;
+      if (settings.Value.BittrexChangesWorkerEnabled)
+      {
+        _bWorker.Start();
+      }
+      if (settings.Value.PoloniexChangesWorkerEnabled)
+      {
+        _pWorker.Start();
+      }
     }
 
     [HttpGet("{source}")]
-    public IEnumerable<Change> GetAsync(ChangeSource source)
+    public async Task<IEnumerable<Change>> GetAsync(UpdateSource source)
     {
+      var container = await GetUserContainer();
+
       switch (source)
       {
-        case ChangeSource.Bittrex:
-          return _bWorker.Monitor.GetHistory();
-        case ChangeSource.Poloniex:
-          return _pWorker.Monitor.GetHistory();
+        case UpdateSource.Bittrex:
+          return await container.BittrexChangeMonitor.GetHistory();
+        case UpdateSource.Poloniex:
+          return await container.PoloniexChangeMonitor.GetHistory();
       }
-      return _bWorker.Monitor.GetHistory(allHistory: true);
+      return Array.Empty<Change>();
     }
 
     [HttpPost("reset/{source}")]
-    public async Task<IActionResult> Reset(ChangeSource source)
+    public async Task<IActionResult> Reset(UpdateSource source)
     {
+      var container = await GetUserContainer();
+
       switch (source)
       {
-        case ChangeSource.Bittrex:
-          await _bWorker.Monitor.ResetAll();
+        case UpdateSource.Bittrex:
+          await container.BittrexChangeMonitor.ResetAll();
           break;
-        case ChangeSource.Poloniex:
-          await _pWorker.Monitor.ResetAll();
+        case UpdateSource.Poloniex:
+          await container.PoloniexChangeMonitor.ResetAll();
           break;
       }
       return Ok();
     }
 
     [HttpPost("start/{source}")]
-    public IActionResult Start(ChangeSource source)
+    public IActionResult Start(UpdateSource source)
     {
       switch (source)
       {
-        case ChangeSource.Bittrex:
+        case UpdateSource.Bittrex:
           _bWorker.Start();
           break;
-        case ChangeSource.Poloniex:
+        case UpdateSource.Poloniex:
           _pWorker.Start();
           break;
       }
@@ -77,13 +114,13 @@ namespace CurrencyTrackerServer.Web.Controllers
     }
 
     [HttpPost("stop/{source}")]
-    public IActionResult Stop(ChangeSource source)
+    public IActionResult Stop(UpdateSource source)
     {
-      if (source == ChangeSource.Bittrex)
+      if (source == UpdateSource.Bittrex)
       {
         _bWorker.Stop();
       }
-      else if (source == ChangeSource.Poloniex)
+      else if (source == UpdateSource.Poloniex)
       {
         _pWorker.Stop();
       }
@@ -92,23 +129,96 @@ namespace CurrencyTrackerServer.Web.Controllers
     }
 
     [HttpGet("settings/{source}")]
-    public ChangeSettings Settings(ChangeSource source)
+    public async Task<ChangeSettings> Settings(UpdateSource source)
     {
-      return _settingsProvider.GetSettings(source);
+      var user = await GetCurrentUser();
+
+      return _settingsProvider.GetSettings<ChangeSettings>(source, UpdateDestination.CurrencyChange, user.Id);
     }
 
     [HttpPost("settings/{source}")]
-    public IActionResult SaveSettings(ChangeSource source, [FromBody] ChangeSettings settings)
+    public async Task<IActionResult> SaveSettings(UpdateSource source, [FromBody] ChangeSettings settings)
     {
       if (ModelState.IsValid)
       {
-        _settingsProvider.SaveSettings(source, settings);
+        var user = await GetCurrentUser();
+        await _settingsProvider.SaveSettings(source, UpdateDestination.CurrencyChange, user.Id, settings);
         return Ok();
       }
       else
       {
         return BadRequest(ModelState);
       }
+    }
+
+    [HttpGet("stats/{source}")]
+    public async Task<IEnumerable<ChangePercentageDto>> Stats(UpdateSource source)
+    {
+      var changes = await _statsService.GetStates(source);
+    
+      return changes.Select(c => new ChangePercentageDto
+      { Currency = c.Currency, PercentChanged = Math.Round(c.Percentage, 2) });
+    }
+
+    [HttpGet("poloniexCurrencies")]
+    public async Task<IEnumerable<string>> GetPoloniexCurrencies()
+    {
+      var currencies = await _poloniexApiDataSource.GetCurrencies();
+      return currencies;
+    }
+
+    [HttpPost("averageUpdate")]
+    [AllowAnonymous]
+    [EnableCors("AllowAllOrigins")]
+    public async Task<IActionResult> UpdateAverageChangeStats([FromBody] AverageChangeWrapper model)
+    {
+      if (!ModelState.IsValid)
+      {
+        return BadRequest();
+      }
+
+      var key = _config["TrackerTokens:CorsSecretKey"];
+
+      if(key != model.ApiKey)
+      {
+        return BadRequest();
+      }
+      var notification = new AverageChangeResponse
+      {
+        Time = model.Time,
+        Percentage = model.Percentage
+      };
+      await _notifier.SendToAll(new[] { notification });
+
+      return Ok();
+    }
+
+    private async Task<UserMonitorsContainer> GetUserContainer()
+    {
+      var user = await GetCurrentUser();
+      return (UserMonitorsContainer)_userContainersManager.GetUserContainer(user.Id, _userManager);
+    }
+
+    private async Task<ApplicationUser> GetCurrentUser()
+    {
+      var email = User.FindFirst("sub")?.Value;
+      return await _userManager.FindByEmailAsync(email);
+    }
+
+
+    public class AverageChangeWrapper
+    {
+      public string ApiKey { get; set; }
+      public double Percentage { get; set; }
+      public DateTime Time { get; set; }
+    }
+
+    public class AverageChangeResponse: BaseChangeEntity
+    {
+      public double Percentage { get; set; }
+      public new UpdateSource Source => UpdateSource.None;
+      public new UpdateType Type => UpdateType.Stats;
+
     }
   }
 }
