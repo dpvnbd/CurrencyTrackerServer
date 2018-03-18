@@ -34,7 +34,8 @@ namespace CurrencyTrackerServer.Web.Controllers
 
 
     public AccountController(UserManager<ApplicationUser> userManager,
-      IConfiguration config, SignInManager<ApplicationUser> signInManager, RoleManager<IdentityRole> roleManager, UserContainersManager containersManager)
+      IConfiguration config, SignInManager<ApplicationUser> signInManager, RoleManager<IdentityRole> roleManager,
+      UserContainersManager containersManager)
     {
       _userManager = userManager;
       _config = config;

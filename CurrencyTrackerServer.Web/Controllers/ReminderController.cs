@@ -15,6 +15,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Options;
 
 namespace CurrencyTrackerServer.Web.Controllers
@@ -31,12 +32,12 @@ namespace CurrencyTrackerServer.Web.Controllers
     private readonly DefaultNoticesTimerWorker _notices;
     private readonly UserContainersManager _userContainersManager;
     private readonly UserManager<ApplicationUser> _userManager;
-    private readonly IOptions<AppSettings> _config;
+    private readonly IOptions<AppSettings> _settings;
 
     public ReminderController(ReminderTimerWorker reminder, PoloniexTimerWorker pChange, BittrexTimerWorker bChange,
       PoloniexPriceTimerWorker pPrice, BittrexPriceTimerWorker bPrice, DefaultNoticesTimerWorker notices,
       UserContainersManager userContainersManager, UserManager<ApplicationUser> userManager,
-      IOptions<AppSettings> config)
+      IOptions<AppSettings> settings)
     {
       _reminder = reminder;
       _pChange = pChange;
@@ -46,7 +47,7 @@ namespace CurrencyTrackerServer.Web.Controllers
       _notices = notices;
       _userContainersManager = userContainersManager;
       _userManager = userManager;
-      _config = config;
+      _settings = settings;
     }
 
     [HttpPost("ping")]
@@ -54,26 +55,26 @@ namespace CurrencyTrackerServer.Web.Controllers
     {
       _reminder.Start();
 
-      if (_config.Value.BittrexChangesWorkerEnabled)
+      if (_settings.Value.BittrexChangesWorkerEnabled)
       {
         _bChange.Start();
       }
 
-      if (_config.Value.PoloniexChangesWorkerEnabled)
+      if (_settings.Value.PoloniexChangesWorkerEnabled)
       {
         _pChange.Start();
       }
 
-      if (_config.Value.BittrexPriceWorkerEnabled)
+      if (_settings.Value.BittrexPriceWorkerEnabled)
       {
         _bPrice.Start();
       }
 
-      if (_config.Value.PoloniexPriceWorkerEnabled)
+      if (_settings.Value.PoloniexPriceWorkerEnabled)
       {
         _pPrice.Start();
       }
-      if (_config.Value.PoloniexNoticesWorkerEnabled)
+      if (_settings.Value.PoloniexNoticesWorkerEnabled)
       {
         _notices.Start();
       }
@@ -87,6 +88,8 @@ namespace CurrencyTrackerServer.Web.Controllers
       _userContainersManager.InitializeUserContainer(user.Id, _userManager);
       return Ok();
     }
+
+ 
 
     [HttpPost("start")]
     public IActionResult Start()

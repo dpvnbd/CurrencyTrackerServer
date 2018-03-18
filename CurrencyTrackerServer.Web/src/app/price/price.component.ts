@@ -1,9 +1,9 @@
-import { Component, OnInit, ViewChild, Input, ElementRef } from '@angular/core';
+import { Component, OnInit, ViewChild, Input, ElementRef, OnDestroy } from '@angular/core';
 import { UpdateSource, UpdateType, UpdateSpecial } from '../shared';
 import { PriceService, Price, PriceSettings } from './price.service';
 import { NgbModal, ModalDismissReasons } from '@ng-bootstrap/ng-bootstrap';
 import { Howl } from 'howler';
-import { LocalStorage } from 'ngx-store/dist';
+import { LocalStorage, LocalStorageService } from 'ngx-store/dist';
 
 @Component({
     selector: 'app-price',
@@ -11,7 +11,7 @@ import { LocalStorage } from 'ngx-store/dist';
     styleUrls: ['price.component.css']
 })
 
-export class PriceComponent implements OnInit {
+export class PriceComponent implements OnInit, OnDestroy {
     @Input()
     source: UpdateSource;
 
@@ -33,26 +33,18 @@ export class PriceComponent implements OnInit {
     audioHigh: Howl;
     audioLow: Howl;
 
-    //  this.source not initialized at the moment when key is defined
-    @LocalStorage('poloniexPriceSound') poloniexSoundEnabled = true;
-    @LocalStorage('bittrexPriceSound') bittrexSoundEnabled = true;
-
+    private _soundEnabled = true;
     get soundEnabled(): boolean {
-        if (this.source === UpdateSource.Bittrex) {
-            return this.bittrexSoundEnabled;
-        } else if (this.source === UpdateSource.Poloniex) {
-            return this.poloniexSoundEnabled;
-        }
+        return this._soundEnabled;
     }
     set soundEnabled(value: boolean) {
-        if (this.source === UpdateSource.Bittrex) {
-            this.bittrexSoundEnabled = value;
-        } else if (this.source === UpdateSource.Poloniex) {
-            this.poloniexSoundEnabled = value;
-        }
+        this._soundEnabled = value;
+        const key = 'prices' + this.source;
+        this.localStorageService.set(key, value);
     }
 
-    constructor(private priceService: PriceService, private modalService: NgbModal) { }
+    constructor(private priceService: PriceService, private modalService: NgbModal,
+        private localStorageService: LocalStorageService) { }
 
     ngOnInit() {
         if (this.source === UpdateSource.Bittrex) {
@@ -64,6 +56,11 @@ export class PriceComponent implements OnInit {
         }
 
         this.initAudio();
+
+        const sound = this.localStorageService.get('prices' + this.source);
+        if (sound !== null) {
+            this._soundEnabled = sound;
+        }
 
         this.priceService.subject.subscribe((prices: Price[]) => {
             const localPrices: Price[] = [];
@@ -98,6 +95,8 @@ export class PriceComponent implements OnInit {
             }
         });
     }
+
+    ngOnDestroy(): void { }
 
     updatePrices(newPrices: Price[]) {
         for (const newPrice of newPrices) {

@@ -16,8 +16,10 @@ using CurrencyTrackerServer.Web.Infrastructure.Concrete.MultipleUsers;
 using CurrencyTrackerServer.Web.Models;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Options;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
@@ -35,11 +37,14 @@ namespace CurrencyTrackerServer.Web.Controllers
     private readonly PoloniexApiDataSource _poloniexApiDataSource;
     private readonly UserContainersManager _userContainersManager;
     private readonly IChangesStatsService<CurrencyChangeApiData> _statsService;
+    private readonly IConfiguration _config;
+    private readonly INotifier _notifier;
 
     public ChangesController(BittrexTimerWorker bWorker, PoloniexTimerWorker pWorker,
         ISettingsProvider settingsProvider, UserManager<ApplicationUser> userManager,
         PoloniexApiDataSource poloniexApiDataSource, UserContainersManager userContainersManager,
-        IChangesStatsService<CurrencyChangeApiData> statsService, IOptions<AppSettings> config)
+        IChangesStatsService<CurrencyChangeApiData> statsService, IOptions<AppSettings> settings, IConfiguration config,
+        INotifier notifier)
     {
       _bWorker = bWorker;
       _pWorker = pWorker;
@@ -48,11 +53,13 @@ namespace CurrencyTrackerServer.Web.Controllers
       _poloniexApiDataSource = poloniexApiDataSource;
       _userContainersManager = userContainersManager;
       _statsService = statsService;
-      if (config.Value.BittrexChangesWorkerEnabled)
+      _config = config;
+      _notifier = notifier;
+      if (settings.Value.BittrexChangesWorkerEnabled)
       {
         _bWorker.Start();
       }
-      if (config.Value.PoloniexChangesWorkerEnabled)
+      if (settings.Value.PoloniexChangesWorkerEnabled)
       {
         _pWorker.Start();
       }
@@ -160,6 +167,32 @@ namespace CurrencyTrackerServer.Web.Controllers
       return currencies;
     }
 
+    [HttpPost("averageUpdate")]
+    [AllowAnonymous]
+    [EnableCors("AllowAllOrigins")]
+    public async Task<IActionResult> UpdateAverageChangeStats([FromBody] AverageChangeWrapper model)
+    {
+      if (!ModelState.IsValid)
+      {
+        return BadRequest();
+      }
+
+      var key = _config["TrackerTokens:CorsSecretKey"];
+
+      if(key != model.ApiKey)
+      {
+        return BadRequest();
+      }
+      var notification = new AverageChangeResponse
+      {
+        Time = model.Time,
+        Percentage = model.Percentage
+      };
+      await _notifier.SendToAll(new[] { notification });
+
+      return Ok();
+    }
+
     private async Task<UserMonitorsContainer> GetUserContainer()
     {
       var user = await GetCurrentUser();
@@ -170,6 +203,22 @@ namespace CurrencyTrackerServer.Web.Controllers
     {
       var email = User.FindFirst("sub")?.Value;
       return await _userManager.FindByEmailAsync(email);
+    }
+
+
+    public class AverageChangeWrapper
+    {
+      public string ApiKey { get; set; }
+      public double Percentage { get; set; }
+      public DateTime Time { get; set; }
+    }
+
+    public class AverageChangeResponse: BaseChangeEntity
+    {
+      public double Percentage { get; set; }
+      public new UpdateSource Source => UpdateSource.None;
+      public new UpdateType Type => UpdateType.Stats;
+
     }
   }
 }

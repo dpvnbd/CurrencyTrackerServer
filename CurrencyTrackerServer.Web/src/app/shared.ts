@@ -9,7 +9,7 @@ export enum UpdateDestination {
 }
 
 export enum UpdateType {
-    Currency, Error, Info, Special
+    Currency, Error, Info, Special, Stats
 }
 
 export enum UpdateSpecial {

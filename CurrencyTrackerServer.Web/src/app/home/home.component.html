@@ -1,7 +1,11 @@
 <div class="container block-container">
   <div class="row">
     <div class="col-md-6 px-1">
-      <app-reminder></app-reminder>
+      <div class="row">
+        <div class="col-6 pr-0">
+          <app-reminder></app-reminder>
+        </div>
+      </div>
     </div>
     <div class="col-md-6 px-1">
       <div class="card ">
@@ -15,7 +19,7 @@
             <a href="admin" target="_blank">Администрирование</a>
           </span>
           <span class="pull-right">
-            <a href="account" target="_blank">{{userInfo.username}}</a> | 
+            <a href="account" target="_blank">{{userInfo.username}}</a> |
             <a href="logout">Выход</a>
           </span>
         </div>

@@ -2,6 +2,6 @@
 {
     public enum UpdateType
     {
-        Currency, Error, Info, Special
+        Currency, Error, Info, Special, Stats
     }
 }

@@ -92,7 +92,7 @@ namespace CurrencyTrackerServer.Web
             IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(Configuration["TrackerTokens:Key"]))
           };
 
-          
+
         });
 
 
@@ -163,6 +163,12 @@ namespace CurrencyTrackerServer.Web
 
       services.AddSingleton<UserContainerFactory>();
       services.AddSingleton<UserContainersManager>();
+
+      services.AddCors(options =>
+      {
+        options.AddPolicy("AllowAllOrigins",
+            builder => builder.AllowAnyOrigin().AllowAnyHeader().AllowAnyMethod());
+      });
 
     }
 

@@ -1,18 +1,16 @@
-import { Component, OnInit, AfterViewChecked, Input, ElementRef, ViewChild } from '@angular/core';
+import { Component, OnInit, AfterViewChecked, Input, ElementRef, ViewChild, OnDestroy } from '@angular/core';
 import { ChangesService, Change, ChangeSettings } from './changes.service';
 import { DatePipe, DecimalPipe } from '@angular/common';
 import { NgbModal, ModalDismissReasons } from '@ng-bootstrap/ng-bootstrap';
 import { UpdateSource, UpdateType } from '../shared';
-import { LocalStorage } from 'ngx-store/dist';
+import { LocalStorage, LocalStorageService } from 'ngx-store/dist';
 
 @Component({
     selector: 'app-changes',
     templateUrl: 'changes.component.html',
     styleUrls: ['changes.component.css']
 })
-export class ChangesComponent implements OnInit {
-
-
+export class ChangesComponent implements OnInit, OnDestroy {
     @Input()
     source: UpdateSource;
 
@@ -31,29 +29,19 @@ export class ChangesComponent implements OnInit {
     linkTemplate: string;
     iconPath: string;
 
-    //  this.source not initialized at the moment when key is defined
-    @LocalStorage('poloniexChangesSound')
-    poloniexSoundEnabled = true;
-
-    @LocalStorage('bittrexChangesSound')
-    bittrexSoundEnabled = true;
-
+    private _soundEnabled = true;
     get soundEnabled(): boolean {
-        if (this.source === UpdateSource.Bittrex) {
-            return this.bittrexSoundEnabled;
-        } else if (this.source === UpdateSource.Poloniex) {
-            return this.poloniexSoundEnabled;
-        }
+        return this._soundEnabled;
     }
     set soundEnabled(value: boolean) {
-        if (this.source === UpdateSource.Bittrex) {
-            this.bittrexSoundEnabled = value;
-        } else if (this.source === UpdateSource.Poloniex) {
-            this.poloniexSoundEnabled = value;
-        }
+        this._soundEnabled = value;
+        const key = 'changes' + this.source;
+        this.localStorageService.set(key, value);
     }
 
-    constructor(private changesService: ChangesService, private modalService: NgbModal) { }
+    constructor(private changesService: ChangesService, private modalService: NgbModal,
+        private localStorageService: LocalStorageService
+    ) { }
 
     ngOnInit() {
 
@@ -63,6 +51,11 @@ export class ChangesComponent implements OnInit {
         } else if (this.source === UpdateSource.Poloniex) {
             this.linkTemplate = 'https://poloniex.com/exchange#btc_';
             this.iconPath = '../../assets/images/poloniexIcon.png';
+        }
+
+        const sound = this.localStorageService.get('changes' + this.source);
+        if (sound !== null) {
+            this._soundEnabled = sound;
         }
 
         if (this.source === UpdateSource.Bittrex) {
@@ -98,6 +91,8 @@ export class ChangesComponent implements OnInit {
         });
 
     }
+
+    ngOnDestroy() { }
 
     openModal(content) {
         this.changesService.getSettings(this.source).then((settings) => {

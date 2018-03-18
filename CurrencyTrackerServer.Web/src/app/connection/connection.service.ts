@@ -35,11 +35,11 @@ export class ConnectionService {
     public prices: Subject<BaseChangeEntity[]>;
     public changes: Subject<BaseChangeEntity[]>;
     public reminder: Subject<BaseChangeEntity[]>;
+    public stats: Subject<BaseChangeEntity[]>;
     public notices: Subject<BaseChangeEntity[]>;
     public connectionStatus: Subject<number>;
     private connectionStatusInternal: Observable<number>;
 
-    public subject: Subject<any>;
     private messages: Observable<string>;
 
     url: string = 'ws://' + window.location.host + '/notifications';
@@ -51,6 +51,7 @@ export class ConnectionService {
         this.prices = new Subject<BaseChangeEntity[]>();
         this.changes = new Subject<BaseChangeEntity[]>();
         this.reminder = new Subject<BaseChangeEntity[]>();
+        this.stats = new Subject<BaseChangeEntity[]>();
         this.notices = new Subject<BaseChangeEntity[]>();
         this.connectionStatus = new Subject<number>();
         this.reconnectSocket();
@@ -78,6 +79,9 @@ export class ConnectionService {
                         break;
                     default:
                         break;
+                }
+                if (data[0].type === UpdateType.Stats) {
+                    this.stats.next(data);
                 }
             });
 
