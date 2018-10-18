@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using CurrencyTrackerServer.ChangeTrackerService.Concrete.Binance;
 using CurrencyTrackerServer.ChangeTrackerService.Concrete.Bittrex;
 using CurrencyTrackerServer.ChangeTrackerService.Concrete.Poloniex;
 using CurrencyTrackerServer.Infrastructure.Abstract.Workers;
@@ -16,20 +17,22 @@ namespace CurrencyTrackerServer.Web.Infrastructure.Concrete.MultipleUsers
     public BittrexPriceMonitor BittrexPriceMonitor { get; }
     public PoloniexChangeMonitor PoloniexChangeMonitor { get; }
     public BittrexChangeMonitor BittrexChangeMonitor { get; }
+    public BinanceChangeMonitor BinanceChangeMonitor { get; }
 
     public override string UserToken { get; set; }
     public override IList<IMonitor<IEnumerable<BaseChangeEntity>>> Monitors { get; }
 
     public UserMonitorsContainer(PoloniexPriceMonitor pMonitor, BittrexPriceMonitor bMonitor,
-      PoloniexChangeMonitor pChange, BittrexChangeMonitor bChange)
+      PoloniexChangeMonitor pChange, BittrexChangeMonitor bChange, BinanceChangeMonitor bnChange)
     {
       PoloniexPriceMonitor = pMonitor;
       BittrexPriceMonitor = bMonitor;
       PoloniexChangeMonitor = pChange;
       BittrexChangeMonitor = bChange;
+      BinanceChangeMonitor = bnChange;
 
       Monitors = new List<IMonitor<IEnumerable<BaseChangeEntity>>> { BittrexPriceMonitor, PoloniexPriceMonitor,
-       PoloniexChangeMonitor, BittrexChangeMonitor };
+       PoloniexChangeMonitor, BittrexChangeMonitor, BinanceChangeMonitor };
 
       foreach (var monitor in Monitors)
       {
@@ -50,6 +53,7 @@ namespace CurrencyTrackerServer.Web.Infrastructure.Concrete.MultipleUsers
         BittrexPriceMonitor?.Dispose();
         PoloniexChangeMonitor?.Dispose();
         BittrexChangeMonitor?.Dispose();
+        BinanceChangeMonitor?.Dispose();
       }
     }
 

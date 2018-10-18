@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
+using CurrencyTrackerServer.ChangeTrackerService.Concrete.Binance;
 using CurrencyTrackerServer.ChangeTrackerService.Concrete.Bittrex;
 using CurrencyTrackerServer.ChangeTrackerService.Concrete.Poloniex;
 using CurrencyTrackerServer.ChangeTrackerService.Entities;
@@ -31,6 +32,7 @@ namespace CurrencyTrackerServer.Web.Controllers
   public class ChangesController : Controller
   {
     private readonly BittrexTimerWorker _bWorker;
+    private readonly BinanceTimerWorker _bnWorker;
     private readonly PoloniexTimerWorker _pWorker;
     private readonly ISettingsProvider _settingsProvider;
     private readonly UserManager<ApplicationUser> _userManager;
@@ -40,7 +42,7 @@ namespace CurrencyTrackerServer.Web.Controllers
     private readonly IConfiguration _config;
     private readonly INotifier _notifier;
 
-    public ChangesController(BittrexTimerWorker bWorker, PoloniexTimerWorker pWorker,
+    public ChangesController(BittrexTimerWorker bWorker, PoloniexTimerWorker pWorker, BinanceTimerWorker bnWorker,
         ISettingsProvider settingsProvider, UserManager<ApplicationUser> userManager,
         PoloniexApiDataSource poloniexApiDataSource, UserContainersManager userContainersManager,
         IChangesStatsService<CurrencyChangeApiData> statsService, IOptions<AppSettings> settings, IConfiguration config,
@@ -48,6 +50,7 @@ namespace CurrencyTrackerServer.Web.Controllers
     {
       _bWorker = bWorker;
       _pWorker = pWorker;
+      _bnWorker = bnWorker;
       _settingsProvider = settingsProvider;
       _userManager = userManager;
       _poloniexApiDataSource = poloniexApiDataSource;
@@ -63,6 +66,10 @@ namespace CurrencyTrackerServer.Web.Controllers
       {
         _pWorker.Start();
       }
+      if (settings.Value.BinanceChangesWorkerEnabled)
+      {
+        _bnWorker.Start();
+      }
     }
 
     [HttpGet("{source}")]
@@ -76,6 +83,8 @@ namespace CurrencyTrackerServer.Web.Controllers
           return await container.BittrexChangeMonitor.GetHistory();
         case UpdateSource.Poloniex:
           return await container.PoloniexChangeMonitor.GetHistory();
+        case UpdateSource.Binance:
+          return await container.BinanceChangeMonitor.GetHistory();
       }
       return Array.Empty<Change>();
     }
@@ -93,6 +102,9 @@ namespace CurrencyTrackerServer.Web.Controllers
         case UpdateSource.Poloniex:
           await container.PoloniexChangeMonitor.ResetAll();
           break;
+        case UpdateSource.Binance:
+          await container.BinanceChangeMonitor.ResetAll();
+          break;
       }
       return Ok();
     }
@@ -107,6 +119,9 @@ namespace CurrencyTrackerServer.Web.Controllers
           break;
         case UpdateSource.Poloniex:
           _pWorker.Start();
+          break;
+        case UpdateSource.Binance:
+          _bnWorker.Start();
           break;
       }
 
@@ -123,6 +138,10 @@ namespace CurrencyTrackerServer.Web.Controllers
       else if (source == UpdateSource.Poloniex)
       {
         _pWorker.Stop();
+      }
+      else if (source == UpdateSource.Binance)
+      {
+        _bnWorker.Stop();
       }
 
       return Ok();

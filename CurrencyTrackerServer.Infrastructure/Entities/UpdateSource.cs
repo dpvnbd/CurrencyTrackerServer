@@ -4,6 +4,7 @@
     {
         None,
         Bittrex,
-        Poloniex
+        Poloniex,
+        Binance,
     }
 }

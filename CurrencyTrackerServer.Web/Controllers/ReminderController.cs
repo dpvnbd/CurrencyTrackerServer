@@ -2,6 +2,7 @@ using System;
 using System.ComponentModel.DataAnnotations;
 using System.Security.Claims;
 using System.Threading.Tasks;
+using CurrencyTrackerServer.ChangeTrackerService.Concrete.Binance;
 using CurrencyTrackerServer.ChangeTrackerService.Concrete.Bittrex;
 using CurrencyTrackerServer.ChangeTrackerService.Concrete.Poloniex;
 using CurrencyTrackerServer.Infrastructure.Entities;
@@ -26,6 +27,7 @@ namespace CurrencyTrackerServer.Web.Controllers
   {
     private readonly ReminderTimerWorker _reminder;
     private readonly PoloniexTimerWorker _pChange;
+    private readonly BinanceTimerWorker _bnChange;
     private readonly BittrexTimerWorker _bChange;
     private readonly PoloniexPriceTimerWorker _pPrice;
     private readonly BittrexPriceTimerWorker _bPrice;
@@ -35,6 +37,7 @@ namespace CurrencyTrackerServer.Web.Controllers
     private readonly IOptions<AppSettings> _settings;
 
     public ReminderController(ReminderTimerWorker reminder, PoloniexTimerWorker pChange, BittrexTimerWorker bChange,
+      BinanceTimerWorker bnChange,
       PoloniexPriceTimerWorker pPrice, BittrexPriceTimerWorker bPrice, DefaultNoticesTimerWorker notices,
       UserContainersManager userContainersManager, UserManager<ApplicationUser> userManager,
       IOptions<AppSettings> settings)
@@ -42,6 +45,7 @@ namespace CurrencyTrackerServer.Web.Controllers
       _reminder = reminder;
       _pChange = pChange;
       _bChange = bChange;
+      _bnChange = bnChange;
       _pPrice = pPrice;
       _bPrice = bPrice;
       _notices = notices;
@@ -63,6 +67,11 @@ namespace CurrencyTrackerServer.Web.Controllers
       if (_settings.Value.PoloniexChangesWorkerEnabled)
       {
         _pChange.Start();
+      }
+
+      if (_settings.Value.BinanceChangesWorkerEnabled)
+      {
+        _bnChange.Start();
       }
 
       if (_settings.Value.BittrexPriceWorkerEnabled)

@@ -141,17 +141,16 @@
   <div class="card">
     <div class="card-header py-1">
       <div class="row">
-        <div class="col-6 col-md-2">
+        <div class="col-2">
           <img src="{{iconPath}}" class="block-icon float-left" />
         </div>
-        <div class="hidden-sm-down col-md-6">
-          Изменения
+        <div class="col-md-6">          
           <label class="my-0 mx-1 pull-right" *ngIf="lastUpdate">
             <i class="fa fa-clock-o fa-lg"></i>
             <span>{{lastUpdate | date:'HH:mm:ss'}}</span>
           </label>
         </div>
-        <div class="col-6 col-md-4">
+        <div class="col-md-4">
           <span class="pull-right">
             <label class="form-check form-check-inline my-0">
               <input class="form-check-input" name="soundEnabled"
@@ -178,7 +177,7 @@
           <tr *ngFor="let change of changes" [ngClass]="{'recently-changed': change.recentlyChanged}">
 
             <td *ngIf="change.currency" class="py-1">
-              <a href="{{linkTemplate}}{{change.currency}}" target="_blank">{{change.currency}}</a>
+              <a href="{{externalLink(change.currency)}}" target="_blank">{{change.currency}}</a>
             </td>
             <td *ngIf="change.currency" class="py-1">{{change.percentage | number:'1.0-1'}}%</td>
 
