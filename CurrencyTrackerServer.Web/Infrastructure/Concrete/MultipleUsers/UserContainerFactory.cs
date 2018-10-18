@@ -1,3 +1,4 @@
+using CurrencyTrackerServer.ChangeTrackerService.Concrete.Binance;
 using CurrencyTrackerServer.ChangeTrackerService.Concrete.Bittrex;
 using CurrencyTrackerServer.ChangeTrackerService.Concrete.Poloniex;
 using CurrencyTrackerServer.Infrastructure.Abstract;
@@ -15,6 +16,7 @@ namespace CurrencyTrackerServer.Web.Infrastructure.Concrete.MultipleUsers
   {
     private readonly BittrexTimerWorker _bChangeWorker;
     private readonly PoloniexTimerWorker _pChangeWorker;
+    private readonly BinanceTimerWorker _bnChangeWorker;
     private readonly BittrexPriceTimerWorker _bPriceWorker;
     private readonly PoloniexPriceTimerWorker _pPriceWorker;
     private readonly ISettingsProvider _settingsProvider;
@@ -23,12 +25,13 @@ namespace CurrencyTrackerServer.Web.Infrastructure.Concrete.MultipleUsers
     private readonly IOptions<AppSettings> _config;
 
     public UserContainerFactory(BittrexTimerWorker bChangeWorker, PoloniexTimerWorker pChangeWorker,
-      BittrexPriceTimerWorker bPriceWorker, PoloniexPriceTimerWorker pPriceWorker,
+      BinanceTimerWorker bnChangeWorker, BittrexPriceTimerWorker bPriceWorker, PoloniexPriceTimerWorker pPriceWorker,
       ISettingsProvider settingsProvider, IMessageNotifier notifier,
       IRepositoryFactory repoFactory, IOptions<AppSettings> config)
     {
       _bChangeWorker = bChangeWorker;
       _pChangeWorker = pChangeWorker;
+      _bnChangeWorker = bnChangeWorker;
       _bPriceWorker = bPriceWorker;
       _pPriceWorker = pPriceWorker;
       _settingsProvider = settingsProvider;
@@ -44,8 +47,9 @@ namespace CurrencyTrackerServer.Web.Infrastructure.Concrete.MultipleUsers
 
       var pChange = new PoloniexChangeMonitor(_pChangeWorker, _repoFactory, _settingsProvider, _config, userId);
       var bChange = new BittrexChangeMonitor(_bChangeWorker, _repoFactory, _settingsProvider, _config, userId);
+      var bnChange = new BinanceChangeMonitor(_bnChangeWorker, _repoFactory, _settingsProvider, _config, userId);
 
-      return new UserMonitorsContainer(pPrice, bPrice, pChange, bChange);
+      return new UserMonitorsContainer(pPrice, bPrice, pChange, bChange, bnChange);
     }
   }
 }

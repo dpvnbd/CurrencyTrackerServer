@@ -26,18 +26,20 @@ export class ChangesComponent implements OnInit, OnDestroy {
 
     poloniexCurrencies: string[] = [];
 
-    linkTemplate: string;
     iconPath: string;
 
     private _soundEnabled = true;
     get soundEnabled(): boolean {
         return this._soundEnabled;
     }
+    
     set soundEnabled(value: boolean) {
         this._soundEnabled = value;
         const key = 'changes' + this.source;
         this.localStorageService.set(key, value);
     }
+
+    externalLink: Function = (a) => '';
 
     constructor(private changesService: ChangesService, private modalService: NgbModal,
         private localStorageService: LocalStorageService
@@ -46,11 +48,14 @@ export class ChangesComponent implements OnInit, OnDestroy {
     ngOnInit() {
 
         if (this.source === UpdateSource.Bittrex) {
-            this.linkTemplate = 'https://bittrex.com/Market/Index?MarketName=BTC-';
+            this.externalLink = (symbol) => `https://bittrex.com/Market/Index?MarketName=BTC-${symbol}`;
             this.iconPath = '../../assets/images/bittrexIcon.png';
         } else if (this.source === UpdateSource.Poloniex) {
-            this.linkTemplate = 'https://poloniex.com/exchange#btc_';
+            this.externalLink = (symbol) => `https://poloniex.com/exchange#btc_${symbol}`;
             this.iconPath = '../../assets/images/poloniexIcon.png';
+        } else if (this.source === UpdateSource.Binance) {
+            this.externalLink = (symbol) => `https://www.binance.com/trade.html?symbol=${symbol}_BTC`;
+            this.iconPath = '../../assets/images/binanceIcon.png';
         }
 
         const sound = this.localStorageService.get('changes' + this.source);

@@ -1,7 +1,7 @@
 import { Pipe, PipeTransform } from '@angular/core';
 
 export enum UpdateSource {
-    None, Bittrex, Poloniex
+    None, Bittrex, Poloniex, Binance
 }
 
 export enum UpdateDestination {
