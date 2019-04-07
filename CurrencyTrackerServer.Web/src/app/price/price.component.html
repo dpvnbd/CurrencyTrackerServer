@@ -136,18 +136,17 @@ export interface PriceSettings {
   <div class="card">
     <div class="card-header py-1">
       <div class="row">
-        <div class="col-6 col-md-2">
+        <div class="col-2">
           <img src="{{iconPath}}" class="block-icon float-left" />
         </div>
-        <div class="hidden-sm-down col-md-6">
-          Цена валют
+        <div class="col-4">
           <span *ngIf="soundNotLoaded" class="badge badge-danger">Звук не загружен</span>
           <label class="my-0 mx-1 pull-right" *ngIf="lastUpdate">
             <i class="fa fa-clock-o fa-lg"></i>
             <span>{{lastUpdate | date:'HH:mm:ss'}}</span>
           </label>
         </div>
-        <div class="col-6 col-md-4">
+        <div class="col-6">
           <span class="pull-right">
             <label class="form-check form-check-inline my-0">
               <input class="form-check-input" name="soundEnabled"
@@ -172,7 +171,7 @@ export interface PriceSettings {
     </div>
     <div class="card-block scroll-block price-block-height">
       <table class="table table-hover mb-0 text-center">
-        <th class="">Валюта</th>
+        <th class=""></th>
         <th class="">
           <i class="fa fa-arrow-down"></i>
         </th>
@@ -184,7 +183,7 @@ export interface PriceSettings {
         <tr *ngFor="let price of prices; index as i;" [ngClass]="{'recently-changed': price.recentlyChanged,
          'priceLow': price.last <= price.low, 'priceHigh': price.last >= price.high }">
           <td class=" ">
-            <a href="{{linkTemplate}}{{price.currency}}" target="_blank">{{price.currency}}</a>
+            <a href="{{externalLink(price.currency)}}" target="_blank">{{price.currency}}</a>
           </td>
           <td class="">
             <inline-editor type="text" [ngModel]="price.low | number:'1.8-8'" (ngModelChange)="price.low=$event" (onSave)="savePrices()"

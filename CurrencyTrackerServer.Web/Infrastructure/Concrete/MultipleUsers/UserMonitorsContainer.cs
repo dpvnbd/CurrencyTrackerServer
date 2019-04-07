@@ -6,6 +6,7 @@ using CurrencyTrackerServer.ChangeTrackerService.Concrete.Poloniex;
 using CurrencyTrackerServer.Infrastructure.Abstract.Workers;
 using CurrencyTrackerServer.Infrastructure.Entities;
 using CurrencyTrackerServer.Infrastructure.Entities.Price;
+using CurrencyTrackerServer.PriceService.Concrete.Binance;
 using CurrencyTrackerServer.PriceService.Concrete.Bittrex;
 using CurrencyTrackerServer.PriceService.Concrete.Poloniex;
 
@@ -15,6 +16,7 @@ namespace CurrencyTrackerServer.Web.Infrastructure.Concrete.MultipleUsers
   {
     public PoloniexPriceMonitor PoloniexPriceMonitor { get; }
     public BittrexPriceMonitor BittrexPriceMonitor { get; }
+    public BinancePriceMonitor BinancePriceMonitor { get; }
     public PoloniexChangeMonitor PoloniexChangeMonitor { get; }
     public BittrexChangeMonitor BittrexChangeMonitor { get; }
     public BinanceChangeMonitor BinanceChangeMonitor { get; }
@@ -23,16 +25,18 @@ namespace CurrencyTrackerServer.Web.Infrastructure.Concrete.MultipleUsers
     public override IList<IMonitor<IEnumerable<BaseChangeEntity>>> Monitors { get; }
 
     public UserMonitorsContainer(PoloniexPriceMonitor pMonitor, BittrexPriceMonitor bMonitor,
-      PoloniexChangeMonitor pChange, BittrexChangeMonitor bChange, BinanceChangeMonitor bnChange)
+      BinancePriceMonitor bnMonitor, PoloniexChangeMonitor pChange, BittrexChangeMonitor bChange,
+      BinanceChangeMonitor bnChange)
     {
       PoloniexPriceMonitor = pMonitor;
       BittrexPriceMonitor = bMonitor;
+      BinancePriceMonitor = bnMonitor;
       PoloniexChangeMonitor = pChange;
       BittrexChangeMonitor = bChange;
       BinanceChangeMonitor = bnChange;
 
       Monitors = new List<IMonitor<IEnumerable<BaseChangeEntity>>> { BittrexPriceMonitor, PoloniexPriceMonitor,
-       PoloniexChangeMonitor, BittrexChangeMonitor, BinanceChangeMonitor };
+       BinancePriceMonitor, PoloniexChangeMonitor, BittrexChangeMonitor, BinanceChangeMonitor };
 
       foreach (var monitor in Monitors)
       {
@@ -51,6 +55,7 @@ namespace CurrencyTrackerServer.Web.Infrastructure.Concrete.MultipleUsers
       {
         PoloniexPriceMonitor?.Dispose();
         BittrexPriceMonitor?.Dispose();
+        BinancePriceMonitor?.Dispose();
         PoloniexChangeMonitor?.Dispose();
         BittrexChangeMonitor?.Dispose();
         BinanceChangeMonitor?.Dispose();

@@ -6,6 +6,7 @@ using CurrencyTrackerServer.Infrastructure.Abstract.Data;
 using CurrencyTrackerServer.Infrastructure.Entities;
 using CurrencyTrackerServer.Infrastructure.Entities.Changes;
 using CurrencyTrackerServer.Infrastructure.Entities.Price;
+using CurrencyTrackerServer.PriceService.Concrete.Binance;
 using CurrencyTrackerServer.PriceService.Concrete.Bittrex;
 using CurrencyTrackerServer.PriceService.Concrete.Poloniex;
 using Microsoft.Extensions.Options;
@@ -19,6 +20,7 @@ namespace CurrencyTrackerServer.Web.Infrastructure.Concrete.MultipleUsers
     private readonly BinanceTimerWorker _bnChangeWorker;
     private readonly BittrexPriceTimerWorker _bPriceWorker;
     private readonly PoloniexPriceTimerWorker _pPriceWorker;
+    private readonly BinancePriceTimerWorker _bnPriceWorker;
     private readonly ISettingsProvider _settingsProvider;
     private readonly IMessageNotifier _notifier;
     private readonly IRepositoryFactory _repoFactory;
@@ -26,6 +28,7 @@ namespace CurrencyTrackerServer.Web.Infrastructure.Concrete.MultipleUsers
 
     public UserContainerFactory(BittrexTimerWorker bChangeWorker, PoloniexTimerWorker pChangeWorker,
       BinanceTimerWorker bnChangeWorker, BittrexPriceTimerWorker bPriceWorker, PoloniexPriceTimerWorker pPriceWorker,
+      BinancePriceTimerWorker bnPriceWorker,
       ISettingsProvider settingsProvider, IMessageNotifier notifier,
       IRepositoryFactory repoFactory, IOptions<AppSettings> config)
     {
@@ -34,6 +37,7 @@ namespace CurrencyTrackerServer.Web.Infrastructure.Concrete.MultipleUsers
       _bnChangeWorker = bnChangeWorker;
       _bPriceWorker = bPriceWorker;
       _pPriceWorker = pPriceWorker;
+      _bnPriceWorker = bnPriceWorker;
       _settingsProvider = settingsProvider;
       _notifier = notifier;
       _repoFactory = repoFactory;
@@ -44,12 +48,13 @@ namespace CurrencyTrackerServer.Web.Infrastructure.Concrete.MultipleUsers
     {
       var pPrice = new PoloniexPriceMonitor(_pPriceWorker, _settingsProvider, _notifier, userId);
       var bPrice = new BittrexPriceMonitor(_bPriceWorker, _settingsProvider, _notifier, userId);
+      var bnPrice = new BinancePriceMonitor(_bnPriceWorker, _settingsProvider, _notifier, userId);
 
       var pChange = new PoloniexChangeMonitor(_pChangeWorker, _repoFactory, _settingsProvider, _config, userId);
       var bChange = new BittrexChangeMonitor(_bChangeWorker, _repoFactory, _settingsProvider, _config, userId);
       var bnChange = new BinanceChangeMonitor(_bnChangeWorker, _repoFactory, _settingsProvider, _config, userId);
 
-      return new UserMonitorsContainer(pPrice, bPrice, pChange, bChange, bnChange);
+      return new UserMonitorsContainer(pPrice, bPrice, bnPrice, pChange, bChange, bnChange);
     }
   }
 }
