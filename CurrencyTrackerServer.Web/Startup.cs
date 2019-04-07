@@ -36,6 +36,7 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Collections.Generic;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using CurrencyTrackerServer.ChangeTrackerService.Concrete.Binance;
+using CurrencyTrackerServer.PriceService.Concrete.Binance;
 
 namespace CurrencyTrackerServer.Web
 {
@@ -143,9 +144,11 @@ namespace CurrencyTrackerServer.Web
 
       services.AddSingleton<BittrexPriceTimerWorker>();
       services.AddSingleton<PoloniexPriceTimerWorker>();
+      services.AddSingleton<BinancePriceTimerWorker>();
 
       services.AddSingleton<BittrexPriceDataSource>();
       services.AddSingleton<PoloniexPriceDataSource>();
+      services.AddSingleton<BinancePriceDataSource>();
 
       #endregion
 

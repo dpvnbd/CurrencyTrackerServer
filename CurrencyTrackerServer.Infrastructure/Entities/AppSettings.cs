@@ -17,6 +17,7 @@ namespace CurrencyTrackerServer.Infrastructure.Entities
 
     public bool BittrexPriceWorkerEnabled { get; set; } = true;
     public bool PoloniexPriceWorkerEnabled { get; set; } = true;
+    public bool BinancePriceWorkerEnabled { get; set; } = true;
 
     public bool PoloniexNoticesWorkerEnabled { get; set; } = true;
   }

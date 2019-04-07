@@ -8,6 +8,7 @@ using CurrencyTrackerServer.Infrastructure.Abstract.Data;
 using CurrencyTrackerServer.Infrastructure.Entities;
 using CurrencyTrackerServer.Infrastructure.Entities.Data;
 using CurrencyTrackerServer.Infrastructure.Entities.Price;
+using CurrencyTrackerServer.PriceService.Concrete.Binance;
 using CurrencyTrackerServer.PriceService.Concrete.Bittrex;
 using CurrencyTrackerServer.PriceService.Concrete.Poloniex;
 using CurrencyTrackerServer.Web.Infrastructure.Concrete;
@@ -29,17 +30,19 @@ namespace CurrencyTrackerServer.Web.Controllers
     private readonly ISettingsProvider _settingsProvider;
     private readonly BittrexPriceTimerWorker _bWorker;
     private readonly PoloniexPriceTimerWorker _pWorker;
+    private readonly BinancePriceTimerWorker _bnWorker;
     private readonly UserManager<ApplicationUser> _userManager;
     private readonly UserContainersManager _userContainersManager;
 
 
     public PriceController(ISettingsProvider settingsProvider, BittrexPriceTimerWorker bWorker,
-      PoloniexPriceTimerWorker pWorker, UserManager<ApplicationUser> userManager,
+      PoloniexPriceTimerWorker pWorker, BinancePriceTimerWorker bnWorker, UserManager<ApplicationUser> userManager,
       UserContainersManager userContainersManager, IOptions<AppSettings> config)
     {
       _settingsProvider = settingsProvider;
       _bWorker = bWorker;
       _pWorker = pWorker;
+      _bnWorker = bnWorker;
       _userManager = userManager;
       _userContainersManager = userContainersManager;
 
@@ -50,6 +53,10 @@ namespace CurrencyTrackerServer.Web.Controllers
       if (config.Value.PoloniexPriceWorkerEnabled)
       {
         _pWorker.Start();
+      }
+      if (config.Value.BinancePriceWorkerEnabled)
+      {
+        _bnWorker.Start();
       }
     }
 
@@ -62,6 +69,8 @@ namespace CurrencyTrackerServer.Web.Controllers
           return await _bWorker.GetPrice(currency);
         case UpdateSource.Poloniex:
           return await _pWorker.GetPrice(currency);
+        case UpdateSource.Binance:
+          return await _bnWorker.GetPrice(currency);
         default:
           return new Price { Message = "Source " + source + " doesn't exist" };
       }
@@ -77,6 +86,9 @@ namespace CurrencyTrackerServer.Web.Controllers
           break;
         case UpdateSource.Poloniex:
           _pWorker.Start();
+          break;
+        case UpdateSource.Binance:
+          _bnWorker.Start();
           break;
       }
 
@@ -94,7 +106,10 @@ namespace CurrencyTrackerServer.Web.Controllers
       {
         _pWorker.Stop();
       }
-
+      else if (source == UpdateSource.Binance)
+      {
+        _bnWorker.Stop();
+      }
       return Ok();
     }
 
@@ -134,6 +149,9 @@ namespace CurrencyTrackerServer.Web.Controllers
           case UpdateSource.Poloniex:
             container.PoloniexPriceMonitor.SetNotification(isEnabled);
             break;
+          case UpdateSource.Binance:
+            container.BinancePriceMonitor.SetNotification(isEnabled);
+            break;
           default:
             return BadRequest();
         }
@@ -158,6 +176,9 @@ namespace CurrencyTrackerServer.Web.Controllers
             break;
           case UpdateSource.Poloniex:
             container.PoloniexPriceMonitor.SetCurrencies(currencies);
+            break;
+          case UpdateSource.Binance:
+            container.BinancePriceMonitor.SetCurrencies(currencies);
             break;
           default:
             return BadRequest();
