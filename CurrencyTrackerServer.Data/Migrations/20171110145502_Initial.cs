@@ -165,7 +165,7 @@ namespace CurrencyTrackerServer.Data.Migrations
                     Currency = table.Column<string>(type: "text", nullable: true),
                     Message = table.Column<string>(type: "text", nullable: true),
                     Percentage = table.Column<double>(type: "float", nullable: false),
-                    Time = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    Time = table.Column<DateTime>(type: "timestamp", nullable: false),
                     Type = table.Column<int>(type: "int", nullable: false),
                     UpdateSource = table.Column<int>(type: "int", nullable: false)
                 },
@@ -187,8 +187,8 @@ namespace CurrencyTrackerServer.Data.Migrations
                     Currency = table.Column<string>(type: "varchar(450)", nullable: false),
                     UpdateSource = table.Column<int>(type: "int", nullable: false),
                     UserId = table.Column<string>(type: "varchar(450)", nullable: false),
-                    Created = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    LastChangeTime = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    Created = table.Column<DateTime>(type: "timestamp", nullable: false),
+                    LastChangeTime = table.Column<DateTime>(type: "timestamp", nullable: false),
                     Threshold = table.Column<double>(type: "float", nullable: false)
                 },
                 constraints: table =>
