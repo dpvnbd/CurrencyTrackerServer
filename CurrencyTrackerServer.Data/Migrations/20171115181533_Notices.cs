@@ -12,21 +12,21 @@ namespace CurrencyTrackerServer.Data.Migrations
             migrationBuilder.AlterColumn<DateTimeOffset>(
                 name: "LastChangeTime",
                 table: "States",
-                type: "datetimeoffset",
+                type: "timestamptz",
                 nullable: false,
                 oldClrType: typeof(DateTime));
 
             migrationBuilder.AlterColumn<DateTimeOffset>(
                 name: "Created",
                 table: "States",
-                type: "datetimeoffset",
+                type: "timestamptz",
                 nullable: false,
                 oldClrType: typeof(DateTime));
 
             migrationBuilder.AlterColumn<DateTimeOffset>(
                 name: "Time",
                 table: "History",
-                type: "datetimeoffset",
+                type: "timestamptz",
                 nullable: false,
                 oldClrType: typeof(DateTime));
 
@@ -37,8 +37,8 @@ namespace CurrencyTrackerServer.Data.Migrations
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn),
                     Source = table.Column<int>(type: "int", nullable: false),
-                    Message = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    Time = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: false)
+                    Message = table.Column<string>(type: "text", nullable: true),
+                    Time = table.Column<DateTimeOffset>(type: "timestamptz", nullable: false)
                 },
                 constraints: table =>
                 {

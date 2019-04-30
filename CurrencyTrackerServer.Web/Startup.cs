@@ -102,7 +102,7 @@ namespace CurrencyTrackerServer.Web
       services.AddWebSocketManager();
 
       services.AddDbContext<AppDbContext>(options =>
-        options.UseSqlServer(Configuration.GetConnectionString("ChangesDb")));
+        options.UseNpgsql(Configuration.GetConnectionString("ChangesDb")));
 
       #region Persistence DI
       services.AddSingleton<IDesignTimeDbContextFactory<AppDbContext>, AppDbContextFactory>();

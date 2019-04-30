@@ -11,7 +11,7 @@ namespace CurrencyTrackerServer.Data.Migrations
             migrationBuilder.AddColumn<bool>(
                 name: "IsSmaller",
                 table: "History",
-                type: "bit",
+                type: "boolean",
                 nullable: false,
                 defaultValue: false);
         }
