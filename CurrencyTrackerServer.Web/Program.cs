@@ -1,4 +1,5 @@
 using System;
+using System.IO;
 using CurrencyTrackerServer.Web.Infrastructure;
 using Microsoft.AspNetCore;
 using Microsoft.AspNetCore.Hosting;
@@ -48,6 +49,7 @@ namespace CurrencyTrackerServer.Web
 
     public static IWebHost BuildWebHost(string[] args) =>
            WebHost.CreateDefaultBuilder(args)
+               .UseContentRoot(Directory.GetCurrentDirectory())
                .UseStartup<Startup>()
                .UseSerilog()
                .Build();
