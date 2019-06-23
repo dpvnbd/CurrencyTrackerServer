@@ -1,9 +1,6 @@
 import { Injectable, Inject } from '@angular/core';
-import { Subject } from 'rxjs/Subject';
-import 'rxjs/add/operator/map';
-import 'rxjs/add/operator/toPromise';
-
-import { Observable } from 'rxjs/Rx';
+import { Subject ,  Observable } from 'rxjs';
+import { map } from 'rxjs/operators';
 import { HttpClient } from '@angular/common/http';
 import { UpdateSource, UpdateType } from '../shared';
 
@@ -29,14 +26,14 @@ export class NoticesService {
   }
 
   private mapSubject() {
-    this.subject = <Subject<Notice[]>>this.connection.notices
-      .map((message: BaseChangeEntity[]): Notice[] => {
+    this.subject = <Subject<Notice[]>>this.connection.notices.pipe(
+      map((message: BaseChangeEntity[]): Notice[] => {
         return message;
-      });
+      }));
   }
 
   public getNotices(): any {
-    return this.http.get('/api/notices/').map(data => data as Notice[]).toPromise();
+    return this.http.get('/api/notices/').pipe(map(data => data as Notice[])).toPromise();
   }
 }
 

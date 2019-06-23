@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { catchError } from 'rxjs/operators';
+import { map} from 'rxjs/operators';
 
 export interface UserInfo {
     id: string;
@@ -16,7 +17,7 @@ export class AdminService {
 
     public getUsers(): any {
         return this.httpClient.get('/api/admin/users/')
-            .map(data => data as UserInfo[]).toPromise();
+            .pipe(map(data => data as UserInfo[])).toPromise();
     }
 
     public deleteUser(id: string): any {

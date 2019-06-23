@@ -3,7 +3,7 @@ import { DatePipe } from '@angular/common';
 import { UpdateSource, UpdateType } from '../shared';
 import { Notice, NoticesService } from './notices.service';
 import { Howl } from 'howler';
-import { LocalStorage } from 'ngx-store/dist';
+import { LocalStorage } from 'ngx-store';
 
 @Component({
     selector: 'app-notices',

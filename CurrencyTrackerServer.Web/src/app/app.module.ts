@@ -1,9 +1,8 @@
 import { BrowserModule } from '@angular/platform-browser';
 import { NgModule, ErrorHandler } from '@angular/core';
 import { Ng2GoogleChartsModule } from 'ng2-google-charts';
-import { InlineEditorModule } from '@qontu/ngx-inline-editor';
 import { WebStorageModule } from 'ngx-store';
-
+import {InputEditorModule} from 'angular-inline-editors';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
@@ -18,7 +17,6 @@ import { AppComponent } from './app.component';
 import { ChangesComponent } from './changes/changes.component';
 import { PriceComponent } from './price/price.component';
 import { ReminderComponent } from './reminder/reminder.component';
-import { RequestOptions, HttpModule } from '@angular/http';
 import { AuthRequestOptions } from './auth/auth.request-options';
 import { AuthErrorHandler } from './auth/auth.error-handler';
 import { HomeComponent } from './home/home.component';
@@ -72,12 +70,11 @@ const routes: Routes = [
     BrowserModule,
     FormsModule,
     ReactiveFormsModule,
+    InputEditorModule.forRoot(),
     HttpClientModule,
-    HttpModule,
     NgbModule.forRoot(),
     Ng2GoogleChartsModule,
     WebStorageModule,
-    InlineEditorModule,
     RouterModule.forRoot(routes, {}),
   ],
   providers: [

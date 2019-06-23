@@ -59,7 +59,7 @@
 
   <Target Name="Build Angular" Condition="'$(Configuration)'=='Release'" BeforeTargets="Build">
     <Message Text="* * * * * * Building Angular App * * * * * *" Importance="high" />
-    <Exec Command="ng build -prod -aot" />
+    <Exec Command="ng build --prod=true --aot=true" />
   </Target>
 
 </Project>

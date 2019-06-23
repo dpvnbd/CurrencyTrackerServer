@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { AuthService } from '../auth/auth.service';
 import { AuthAlertService } from '../auth/alert.service';
-import { LocalStorage } from 'ngx-store/dist';
+import { LocalStorage } from 'ngx-store';
 
 @Component({
     selector: 'app-account',

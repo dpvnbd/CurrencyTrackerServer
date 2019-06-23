@@ -1,7 +1,7 @@
 import { Component, OnInit, ViewChild, Input, ElementRef } from '@angular/core';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { ReminderService, ReminderSettings, ReminderNotification } from './reminder.service';
-import { LocalStorage } from 'ngx-store/dist';
+import { LocalStorage } from 'ngx-store';
 
 @Component({
     selector: 'app-reminder',

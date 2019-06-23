@@ -39,7 +39,7 @@ export class RegisterComponent implements OnInit {
         this.authService.register(this.myform.value)
             .subscribe(
             data => {
-                if (data.ok) {
+                if (data['ok']) {
                     this.alertService.success('Registration successful', true);
                     this.router.navigate(['/login']);
                 }

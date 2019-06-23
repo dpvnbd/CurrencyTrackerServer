@@ -1,22 +1,15 @@
 import { Injectable } from '@angular/core';
-
-import { Subject } from 'rxjs/Subject';
-import { Observable } from 'rxjs/Observable';
-
-import 'rxjs/add/operator/map';
-import 'rxjs/add/operator/toPromise';
-import 'rxjs/add/operator/retryWhen';
-import 'rxjs/add/operator/delay';
-
+import { Subject, Observable } from 'rxjs';
 import { isDevMode } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { UpdateSource, UpdateType, UpdateDestination } from '../shared';
-
-import { Price } from '../price/price.service';
-import { Change } from '../changes/changes.service';
-
 import { QueueingSubject } from 'queueing-subject';
-import websocketConnect from 'rxjs-websockets';
+
+import makeWebSocketObservable, {
+    GetWebSocketResponses,
+    normalClosureMessage,
+} from 'rxjs-websockets';
+import { retryWhen, delay, map, share, switchMap } from 'rxjs/operators';
 
 export interface BaseChangeEntity {
     time?: string;
@@ -29,9 +22,6 @@ export interface BaseChangeEntity {
 
 @Injectable()
 export class ConnectionService {
-
-    public input = new QueueingSubject<string>();
-
     public prices: Subject<BaseChangeEntity[]>;
     public changes: Subject<BaseChangeEntity[]>;
     public reminder: Subject<BaseChangeEntity[]>;
@@ -40,9 +30,11 @@ export class ConnectionService {
     public connectionStatus: Subject<number>;
     private connectionStatusInternal: Observable<number>;
 
-    private messages: Observable<string>;
-
     url: string = 'ws://' + window.location.host + '/notifications';
+
+    input$ = null;
+    socket$ = null;
+    messages$: Observable<string> = null;
 
     constructor(private http: HttpClient) {
         if (isDevMode()) {
@@ -53,40 +45,38 @@ export class ConnectionService {
         this.reminder = new Subject<BaseChangeEntity[]>();
         this.stats = new Subject<BaseChangeEntity[]>();
         this.notices = new Subject<BaseChangeEntity[]>();
-        this.connectionStatus = new Subject<number>();
+        this.input$ = new QueueingSubject<string>();
+
         this.reconnectSocket();
     }
 
     private mapSocketToSubject() {
-        this.messages
-            .retryWhen(errors => {
-                return errors.delay(3000);
-            })
-            .subscribe((message: string) => {
-                const data = JSON.parse(message);
-                switch (data[0].destination) {
-                    case UpdateDestination.CurrencyChange:
-                        this.changes.next(data);
-                        break;
-                    case UpdateDestination.Price:
-                        this.prices.next(data);
-                        break;
-                    case UpdateDestination.Reminder:
-                        this.reminder.next(data);
-                        break;
-                    case UpdateDestination.Notice:
-                        this.notices.next(data);
-                        break;
-                    default:
-                        break;
-                }
-                if (data[0].type === UpdateType.Stats) {
-                    this.stats.next(data);
-                }
-            });
+        this.messages$ = this.socket$.pipe(
+                switchMap((getResponses: GetWebSocketResponses<string>) => getResponses(this.input$)),
+                retryWhen(errors => errors.pipe(delay(3000))),
+            );
 
-        this.connectionStatusInternal.subscribe((n) => {
-            this.connectionStatus.next(n);
+        this.messages$.subscribe((message: string) => {
+            const data = JSON.parse(message);
+            switch (data[0].destination) {
+                case UpdateDestination.CurrencyChange:
+                    this.changes.next(data);
+                    break;
+                case UpdateDestination.Price:
+                    this.prices.next(data);
+                    break;
+                case UpdateDestination.Reminder:
+                    this.reminder.next(data);
+                    break;
+                case UpdateDestination.Notice:
+                    this.notices.next(data);
+                    break;
+                default:
+                    break;
+            }
+            if (data[0].type === UpdateType.Stats) {
+                this.stats.next(data);
+            }
         });
     }
 
@@ -95,11 +85,7 @@ export class ConnectionService {
             let token = '';
             this.getToken().then((data) => {
                 token = data.token;
-                const { messages, connectionStatus } = websocketConnect(this.url + '?token=' + token,
-                    this.input);
-                this.messages = messages.share();
-                this.connectionStatusInternal = connectionStatus.share();
-                this.messages = websocketConnect(this.url + '?token=' + token, this.input).messages.share();
+                this.socket$ = makeWebSocketObservable(this.url + '?token=' + token);
                 this.mapSocketToSubject();
             });
 

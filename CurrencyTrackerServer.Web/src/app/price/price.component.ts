@@ -10,7 +10,7 @@ import { UpdateSource, UpdateType, UpdateSpecial } from '../shared';
 import { PriceService, Price, PriceSettings } from './price.service';
 import { NgbModal, ModalDismissReasons } from '@ng-bootstrap/ng-bootstrap';
 import { Howl } from 'howler';
-import { LocalStorage, LocalStorageService } from 'ngx-store/dist';
+import { LocalStorage, LocalStorageService } from 'ngx-store';
 
 @Component({
   selector: 'app-price',
@@ -34,6 +34,7 @@ export class PriceComponent implements OnInit, OnDestroy {
   iconPath: string;
   soundNotLoaded = false;
   tempMute = false;
+  boundsUpdateAllowed: Boolean = true;
 
   audioHigh: Howl;
   audioLow: Howl;
@@ -54,7 +55,7 @@ export class PriceComponent implements OnInit, OnDestroy {
     private priceService: PriceService,
     private modalService: NgbModal,
     private localStorageService: LocalStorageService
-  ) {}
+  ) { }
 
   ngOnInit() {
     if (this.source === UpdateSource.Bittrex) {
@@ -112,7 +113,7 @@ export class PriceComponent implements OnInit, OnDestroy {
     });
   }
 
-  ngOnDestroy(): void {}
+  ngOnDestroy(): void { }
 
   updatePrices(newPrices: Price[]) {
     for (const newPrice of newPrices) {
@@ -125,9 +126,10 @@ export class PriceComponent implements OnInit, OnDestroy {
         this.prices.push(newPrice);
       } else {
         foundPrice.last = newPrice.last;
-
-        foundPrice.low = newPrice.low;
-        foundPrice.high = newPrice.high;
+        if (this.boundsUpdateAllowed) {
+          foundPrice.low = newPrice.low;
+          foundPrice.high = newPrice.high;
+        }
       }
     }
   }
@@ -137,7 +139,7 @@ export class PriceComponent implements OnInit, OnDestroy {
     this.audioLow = new Howl({
       src: ['../../assets/sounds/low.wav'],
       loop: true,
-      onloaderror: function(error) {
+      onloaderror: function (error) {
         self.soundNotLoaded = true;
       }
     });
@@ -145,7 +147,7 @@ export class PriceComponent implements OnInit, OnDestroy {
     this.audioHigh = new Howl({
       src: ['../../assets/sounds/high.wav'],
       loop: true,
-      onloaderror: function(error) {
+      onloaderror: function (error) {
         this.soundNotLoaded = true;
       }
     });
@@ -185,6 +187,7 @@ export class PriceComponent implements OnInit, OnDestroy {
     this.tempMute = true;
     this.audioHigh.stop();
     this.audioLow.stop();
+    this.setBoundsUpdateAllowed(false);
 
     this.priceService.getSettings(this.source).then(settings => {
       if (settings) {
@@ -204,6 +207,11 @@ export class PriceComponent implements OnInit, OnDestroy {
 
   savePrices() {
     this.priceService.saveCurrencies(this.source, this.prices);
+    this.setBoundsUpdateAllowed(true);
+  }
+
+  setBoundsUpdateAllowed(allowed: Boolean) {
+    this.boundsUpdateAllowed = allowed;
   }
 
   getPrice() {

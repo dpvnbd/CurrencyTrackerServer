@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { catchError } from 'rxjs/operators';
 import { UpdateSource } from '../../shared';
-
+import { map } from 'rxjs/operators';
 export interface ChangePercentage {
     currency: string;
     percentChanged: number;
@@ -16,8 +16,8 @@ export class ChangesStatsService {
 
 
     public getPercentages(source: UpdateSource): any {
-        return this.httpClient.get('/api/changes/stats/' + source)
-            .map(data => data as ChangePercentage[]).toPromise();
+        return this.httpClient.get('/api/changes/stats/' + source).pipe(
+            map(data => data as ChangePercentage[])).toPromise();
     }
 
     public convertPercentagesToChartData(changes: ChangePercentage[]): any {

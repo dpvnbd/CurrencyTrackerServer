@@ -11,7 +11,7 @@ import { FormControl, FormGroup, Validators } from '@angular/forms';
 
 import { BrowserModule } from '@angular/platform-browser';
 import { platformBrowserDynamic } from '@angular/platform-browser-dynamic';
-import { LocalStorage } from 'ngx-store/dist';
+import { LocalStorage } from 'ngx-store';
 
 
 @Component({
@@ -54,12 +54,10 @@ export class LoginComponent implements OnInit {
         this.authenticationService.login(this.myform.value)
             .subscribe(
             data => {
-                const json = data.json();
-
-                if (json.token) {
-                    this.authenticationService.setToken(json.token);
+                if (data['token']) {
+                    this.authenticationService.setToken(data['token']);
                 }
-                this.userInfo = json;
+                this.userInfo = data;
                 this.userInfo.save();
                 // this.router.navigate(['']);
 

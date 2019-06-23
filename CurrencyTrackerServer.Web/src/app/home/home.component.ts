@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { Http } from '@angular/http';
-import { LocalStorage } from 'ngx-store/dist';
+import { LocalStorage } from 'ngx-store';
 
 @Component({
     selector: 'app-home',
