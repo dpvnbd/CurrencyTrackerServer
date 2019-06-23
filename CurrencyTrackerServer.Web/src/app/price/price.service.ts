@@ -1,15 +1,9 @@
 import { Injectable, isDevMode } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { UpdateSource, UpdateType, UpdateSpecial } from '../shared';
-import { Subject } from 'rxjs/Subject';
-import 'rxjs/add/operator/retryWhen';
-import 'rxjs/add/operator/delay';
-import 'rxjs/add/operator/share';
-
-
-import { QueueingSubject } from 'queueing-subject';
+import { Subject ,  Observable } from 'rxjs';
+import { map } from 'rxjs/operators';
 import websocketConnect from 'rxjs-websockets';
-import { Observable } from 'rxjs/Observable';
 import { BaseChangeEntity, ConnectionService } from '../connection/connection.service';
 
 export interface Price {
@@ -35,9 +29,7 @@ export interface PriceSettings {
 @Injectable()
 export class PriceService {
     public prices: Subject<Price[]> = new Subject<Price[]>();
-    public input = new QueueingSubject<string>();
 
-    private messages: Observable<string>;
     public subject: Subject<any>;
 
     constructor(private http: HttpClient, private connection: ConnectionService) {
@@ -45,36 +37,36 @@ export class PriceService {
     }
 
     private mapSubject() {
-        this.subject = <Subject<Price[]>>this.connection.prices
-            .map((message: BaseChangeEntity[]): Price[] => {
+        this.subject = <Subject<Price[]>>this.connection.prices.pipe(
+            map((message: BaseChangeEntity[]): Price[] => {
                 return message;
-            });
+            }));
     }
 
     public getSettings(source: UpdateSource) {
-        return this.http.get('/api/price/settings/' + source).map(data => {
+        return this.http.get('/api/price/settings/' + source).pipe(map(data => {
             const settings = data as PriceSettings;
             if (!settings.prices) {
                 settings.prices = [];
             }
             return settings;
-        }).toPromise();
+        })).toPromise();
     }
 
 
     public getPrice(source: UpdateSource, currency: string) {
-        return this.http.get('/api/price/lastPrice/' + source + '/' + currency).map(data => {
+        return this.http.get('/api/price/lastPrice/' + source + '/' + currency).pipe(map(data => {
             const price = data as Price;
             return price;
-        }).toPromise();
+        })).toPromise();
     }
 
     public saveSettings(source: UpdateSource, settings: PriceSettings) {
-        return this.http.post('/api/price/settings/' + source, settings, { responseType: 'text' }).map(data => data).toPromise();
+        return this.http.post('/api/price/settings/' + source, settings, { responseType: 'text' }).toPromise();
     }
 
     public saveCurrencies(source: UpdateSource, currencies: Price[]) {
-        return this.http.post('/api/price/' + source, currencies, { responseType: 'text' }).map(data => data).toPromise();
+        return this.http.post('/api/price/' + source, currencies, { responseType: 'text' }).toPromise();
     }
 
     public setNotification(source: UpdateSource, enabled: boolean) {

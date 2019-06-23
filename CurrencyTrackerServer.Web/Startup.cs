@@ -37,6 +37,7 @@ using System.Collections.Generic;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using CurrencyTrackerServer.ChangeTrackerService.Concrete.Binance;
 using CurrencyTrackerServer.PriceService.Concrete.Binance;
+using Microsoft.AspNetCore.HttpOverrides;
 
 namespace CurrencyTrackerServer.Web
 {
@@ -102,7 +103,7 @@ namespace CurrencyTrackerServer.Web
       services.AddWebSocketManager();
 
       services.AddDbContext<AppDbContext>(options =>
-        options.UseSqlServer(Configuration.GetConnectionString("ChangesDb")));
+        options.UseNpgsql(Configuration.GetConnectionString("ChangesDb")));
 
       #region Persistence DI
       services.AddSingleton<IDesignTimeDbContextFactory<AppDbContext>, AppDbContextFactory>();
@@ -182,6 +183,11 @@ namespace CurrencyTrackerServer.Web
     public void Configure(IApplicationBuilder app, IHostingEnvironment env,
       IServiceProvider serviceProvider, IApplicationLifetime applicationLifetime)
     {
+      app.UseForwardedHeaders(new ForwardedHeadersOptions
+      {
+        ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto
+      });
+
       var webSocketOptions = new WebSocketOptions()
       {
         KeepAliveInterval = TimeSpan.FromSeconds(120)

@@ -11,7 +11,7 @@ namespace CurrencyTrackerServer.Data.Migrations
             migrationBuilder.AddColumn<bool>(
                 name: "IsEnabled",
                 table: "AspNetUsers",
-                type: "bit",
+                type: "boolean",
                 nullable: false,
                 defaultValue: false);
         }

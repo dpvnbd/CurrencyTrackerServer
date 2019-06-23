@@ -3,7 +3,7 @@ import { ChangesService, Change, ChangeSettings } from './changes.service';
 import { DatePipe, DecimalPipe } from '@angular/common';
 import { NgbModal, ModalDismissReasons } from '@ng-bootstrap/ng-bootstrap';
 import { UpdateSource, UpdateType } from '../shared';
-import { LocalStorage, LocalStorageService } from 'ngx-store/dist';
+import { LocalStorage, LocalStorageService } from 'ngx-store';
 
 @Component({
     selector: 'app-changes',

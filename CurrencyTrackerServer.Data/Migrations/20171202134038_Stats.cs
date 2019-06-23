@@ -12,10 +12,10 @@ namespace CurrencyTrackerServer.Data.Migrations
                 name: "StatsStates",
                 columns: table => new
                 {
-                    Currency = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    Currency = table.Column<string>(type: "varchar(450)", nullable: false),
                     UpdateSource = table.Column<int>(type: "int", nullable: false),
-                    Created = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: false),
-                    LastChangeTime = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: false),
+                    Created = table.Column<DateTimeOffset>(type: "timestamptz", nullable: false),
+                    LastChangeTime = table.Column<DateTimeOffset>(type: "timestamptz", nullable: false),
                     Percentage = table.Column<double>(type: "float", nullable: false)
                 },
                 constraints: table =>

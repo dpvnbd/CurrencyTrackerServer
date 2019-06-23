@@ -21,7 +21,7 @@ namespace CurrencyTrackerServer.Data.Concrete
 
       var connectionString = configuration.GetConnectionString("ChangesDb");
 
-      builder.UseSqlServer(connectionString);
+      builder.UseNpgsql(connectionString);
 
       return new AppDbContext(builder.Options);
     }

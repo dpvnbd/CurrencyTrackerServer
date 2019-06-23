@@ -102,10 +102,10 @@ export interface PriceSettings {
                 <a href="{{linkTemplate}}{{price.currency}}" target="_blank">{{price.currency}}</a>
               </td>
               <td>
-                <input type="number" name="low{{i}}" class="form-control" step="0.00000001" [ngModel]="price.low | number:'1.8-8'" (ngModelChange)="price.low=$event">
+                <input type="number" name="low{{i}}" class="form-control" step="0.00000001" [ngModel]="price.low | number:'1.0-8'" (ngModelChange)="price.low=$event">
               </td>
               <td>
-                <input type="number" name="high{{i}}" class="form-control" step="0.00000001" [ngModel]="price.high | number:'1.8-8'" (ngModelChange)="price.high=$event">
+                <input type="number" name="high{{i}}" class="form-control" step="0.00000001" [ngModel]="price.high | number:'1.0-8'" (ngModelChange)="price.high=$event">
               </td>
               <td class="text-center">
                 <a href="javascript:void(0)" class="close" (click)="removeCurrencyFromSettings(i)">
@@ -186,16 +186,16 @@ export interface PriceSettings {
             <a href="{{externalLink(price.currency)}}" target="_blank">{{price.currency}}</a>
           </td>
           <td class="">
-            <inline-editor type="text" [ngModel]="price.low | number:'1.8-8'" (ngModelChange)="price.low=$event" (onSave)="savePrices()"
-              name="low{{source}}{{i}}" size="8"></inline-editor>
+            <input-editor type="text" [ngModel]="price.low | number:'1.0-8'" (ngModelChange)="price.low=$event" (onSave)="savePrices()"
+             (onEditing)="setBoundsUpdateAllowed(false)" name="low{{source}}{{i}}" size="8" class="input-editor"></input-editor>
 
           </td>
           <td class="">
             {{price.last | number:'1.8-8'}}
           </td>
           <td class="">
-            <inline-editor type="text" [ngModel]="price.high | number:'1.8-8'" (ngModelChange)="price.high=$event" (onSave)="savePrices()"
-              name="high{{source}}{{i}}" size="8"></inline-editor>
+            <input-editor type="text" [ngModel]="price.high | number:'1.0-8'" (ngModelChange)="price.high=$event" (onSave)="savePrices()"
+            (onCancel)="setBoundsUpdateAllowed(true)" name="high{{source}}{{i}}" size="8" class="input-editor"></input-editor>
           </td>
           <td class="">
             <a href="javascript:void(0)" class="close" (click)="removeCurrencyFromMainList(i)">

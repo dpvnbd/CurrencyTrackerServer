@@ -6,7 +6,12 @@
     "module": "es2015",
     "types": [
       "node"
-    ]
+    ],
+    "paths": {
+      "@angular/*": [
+           "../node_modules/@angular/*" 
+        ]
+    },
   },
   "exclude": [
     "test.ts",

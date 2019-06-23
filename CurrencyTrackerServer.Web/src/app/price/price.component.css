@@ -9,3 +9,22 @@
 .table td, .table th {
   padding: 0;
 }
+
+:host ::ng-deep .form-group label  {
+  display: none;
+}
+
+:host ::ng-deep .form-group {
+  margin: 2px;
+}
+
+:host ::ng-deep .input-group {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: flex-start;
+}
+
+:host ::ng-deep .input-group input {
+  width: 7em;
+}

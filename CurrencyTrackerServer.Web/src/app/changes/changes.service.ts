@@ -1,16 +1,10 @@
 import { Injectable, Inject } from '@angular/core';
-import { Subject } from 'rxjs/Subject';
-import 'rxjs/add/operator/map';
-import 'rxjs/add/operator/toPromise';
-import 'rxjs/add/operator/retryWhen';
-import 'rxjs/add/operator/delay';
-
+import { Subject ,  Observable } from 'rxjs';
 import { isDevMode } from '@angular/core';
-import { Observable } from 'rxjs/Rx';
 import { HttpClient } from '@angular/common/http';
 import { UpdateSource, UpdateType } from '../shared';
+import { map} from 'rxjs/operators';
 
-import { QueueingSubject } from 'queueing-subject';
 import { ConnectionService, BaseChangeEntity } from '../connection/connection.service';
 
 export interface Change {
@@ -49,32 +43,32 @@ export class ChangesService {
 
   private mapSubject() {
     this.subject = <Subject<Change[]>>this.connection.changes
-      .map((message: BaseChangeEntity[]): Change[] => {
+      .pipe(map((message: BaseChangeEntity[]): Change[] => {
         return message;
-      });
+      }));
   }
 
 
   public getSettings(source: UpdateSource) {
-    return this.http.get('/api/changes/settings/' + source).map(data => {
+    return this.http.get('/api/changes/settings/' + source).pipe(map(data => {
       const settings = data as ChangeSettings;
       if (!settings.marginCurrencies) {
         settings.marginCurrencies = [];
       }
       return settings;
-    }).toPromise();
+    })).toPromise();
   }
 
   public saveSettings(source: UpdateSource, settings: ChangeSettings) {
-    return this.http.post('/api/changes/settings/' + source, settings, { responseType: 'text' }).map(data => data).toPromise();
+    return this.http.post('/api/changes/settings/' + source, settings, { responseType: 'text' }).pipe(map(data => data)).toPromise();
   }
 
   public getHistory(source: UpdateSource): any {
-    return this.http.get('/api/changes/' + source).map(data => data as Change[]).toPromise();
+    return this.http.get('/api/changes/' + source).pipe(map(data => data as Change[])).toPromise();
   }
 
   public getPoloniexCurrencies(): any {
-    return this.http.get('/api/changes/poloniexCurrencies').map(data => data as string[]).toPromise();
+    return this.http.get('/api/changes/poloniexCurrencies').pipe(map(data => data as string[])).toPromise();
   }
 
   public reset(source: UpdateSource): any {
