@@ -188,9 +188,6 @@ namespace CurrencyTrackerServer.Web
         ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto
       });
 
-      app.UseDeveloperExceptionPage();
-      app.UseFileServer();
-
       var webSocketOptions = new WebSocketOptions()
       {
         KeepAliveInterval = TimeSpan.FromSeconds(120)
@@ -201,9 +198,21 @@ namespace CurrencyTrackerServer.Web
       app.MapWebSocketManager("/notifications",
         serviceProvider.GetRequiredService<NotificationsMessageHandler>());
 
-
+      app.Use(async (context, next) =>
+      {
+        await next();
+        if (context.Response.StatusCode == 404 &&
+            !Path.HasExtension(context.Request.Path.Value) &&
+            !context.Request.Path.Value.StartsWith("/api/"))
+        {
+          context.Request.Path = "/index.html";
+          await next();
+        }
+      });
       app.UseAuthentication();
       app.UseMvcWithDefaultRoute();
+      app.UseDefaultFiles();
+      app.UseStaticFiles();
 
 
       if (env.IsDevelopment())
